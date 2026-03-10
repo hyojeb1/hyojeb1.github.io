@@ -32,7 +32,7 @@ def hello_world():
     print("Hello, world!")
 
 hello_world()
-```
+``` 
 
 ```python title="hello.py"
 def hello_world():
