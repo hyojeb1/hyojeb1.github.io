@@ -1,7 +1,7 @@
 ---
 title: "Python's Context Managers and the with Statement"
 published: 2025-07-15
-draft: false
+draft: true
 description: 'Learn how to use context managers and the with statement in Python for resource management.'
 series: 'Python Basics'
 tags: ['python']

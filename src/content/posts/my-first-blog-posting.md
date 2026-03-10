@@ -2,7 +2,7 @@
 title: '나의 첫 블로그 포스팅'
 published: 2026-03-10
 draft: false
-tags: ['일상', '개발', '첫글']
+tags: ['daily', 'dev', 'first-post']
 ---
 
 안녕하세요! 드디어 GitHub Pages를 이용해 나만의 블로그를 만들었습니다. 

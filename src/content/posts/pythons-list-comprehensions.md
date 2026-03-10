@@ -1,7 +1,7 @@
 ---
 title: "Python's List Comprehensions"
 published: 2025-07-07
-draft: false
+draft: true
 description: 'Learn how to use list comprehensions in Python for concise and readable code.'
 series: 'Python Basics'
 tags: ['python']

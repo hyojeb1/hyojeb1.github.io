@@ -1,7 +1,7 @@
 ---
 title: "JavaScript's Prototypal Inheritance"
 published: 2025-07-13
-draft: false
+draft: true
 description: 'Learn how prototypal inheritance works in JavaScript and its use cases.'
 tags: ['javascript']
 ---

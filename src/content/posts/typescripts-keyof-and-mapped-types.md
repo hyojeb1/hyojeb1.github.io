@@ -1,7 +1,7 @@
 ---
 title: "TypeScript's keyof and Mapped Types"
 published: 2025-07-14
-draft: false
+draft: true
 description: 'Explore the keyof operator and mapped types in TypeScript for advanced type manipulation.'
 tags: ['typescript']
 ---

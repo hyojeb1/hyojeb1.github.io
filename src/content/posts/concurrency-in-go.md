@@ -1,7 +1,7 @@
 ---
 title: 'Concurrency in Go'
 published: 2025-07-04
-draft: false
+draft: true
 description: 'Explore how Go handles concurrency with goroutines and channels.'
 tags: ['go']
 ---

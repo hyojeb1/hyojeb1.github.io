@@ -1,7 +1,7 @@
 ---
 title: "JavaScript's Event Loop Explained"
 published: 2025-07-09
-draft: false
+draft: true
 description: 'Understand how the JavaScript event loop works and its role in asynchronous programming.'
 tags: ['javascript']
 ---

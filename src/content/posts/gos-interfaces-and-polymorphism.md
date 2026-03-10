@@ -1,7 +1,7 @@
 ---
 title: "Go's Interfaces and Polymorphism"
 published: 2025-07-12
-draft: false
+draft: true
 description: 'Explore how Go uses interfaces to achieve polymorphism.'
 tags: ['go']
 ---

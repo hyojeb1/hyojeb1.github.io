@@ -2,9 +2,7 @@ import { defineCollection, z } from 'astro:content'
 import { glob } from 'astro/loaders'
 
 const postsCollection = defineCollection({
-  // Real blog posts now live under src/content/blog.
-  // Example posts from the theme are preserved separately for reference.
-  loader: glob({ pattern: ['**/*.md', '**/*.mdx'], base: './src/content/blog' }),
+  loader: glob({ pattern: ['**/*.md', '**/*.mdx'], base: './src/content/posts' }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
