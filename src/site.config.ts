@@ -134,7 +134,7 @@ const config: SiteConfig = {
     owl: '/owl.webp',
     unicorn: '/unicorn.webp',
     duck: '/duck.webp',
-    swallow: '/jebi_avatar.png',
+    swallow: '/jebi_icon.svg',
   },
 }
 
