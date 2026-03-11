@@ -1,6 +1,6 @@
 ---
 title: 'Showing Off Blog Features'
-published: 2025-07-20
+published: 2026-03-11
 draft: false
 tags: ['astro', 'demo', 'markdown']
 toc: true
@@ -277,3 +277,10 @@ $$
     <input type="checkbox" name="terms" value="agree">
     I agree to the terms and conditions
 </label><br>
+
+### Obsidian Markdown Support
+옵시디언(Obsidian) 앱에서 작성한 마크다운 문법을 Astro 환경에서 완벽하게 렌더링하도록 커스텀 Remark/Rehype 플러그인을 적용했습니다.
+
+* `remarkObsidianCallout`: `> [!info]` 형태의 콜아웃(Admonitions)을 예쁜 UI 박스로 변환
+* `remarkObsidianWikilinkHighlight`: `[[link]]` 형태의 위키링크를 일반 `<a>` 태그로, `==text==`를 형광펜 `<mark>` 태그로 변환
+* **Strict Tag Routing:** 프론트매터의 태그 규칙을 수정하여 `foo:goo` 같은 콜론(:) 기반 태그 라우팅이 정상적으로 동작하도록 보장
