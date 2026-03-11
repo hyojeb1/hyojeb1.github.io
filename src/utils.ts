@@ -219,6 +219,9 @@ export async function getSortedPosts() {
     return import.meta.env.PROD ? data.draft !== true : true
   })
   const sortedPosts = allPosts.sort((a, b) => {
+    if (a.data.published.valueOf() === b.data.published.valueOf()) {
+      return a.id.localeCompare(b.id)
+    }
     return a.data.published < b.data.published ? -1 : 1
   })
   return sortedPosts
