@@ -12,7 +12,19 @@ const postsCollection = defineCollection({
       description: z.string().optional(),
       author: z.string().optional(),
       series: z.string().optional(),
-      tags: z.array(z.string()).optional().default([]),
+      tags: z
+        .array(
+          z
+            .string()
+            .trim()
+            .toLowerCase()
+            .regex(/^[a-z0-9-]+(?::[a-z0-9-]+)*$/, {
+              message:
+                'Tags must be English lowercase letters/numbers and may include colon segments (example: foo:goo).',
+            }),
+        )
+        .optional()
+        .default([]),
       coverImage: z
         .strictObject({
           src: image(),
