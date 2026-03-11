@@ -19,7 +19,7 @@ const config: SiteConfig = {
   // Font imported from @fontsource or elsewhere, used for the entire site.
   // To change this see src/styles/global.css and import a different font.
   // [효제] 언젠가 바꿔야 할 것
-  font: 'JetBrains Mono Variable',
+  font: 'NeoDunggeunmo',
   // For pagination, the number of posts to display per page.
   // The homepage will display half this number in the "Latest Posts" section.
   pageSize: 6,
