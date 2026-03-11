@@ -2,7 +2,7 @@
 title: '[블로그 개발기(2)] 90년대 애니 감성의 픽셀 SVG 프로필 아이콘 만들기'
 published: 2026-03-11
 draft: false
-tags: ['blog-dev', 'svg', 'aseprite', 'inkscape', 'tutorial:svg']
+tags: ['blog-dev', 'svg', 'aseprite', 'inkscape', 'tutorial-svg']
 lang: 'ko'
 series: 'blog-dev'
 toc: true
@@ -10,6 +10,8 @@ coverImage:
   src: './Gemini_Generated_Image_in2hogin2hogin2h.png'
   alt: 'Dua Lipa의 Levitating 뮤직비디오 특유의 몽환적인 파스텔톤 우주와 90년대 셀 애니메이션 감성, 그리고 제비의 색감을 살린 헤드셋 쓴 제비. 게임과 애니메이션을 좋아하는 개발자라는 정체성을 나타낸 이미지'
 ---
+
+# 서두
 
 블로그를 세팅하면서 가장 고민했던 것 중 하나는 바로 **'나를 대표하는 프로필 아이콘을 무엇으로 할까?'**&#8203;였습니다. 흔한 `.ico`나 `.png` 대신, 요즘 웹 트렌드에 맞춰 아무리 확대해도 깨지지 않는 무한 해상도의 `.svg`로 나만의 마스코트를 만들어보기로 했습니다.
 
