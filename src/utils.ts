@@ -235,6 +235,10 @@ abstract class PostsCollationGroup implements CollationGroup<'posts'> {
     this.collations = collations
   }
 
+  protected toCollationSlug(rawTitle: string): string {
+    return slug(rawTitle.trim())
+  }
+
   sortCollationsAlpha(): Collation<'posts'>[] {
     this.collations.sort((a, b) => a.title.localeCompare(b.title))
     return this.collations
@@ -255,7 +259,7 @@ abstract class PostsCollationGroup implements CollationGroup<'posts'> {
   }
 
   add(item: CollectionEntry<'posts'>, collationTitle: string): void {
-    const collationTitleSlug = slug(collationTitle.trim())
+    const collationTitleSlug = this.toCollationSlug(collationTitle)
     const existing = this.collations.find((i) => i.titleSlug === collationTitleSlug)
     if (existing) {
       const alreadyHasThisPost = existing.entries.find((e) => e.id === item.id)
@@ -304,6 +308,10 @@ export class TagsGroup extends PostsCollationGroup {
   // Private constructor to enforce the use of the static build method
   private constructor(title: string, url: string, items: Collation<'posts'>[]) {
     super(title, url, items)
+  }
+
+  protected override toCollationSlug(rawTitle: string): string {
+    return rawTitle.trim().toLowerCase().replace(/\s+/g, '-')
   }
 
   // Factory method to create a SeriesGroup instance with async data fetching

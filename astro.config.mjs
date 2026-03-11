@@ -19,6 +19,8 @@ import rehypeUnwrapImages from 'rehype-unwrap-images'
 import { remarkAdmonitions } from './src/plugins/remark-admonitions' /* Add admonitions */
 import remarkCharacterDialogue from './src/plugins/remark-character-dialogue' /* Custom plugin to handle character admonitions */
 import remarkUnknownDirectives from './src/plugins/remark-unknown-directives' /* Custom plugin to handle unknown admonitions */
+import remarkObsidianCallout from './src/plugins/remark-obsidian-callout' /* Parse Obsidian callouts to directives */
+import remarkObsidianWikilinkHighlight from './src/plugins/remark-obsidian-wikilink-highlight' /* Parse wikilinks + ==highlight== */
 import remarkMath from 'remark-math' /* for latex math support */
 import rehypeKatex from 'rehype-katex' /* again, for latex math support */
 import remarkGemoji from './src/plugins/remark-gemoji' /* for shortcode emoji support */
@@ -34,6 +36,8 @@ export default defineConfig({
       [remarkDescription, { maxChars: 200 }],
       remarkReadingTime,
       remarkDirective,
+      remarkObsidianCallout,
+      remarkObsidianWikilinkHighlight,
       remarkGithubCard,
       remarkAdmonitions,
       [remarkCharacterDialogue, { characters: siteConfig.characters }],

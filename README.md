@@ -64,6 +64,24 @@ Please take a look at `src/site.config.ts` for more information about the config
 
 To add your own content, check out the `src/content` directory. Feel free to remove all the example content and replace it with your own!
 
+## Obsidian Markdown Support (Astro)
+
+To use Obsidian-style markdown (`[[wikilinks]]`, `> [!info]` callouts, `==highlight==`) in this Astro project, add these plugins and register them in `astro.config.mjs`.
+
+Install (if your project does not already include them):
+
+```bash
+npm install remark-directive mdast-util-to-string unist-util-visit
+```
+
+Then enable:
+
+- `remarkObsidianCallout` → converts `> [!info]` style blockquotes into directive nodes
+- `remarkAdmonitions` → renders directives as styled UI boxes
+- `remarkObsidianWikilinkHighlight` → converts `[[link]]` to `<a>` and `==text==` to `<mark>`
+
+Tag rules are validated in `src/content.config.ts` using a strict regex that accepts English lowercase tags and colon segments such as `foo:goo`.
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE.txt).
@@ -76,6 +94,5 @@ This project is licensed under the [MIT License](LICENSE.txt).
 ## 🩷 Sponsor
 
 Consider [buying me a coffee](https://ko-fi.com/stelclementine) to keep me caffeinated while I work on open source projects like this one!
-
 
 [![Star History Chart](https://api.star-history.com/svg?repos=stelcodes/multiterm-astro&type=Date)](https://www.star-history.com/#stelcodes/multiterm-astro&Date)
