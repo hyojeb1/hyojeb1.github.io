@@ -1,7 +1,7 @@
 ---
 avatarImage:
-  src: './avatar.jpg'
-  alt: 'My avatar'
+  src: './jebi_avatar.png'
+  alt: 'jebi_avatar'
 githubCalendar: 'hyojeb1'
 ---
 
