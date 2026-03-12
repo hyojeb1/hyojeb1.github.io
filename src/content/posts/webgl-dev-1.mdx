@@ -1,0 +1,24 @@
+---
+title: '[WebGL] 브라우저에 Hello Triangle 띄우기'
+published: 2026-03-12
+draft: false
+tags: ['webgl', 'graphics']
+lang: 'ko'
+series: 'webgl-study'
+---
+import HelloTriangle from '../../components/HelloTriangle.astro';
+
+# 첫 드로우 콜의 감동
+
+그래픽스 프로그래머라면 피할 수 없는 통과의례, Hello Triangle입니다. 
+Astro의 Zero JS 철학을 뚫고, 브라우저의 메인 스레드를 훔쳐서 렌더링 루프를 돌려보았습니다.
+
+<HelloTriangle />
+
+> [!info] 렌더링 스펙
+> * **API:** 순수 WebGL 1.0
+> * **Shader:** 프래그먼트 셰이더에서 `sin`, `cos` 함수와 `uTime` uniform을 사용해 프레임마다 색상을 연산합니다.
+
+:::swallow
+짜잔! 캔버스 안에서 삼각형이 요동치고 있나요? 이제 버텍스만 꽂아 넣으면 뭐든 그릴 수 있습니다!
+:::

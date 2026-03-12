@@ -1,0 +1,96 @@
+---
+// 서버에서 렌더링할 껍데기(캔버스) UI를 정의합니다.
+---
+<div class="flex justify-center my-8">
+  <canvas id="gl-canvas" width="400" height="400" class="border-2 border-foreground/10 rounded-xl shadow-lg"></canvas>
+</div>
+
+<script>
+  // 클라이언트(브라우저)에서 실행될 순수 렌더링 스크립트입니다.
+  const canvas = document.getElementById('gl-canvas') as HTMLCanvasElement;
+  const gl = canvas.getContext('webgl');
+
+  if (!gl) {
+    console.error('WebGL 컨텍스트를 가져오지 못했습니다. 오로라 엔진은 여기서 멈출 수 없습니다!');
+  } else {
+    // 1. 셰이더 소스 작성 (GLSL)
+    // 버텍스 셰이더: NDC(정규화된 장치 좌표계)로 정점 위치를 잡습니다.
+    const vsSource = `
+      attribute vec4 aVertexPosition;
+      void main() {
+        gl_Position = aVertexPosition;
+      }
+    `;
+
+    // 프래그먼트 셰이더: 픽셀의 색상을 결정합니다. (시간값을 받아 색을 바꿉니다)
+    const fsSource = `
+      precision mediump float;
+      uniform float uTime;
+      void main() {
+        // 시간에 따라 R, G, B 값을 진동시킵니다.
+        gl_FragColor = vec4(abs(sin(uTime)), abs(cos(uTime)), abs(sin(uTime + 1.0)), 1.0);
+      }
+    `;
+
+    // 셰이더 컴파일 헬퍼 함수
+    function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
+      const shader = gl.createShader(type)!;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error('셰이더 컴파일 에러:', gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+      }
+      return shader;
+    }
+
+    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vsSource)!;
+    const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fsSource)!;
+
+    // 2. 셰이더 프로그램(파이프라인) 링크
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    // 3. 버텍스 버퍼(VBO) 생성 및 데이터 바인딩
+    // 정점 3개로 이루어진 삼각형 좌표 (X, Y)
+    const vertices = new Float32Array([
+       0.0,  0.5,
+      -0.5, -0.5,
+       0.5, -0.5,
+    ]);
+    const vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+    // 어트리뷰트 포인터 연결 (Input Layout 설정)
+    const positionAttribLocation = gl.getAttribLocation(program, "aVertexPosition");
+    gl.enableVertexAttribArray(positionAttribLocation);
+    gl.vertexAttribPointer(positionAttribLocation, 2, gl.FLOAT, false, 0, 0);
+
+    // Uniform 변수 위치 가져오기
+    const timeUniformLocation = gl.getUniformLocation(program, "uTime");
+
+    // 4. 메인 렌더링 루프
+    function render(time: number) {
+      // time은 ms 단위로 들어오므로 초 단위로 변환
+      const timeInSeconds = time * 0.001; 
+
+      // 배경 지우기 (Clear Target)
+      gl!.clearColor(0.1, 0.1, 0.12, 1.0);
+      gl!.clear(gl!.COLOR_BUFFER_BIT);
+
+      // Uniform 업데이트 및 드로우 콜!
+      gl!.uniform1f(timeUniformLocation, timeInSeconds);
+      gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+
+      // 다음 프레임 요청 (무한 루프)
+      requestAnimationFrame(render);
+    }
+
+    // 첫 프레임 렌더링 시작
+    requestAnimationFrame(render);
+  }
+</script>

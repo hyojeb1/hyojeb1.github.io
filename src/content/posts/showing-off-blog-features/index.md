@@ -1,5 +1,5 @@
 ---
-title: 'Showing Off Blog Features'
+title: '[how-to] Showing Off Blog Features'
 published: 2026-03-11
 draft: false
 tags: ['astro', 'demo', 'markdown']
