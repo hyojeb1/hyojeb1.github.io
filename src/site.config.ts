@@ -135,6 +135,7 @@ const config: SiteConfig = {
     unicorn: '/unicorn.webp',
     duck: '/duck.webp',
     swallow: '/jebi_icon.svg',
+    cyper: '/Cyper128.png',
   },
 }
 
