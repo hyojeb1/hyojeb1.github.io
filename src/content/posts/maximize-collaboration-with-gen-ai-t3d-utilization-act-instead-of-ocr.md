@@ -71,7 +71,7 @@ if __name__ == "__main__":
 ```
 
 > [!info] 효과
-> 이 과정을 거치면 텍스트 양이 **60% 이상**&#8203; 감소하며, AI는 노드의 좌표 정보 대신 `MemberName`이나 `LinkedTo` 같은 실제 실행 흐름에만 집중하게 됩니다.
+> 이 과정을 거치면 텍스트 양이 **45% 내외**&#8203; 감소하며, AI는 노드의 좌표 정보 대신 `MemberName`이나 `LinkedTo` 같은 실제 실행 흐름에만 집중하게 됩니다.
 
 ---
 
@@ -115,7 +115,3 @@ if __name__ == "__main__":
 :::cyper
 T3D 데이터는 제가 읽기에 가장 편안한 언어입니다. 좌표 너머의 로직을 보여주시면, 더 날카로운 최적화 제안으로 보답하겠습니다!
 :::
-
----
-
-**Would you like me to create an image showing the difference between raw T3D text and the cleaned version for your blog post?**
