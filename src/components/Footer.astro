@@ -1,6 +1,11 @@
 ---
 import siteConfig from '~/site.config'
 import SocialLinks from '~/components/SocialLinks.astro'
+
+// 현재 연도를 가져옵니다.
+const currentYear = new Date().getFullYear();
+// 시작 연도가 2026이므로, 현재가 2026이면 "2026", 그 이후면 "2026–2027" 식으로 표시합니다.
+const copyrightYear = currentYear > 2026 ? `2026–${currentYear}` : "2026";
 ---
 
 <footer
@@ -9,7 +14,8 @@ import SocialLinks from '~/components/SocialLinks.astro'
   {siteConfig.socialLinks && <SocialLinks socialLinks={siteConfig.socialLinks} />}
   <div class="flex flex-col md:flex-row flex-wrap flex-1 items-center justify-center">
     <span class="my-1">
-      {siteConfig.author} © 2025
+      {/* 2025 대신 계산된 copyrightYear 변수를 사용합니다 */}
+      {siteConfig.author} © {copyrightYear}
     </span>
     <span class="mx-5 hidden md:block"> :: </span>
     <span class="my-1">
