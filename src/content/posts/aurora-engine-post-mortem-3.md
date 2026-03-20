@@ -1,6 +1,6 @@
 ---
 title: '[오로라 엔진 회고 시리즈 (3)] Legacy를 넘어 시스템으로: 하드웨어 입력과 추상화 레이어'
-published: 2026-03-12
+published: 2026-03-18
 draft: false
 unlisted: false
 tags: ['cpp', 'directx11', 'aurora-engine', 'game-engine-dev', 'unreal-engine', 'input-system']
