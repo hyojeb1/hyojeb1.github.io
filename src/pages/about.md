@@ -3,4 +3,22 @@ layout: '~/layouts/MarkdownLayout.astro'
 title: About Me
 ---
 
-The laughing kookaburra (Dacelo novaeguineae) is a bird in the kingfisher subfamily Halcyoninae. It is a large robust kingfisher with a whitish head and a brown eye-stripe. The upperparts are mostly dark brown but there is a mottled light-blue patch on the wing coverts. The underparts are cream-white and the tail is barred with rufous and black. The plumage of the male and female birds is similar. The territorial call is a distinctive laugh that is often delivered by several birds at the same time, and is widely used as a stock sound effect in situations that involve a jungle setting.
+## 💡 투명한 소통으로 신뢰를 쌓고, 밝은 에너지로 한계를 돌파합니다.
+
+안녕하세요, 시각적 아름다움과 기술적 집요함을 모두 놓치지 않으려는 그래픽스/엔진 개발자 **장효제**&#8203;입니다.
+
+최동 동료들에게 받은 피드백에서 저를 정의하는 두 단어는 **'밝음'**&#8203;과 **'투명함'**&#8203;이었습니다. 저는 이 특징들을 저만의 개발 동력으로 삼고 있습니다.
+
+### 🔍 투명함: 명확한 공유를 통한 리스크 관리
+협업에서 제가 추구하는 투명함은 '가장 솔직하고 객관적인 공유'입니다. 기술적 이슈나 일정상의 문제를 숨기지 않고 드러내어 팀 전체가 빠르게 리스크를 관리할 수 있도록 돕습니다. 때로는 직설적일 수 있는 피드백을 보완하기 위해, 감정을 배제한 '현상'과 구체적인 '대안'을 함께 제시하며 동료들과 단단한 신뢰를 쌓아갑니다.
+
+### ⚡ 밝음: 꺾이지 않는 회복 탄력성
+저의 밝음은 난관 앞에서도 즐거움을 찾는 회복 탄력성에서 나옵니다. 자체 제작 엔진인 **'Aurora Engine'**&#8203;의 애니메이션 파이프라인을 구축하며 수만 줄의 행렬 코드와 싸울 때도, 이를 좌절이 아닌 '파헤쳐야 할 과제'로 대했습니다. 결국 구면 선형 보간(Slerp)을 활용한 부드러운 스키닝 시스템을 완성해낸 경험은 저를 지치지 않게 만드는 엔진 같은 자산입니다.
+
+### 🛠 관심 분야 및 스킬
+- **Graphics:** DirectX 11, HLSL, C++, Rendering Pipeline
+- **Engine:** Custom Engine (Aurora Engine) Architecture, Math for Games
+- **Tools:** VS Code, Git, Blender
+
+---
+"귀사의 팀원들이 언제든 믿고 기댈 수 있는 든든한 엔진 같은 개발자가 되겠습니다."
