@@ -1,0 +1,199 @@
+---
+title: '[start-unreal-2026] 1주차, 구도부터 시선 유도까지'
+published: 2026-04-09
+draft: false
+unlisted: false
+tags: ['unreal-engine', 'sequencer', 'blockout', 'composition', 'camera', 'start-unreal-2026']
+lang: 'ko'
+series: 'start-unreal-2026'
+---
+
+안녕하세요.  
+이번에는 조금 가볍게, `시작해요 언리얼 2026` 1주차 참여 기록을 남겨 보려고 한다.
+
+기술적으로 엄청 깊게 파고드는 글이라기보다는,  
+이번 주차에서 무엇을 봤고, 어떤 식으로 과제를 풀었는지 정리하는 쪽에 가깝다.
+
+:::swallow
+평소 같으면 원인부터 잡고 구조를 뜯어보는 글로 갔겠지만,  
+이번 건은 일단 기록의 호흡으로 가는 편이 맞아 보였다.
+:::
+
+---
+
+# 전체 이벤트
+
+먼저 `시작해요 언리얼 2026` 전체 이벤트 안내는 아래 글에 정리되어 있다.
+
+- 참고 자료: https://cafe.naver.com/f-e/cafes/27085438/articles/87033?menuid=93&referrerAllArticles=false&page=6  
+  `[출처] ‘시작해요 언리얼 2026’ 이벤트 안내 (언리얼 엔진 공식 카페 (Unreal Engine)) | 작성자 unrealengine`
+
+안내된 이벤트는 다음과 같았다.
+
+## 시청 이벤트
+
+- 라이브 시청 이벤트: 매주 웨비나를 끝까지 시청한 분들 중 60명을 선정해 굿즈 증정
+
+## 도전과제 이벤트
+
+- 도전과제 이벤트: 매주 제출된 과제 중 성실하게 수행한 15명을 선정해 굿즈 증정
+- 도전과제 좋아요 투표 이벤트: 제출작 중 좋아요를 가장 많이 받은 15명에게 굿즈 증정
+- 도전과제 절반 달성 이벤트: 총 4주 중 2주차까지 도전과제를 제출하면 참여자 전원에게 굿즈 증정
+- 도전과제 3주 차 달성 이벤트: 총 4주 중 3주 차까지 모든 도전과제를 제출하면 참여자 전원에게 굿즈 증정
+- 도전과제 완주 이벤트: 4주간 모든 도전과제를 제출한 전원에게 특별 굿즈 증정
+
+이벤트 구조가 꽤 촘촘하게 잡혀 있어서,  
+단순 시청보다도 실제로 뭔가를 만들어 보는 흐름에 힘을 주고 있다는 인상이 있었다.
+
+---
+
+# 1주차에서 배운 것
+
+1주차 수업은 대략 아래 흐름으로 이해했다.
+
+- 엔진 기초 및 스타터팩 활용
+- 시퀀서를 활용한 구도 설계
+- 블록아웃(Blockout) 기법
+- PCG, PLA 같은 차세대 기능 맛보기
+
+특히 이번 주차에서 흥미로웠던 건,  
+시퀀서를 단순히 “영상 만드는 툴”이 아니라 **구도를 먼저 잡는 도구**로 접근한 점이었다.
+
+:::cyper
+시퀀서를 결과물 출력 도구로만 생각하면 사용 범위가 좁아집니다.  
+이번 주차에서는 오히려 카메라 시점을 고정하고, 그 시점을 기준으로 월드의 구조를 설계하는 감각이 더 중요했습니다.
+:::
+
+결국 핵심은 이거였다.
+
+> [!info] 1주차 핵심
+> 디테일을 쌓기 전에,  
+> **무엇을 보여 줄지 먼저 정하고**,  
+> 그다음에 공간과 오브젝트를 배치하는 것.
+
+이 순서를 한 번 익혀 두면,  
+나중에 에셋이 더 좋아져도 구도가 무너지지 않는다.
+
+---
+
+# 내가 제출한 1주차 과제
+
+이번 1주차 도전과제 제출 제목은 아래와 같다.
+
+**[무릉도원: 거울의 결투] 1주차 도전과제를 제출합니다!**
+
+- 최종 제출 본: https://cafe.naver.com/f-e/cafes/27085438/articles/87104?menuid=93&referrerAllArticles=false&page=2  
+  `[출처] [무릉도원: 거울의 결투] 1주차 도전과제를 제출합니다! (언리얼 엔진 공식 카페 (Unreal Engine)) | 작성자 효제비`
+
+과제 설명은 이렇게 적었다.
+
+## 구도와 시선 유도
+
+양옆의 거대한 암벽을 V자 형태로 배치하여  
+시선이 자연스럽게 중앙의 두 캐릭터(오공1 vs 오공2)에게 집중되도록 설계했다.
+
+광활한 대지에 흩뿌려진 돌파편들을 활용해  
+전장의 거친 느낌을 강조했다.
+
+---
+
+# 제출 자료
+
+## GIF
+
+https://cafe.naver.com/common/storyphoto/viewer.html?src=https%3A%2F%2Fcafeptthumb-phinf.pstatic.net%2FMjAyNjA0MDlfMTYy%2FMDAxNzc1NzIzMzA3MzIz.ke2ETPMtSSAL51nngbeRk39VUMs6CAbCUJrjtnSsC74g.9G564WSV0_kz6rMwQImbhKZhHoou9_cDUYoFUEn7vGkg.GIF%2Foutput.gif%3Ftype%3Dw1600
+
+## 이미지 1
+
+https://cafe.naver.com/common/storyphoto/viewer.html?src=https%3A%2F%2Fcafeptthumb-phinf.pstatic.net%2FMjAyNjA0MDlfMTkz%2FMDAxNzc1NzI1MDI1MzU4.pq8WnhS6Z5_bFCwPb-_xuyOoTev_vqcl7xbEYjf96ekg.hAmD0iNb0KC8PSHGAz1mcdLbMPSR58x-acqO-NFqViQg.JPEG%2FSeq_PeachBlossomLand.0058.jpeg%3Ftype%3Dw1600
+
+## 이미지 2
+
+https://cafe.naver.com/common/storyphoto/viewer.html?src=https%3A%2F%2Fcafeptthumb-phinf.pstatic.net%2FMjAyNjA0MDlfMTAg%2FMDAxNzc1NzI0OTM3NzY4.TzAP-5ilasP6iX2v-QOovgNPARBhic01-54Q3NbzfYEg.P2RjilwBGjZopJRJstpbLYKuKJZb0LGoH0J-juy2escg.JPEG%2FSeq_PeachBlossomLand.0144.jpeg%3Ftype%3Dw1600
+
+이번 과제에서는 화려한 기믹을 넣기보다,  
+**양옆의 구조물이 시선을 가운데로 모으는지**,  
+그리고 두 캐릭터가 실제로 대치하는 장면처럼 보이는지를 먼저 봤다.
+
+블록아웃 단계라고 하면 자칫 밋밋하게 생각하기 쉬운데,  
+오히려 이 단계에서 구도가 잡히면 후반 작업이 덜 흔들린다.
+
+---
+
+# 생각보다 마음에 들었던 댓글
+
+이번 글은 사실 댓글 때문에 남기고 싶었다.
+
+질문은 이거였다.
+
+> 혹시 꼬리나 천 시뮬 같은 건 어떻게 구현하셨는지 여쭤봐도 될까요?
+
+그리고 내가 단 답변은 아래와 같다.
+
+> 윈도우에서 제공하는 스크린샷을 사용하지 않았습니다.  
+>  
+> https://dev.epicgames.com/documentation/unreal-engine/rendering-high-quality-frames-with-movie-render-queue-in-unreal-engine  
+> 시퀀서에서 무비랜더큐를 이용하면 영상을 만들어주는데 이때의 1장을 제출했습니다. (시퀀서를 건드리지 않았습니다.)  
+>  
+> 즉 이건 오늘 배우는 내용이 아니었습니다.  
+> 즉 언리얼 엔진에서 제공해주는 속도감(꼬리나 천 시뮬)입니다.
+
+이 답변이 마음에 들었던 이유는,  
+괜히 과장하지 않고 **이번 주차에서 한 것과 하지 않은 것을 분리해서 말했기 때문**이다.
+
+:::swallow
+이건 내가 만들었다기보다,  
+엔진이 이미 잘하고 있는 걸 내가 적절히 가져다 쓴 쪽에 가깝다.
+:::
+
+이런 구분은 의외로 중요하다.  
+특히 학습 기록에서는 더 그렇다.
+
+- 어디까지가 이번 주차에서 배운 내용인지
+- 어디까지가 엔진 기본 기능인지
+- 내가 실제로 조정한 범위가 어디인지
+
+이걸 분리해서 적어 두면,  
+나중에 다시 봤을 때도 기록의 밀도가 훨씬 좋아진다.
+
+---
+
+# 시퀀서를 보는 시선이 조금 달라졌다
+
+처음에는 시퀀서를 결과물 출력용 도구로만 생각했다.  
+그런데 이번 1주차를 거치면서 시퀀서는 조금 다르게 보였다.
+
+- 카메라를 고정해서 장면을 바라보는 기준점이 되고
+- 구도를 먼저 검증하는 도구가 되고
+- 최종 제출 이미지를 안정적으로 뽑아내는 출력 수단이 된다
+
+즉, 시작점과 끝점에 다 걸쳐 있는 도구다.
+
+이번 과제에서 제출한 장면도,  
+단순한 스크린샷보다는 `Movie Render Queue`로 출력한 한 장을 사용하는 편이 결과가 더 안정적이었다.
+
+- 참고 자료: https://dev.epicgames.com/documentation/unreal-engine/rendering-high-quality-frames-with-movie-render-queue-in-unreal-engine
+
+---
+
+# 마무리
+
+이번 1주차는 “대단한 기능 구현”보다는  
+**무엇을 보여 줄지 먼저 정하는 감각**을 다시 확인한 시간에 가까웠다.
+
+- 구도를 먼저 잡고
+- 시선이 모이는 지점을 만들고
+- 블록아웃으로 장면의 큰 덩어리를 세우고
+- 시퀀서로 그 결과를 확인한다
+
+이 흐름이 꽤 마음에 들었다.
+
+그리고 무엇보다,  
+조금 덜 힘을 준 기록도 시리즈 안에서 충분히 의미가 있다는 걸 확인했다.  
+앞으로 이 `start-unreal-2026` 시리즈는  
+그 주차에서 배운 것과 만든 것, 그리고 그때그때 남기고 싶은 생각을 가볍게 묶는 용도로 이어가 보려고 한다.
+
+:::cyper
+구현 로그가 장거리 호흡이라면,  
+이런 주간 기록은 페이스 조절용 체크포인트에 가깝습니다.
+:::
