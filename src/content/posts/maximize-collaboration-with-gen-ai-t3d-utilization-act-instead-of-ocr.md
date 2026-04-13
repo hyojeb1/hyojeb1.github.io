@@ -1,11 +1,11 @@
 ---
-title: '[Unreal] Gen AI와의 협업 효율 극대화하기: OCR 대신 T3D 활용법'
+title: '[unreal-llm] Gen AI와의 협업 효율 극대화하기: OCR 대신 T3D 활용법'
 published: 2026-03-18
 draft: false
 unlisted: false
 tags: ['unreal-engine', 'generative-ai', 'workflow-optimization', 'python']
 lang: 'ko'
-series: 'unreal'
+series: 'unreal-llm'
 ---
 
 개발 과정에서 생성형 AI(Gen AI)는 이제 단순한 보조 도구를 넘어 협업 파트너가 되었습니다. 하지만 언리얼 엔진의 블루프린트를 AI에게 설명하기 위해 매번 스크린샷을 찍고 OCR의 오독을 수정하는 과정은 **유지보수 비용의 증가**&#8203;이자 불필요한 **리소스 낭비**&#8203;입니다.
