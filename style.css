@@ -229,6 +229,7 @@ a {
 
 .media {
   position: relative;
+  aspect-ratio: 16 / 9;
   background: var(--fill);
   border-bottom: 0.5px solid var(--line);
 }
@@ -241,13 +242,6 @@ a {
   background: var(--fill);
 }
 
-.media-featured {
-  height: 150px;
-}
-
-.media-side {
-  height: 100px;
-}
 
 .badge {
   position: absolute;
