@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>장효제 — 게임 클라이언트 / 엔진</title>
+    <meta name="description" content="장효제 포트폴리오." />
+    <link rel="icon" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="#top">장효제</a>
+      <nav class="nav" aria-label="주요">
+        <a href="#work">work</a>
+        <a href="#about">about</a>
+        <a href="#contact">contact</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- [2] 히어로 -->
+      <section class="hero" id="about">
+        <img
+          class="portrait"
+          src="assets/profile.jpg"
+          alt="장효제 프로필 사진"
+          width="168"
+          height="224"
+        />
+        <div class="hero-body">
+          <p class="label">game client / engine</p>
+          <p class="statement">
+            자리표시자 문장입니다. 직함 대신 무엇을 하는 사람인지 두 행 분량으로
+            선언하는 자리입니다.
+          </p>
+          <p class="lede">
+            자리표시자 보조 설명입니다. 어떤 문제를 주로 다루는지, 어떤 방식으로
+            팀에 기여하는지 두세 행 분량으로 적는 자리입니다. 실제 문장은 이후에
+            채웁니다.
+          </p>
+          <p class="links">
+            <a href="assets/resume.pdf">resume.pdf</a>
+            <a href="https://github.com/hyojeb1" rel="noreferrer noopener"
+              >github</a
+            >
+            <a href="#contact">mail</a>
+          </p>
+        </div>
+      </section>
+
+      <!-- [3] 대표 작업 -->
+      <section id="work">
+        <h2 class="label section-label">selected work</h2>
+
+        <!-- 대표 카드 — 한 과정의 마무리. 최신이 위. -->
+        <article class="card card-featured">
+          <div class="media media-featured">
+            <video
+              poster="assets/dog-poster.jpg"
+              muted
+              loop
+              playsinline
+              preload="none"
+              aria-label="D.O.G 플레이 영상"
+            >
+              <source src="assets/dog.mp4" type="video/mp4" />
+            </video>
+            <span class="badge is-pending">playable build</span>
+          </div>
+          <div class="card-body">
+            <div class="card-head">
+              <h3>D.O.G — Donation, O Goddess</h3>
+              <p class="meta">팀 10인 · 2026.04– · 게임 시스템 / UI 아키텍처</p>
+            </div>
+            <p class="body">
+              신 채팅과 미션 대사를 DataTable로 열어 기획자가 조건과 대사를 직접
+              제어하게 만들었지만, Rule · Sequence · Step · Line이 서로를 참조하는
+              구조라 CSV를 직접 고치면 참조가 끊겼습니다. 먼저 검증기만 두어
+              깨진 데이터를 잡는 방향을 시도했는데, 오류를 알려줘도 기획자가 스스로
+              고칠 수는 없었습니다. 그래서 용어와 계약을 먼저 정리한 뒤 편집 자체를
+              도구로 감쌌습니다 — 읽기 전용 뷰어부터 시작해 검증을 통과하지 못하면
+              원본에 반영되지 않게 하고, SHA-256으로 외부 변경을 감지하고, 기획자는
+              대사만 계약은 도구가 책임지도록 경계를 그었습니다. 대사 수정이
+              프로그래머를 기다리지 않게 됐고, 같은 기준으로 Gold · Currency ·
+              Money로 갈려 있던 재화 명명도 Meso 하나로 통일했습니다.
+            </p>
+            <ul class="tags">
+              <li>unreal engine 5</li>
+              <li>c++</li>
+              <li>commonui</li>
+              <li>datatable · csv</li>
+              <li>python</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="card card-featured">
+          <div class="media media-featured">
+            <video
+              poster="assets/aurora-poster.jpg"
+              muted
+              loop
+              playsinline
+              preload="none"
+              aria-label="Aurora Engine 구동 영상"
+            >
+              <source src="assets/aurora.mp4" type="video/mp4" />
+            </video>
+            <span class="badge is-pending">playable build</span>
+          </div>
+          <div class="card-body">
+            <div class="card-head">
+              <h3>Aurora Engine — Dead On Beat</h3>
+              <p class="meta">
+                팀 7인 (개발 3 · 기획 2 · 아트 2) · 2025.12–2026.03 · 애니메이션 ·
+                후처리 · 툴
+              </p>
+            </div>
+            <p class="body">
+              DirectX 11 자체 엔진에 스키닝을 올리자 메시가 터졌고, 폭발을 잡은
+              뒤에도 관절이 뒤틀리는 증상이 남았습니다. 데이터가 잘못됐다고 보고
+              모델 쪽을 먼저 건드렸지만 뒤틀림은 그대로였습니다. 남은 의심은 회전을
+              어떻게 섞고 있느냐였고, 키프레임 사이를 선형으로 보간하던 것을
+              구면보간으로 바꾸자 증상이 사라졌습니다. 원인이 파이프라인이 아니라
+              보간이었음을 확인한 뒤 본 상수버퍼 정렬과 FBX 익스포트 규칙까지
+              정리했고, 애니메이션이 신뢰할 수 있는 토대가 되면서 그 위에 LUT
+              크로스페이드와 Dissolve를 비트와 보스 체력에 연결할 수 있었습니다.
+            </p>
+            <ul class="tags">
+              <li>directx 11</li>
+              <li>c++</li>
+              <li>hlsl</li>
+              <li>imgui</li>
+              <li>assimp</li>
+            </ul>
+            <p class="out">
+              <a href="https://github.com/khjune6421/AuroraEngine" rel="noreferrer noopener"
+                >khjune6421/AuroraEngine ↗</a
+              >
+            </p>
+          </div>
+        </article>
+
+        <!-- 보조 카드 -->
+        <div class="grid">
+          <a class="card card-side" href="https://github.com/hyojeb1" rel="noreferrer noopener">
+            <div class="media media-side">
+              <video
+                poster="assets/proj2-poster.jpg"
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-label="개인 프로젝트 영상"
+              >
+                <source src="assets/proj2.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div class="card-body">
+              <h3>개인 프로젝트 제목</h3>
+              <p class="meta">개인 · 기간</p>
+              <p class="body">
+                자리표시자 본문입니다. 이 카드가 증명하려는 한 가지를 두세 행
+                분량으로 적는 자리입니다.
+              </p>
+              <p class="out">readme ↗</p>
+            </div>
+          </a>
+
+          <a class="card card-side" href="https://github.com/hyojeb1" rel="noreferrer noopener">
+            <div class="media media-side">
+              <video
+                poster="assets/proj3-poster.jpg"
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-label="개인 프로젝트 영상"
+              >
+                <source src="assets/proj3.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div class="card-body">
+              <h3>개인 프로젝트 제목</h3>
+              <p class="meta">개인 · 기간</p>
+              <p class="body">
+                자리표시자 본문입니다. 앞 카드와 다른 것을 증명하도록 두세 행
+                분량으로 적는 자리입니다.
+              </p>
+              <p class="out">readme ↗</p>
+            </div>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- [4] 푸터 -->
+    <footer id="contact">
+      <p class="links">
+        <a href="mailto:EMAIL@EXAMPLE.COM">EMAIL@EXAMPLE.COM</a>
+        <a href="https://github.com/hyojeb1" rel="noreferrer noopener">github</a>
+        <a href="assets/resume.pdf">resume.pdf</a>
+      </p>
+      <p class="meta">© 2026 장효제</p>
+    </footer>
+
+    <script>
+      // hover 재생은 CSS로 불가능해 최소 스크립트로 처리한다.
+      // 데스크톱: hover 시 재생 / 터치: 대표 카드만 자동 재생.
+      ;(function () {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+        if (matchMedia('(hover: hover)').matches) {
+          document.querySelectorAll('.media').forEach(function (m) {
+            var v = m.querySelector('video')
+            m.addEventListener('pointerenter', function () {
+              v.play().catch(function () {})
+            })
+            m.addEventListener('pointerleave', function () {
+              v.pause()
+            })
+          })
+        } else {
+          var f = document.querySelector('.media-featured video')
+          if (f) {
+            f.autoplay = true
+            f.play().catch(function () {})
+          }
+        }
+      })()
+    </script>
+  </body>
+</html>

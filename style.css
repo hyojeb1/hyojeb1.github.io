@@ -1,0 +1,368 @@
+/* ONE Mobile — 한자·가나를 뺀 서브셋. 웹 임베딩 허용 확인됨. */
+@font-face {
+  font-family: 'ONE Mobile';
+  src: url('assets/onemobile-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ONE Mobile Title';
+  src: url('assets/onemobile-title.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ONE Mobile POP';
+  src: url('assets/onemobile-pop.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* 액센트: 미확정. 대표 카드 테두리와 외부 링크 두 곳에만 쓰인다. */
+  --accent: #1f4ed8;
+
+  --bg: #ffffff;
+  --text: #1a1a1c; /* 본문 */
+  --text-2: #4a4a4f; /* 보조 */
+  --text-3: #6e6e73; /* 힌트 — 흰 배경 대비 4.9:1 */
+  --line: rgba(0, 0, 0, 0.14);
+  --fill: #f2f2f0; /* 태그 배경, 미디어 자리 */
+
+  --sans:
+    'ONE Mobile', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+    'Malgun Gothic', 'Helvetica Neue', Arial, sans-serif;
+  /* Title은 단일 굵기 표제용. 가짜 볼드가 생기지 않게 항상 400으로 쓴다. */
+  --title: 'ONE Mobile Title', var(--sans);
+  /* 메타·태그·링크 전용. 고정폭이 아니라 숫자 열은 세로로 맞지 않는다. */
+  --meta: 'ONE Mobile POP', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  --radius: 8px;
+  --gap: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0 auto;
+  max-width: 740px;
+  padding: 0 20px 96px;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 14px/1.65 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---- 공통 조각 ---- */
+
+.label,
+.meta,
+.nav,
+.tags,
+.links,
+.out {
+  font: 400 12px/1.5 var(--meta);
+  color: var(--text-3);
+}
+
+.meta,
+.tags,
+.out {
+  font-size: 11px;
+}
+
+.section-label {
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid var(--line);
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.links a {
+  padding: 5px 10px;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: border-color 150ms, color 150ms;
+}
+
+.links a:hover {
+  border-color: var(--text-3);
+  color: var(--text);
+}
+
+/* ---- [1] 헤더 ---- */
+
+.site-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 0 56px;
+}
+
+.wordmark {
+  font-family: var(--title);
+  font-size: 16px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  gap: 14px;
+}
+
+.nav a {
+  text-decoration: none;
+  transition: color 150ms;
+}
+
+.nav a:hover {
+  color: var(--text);
+}
+
+/* ---- [2] 히어로 ---- */
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-bottom: 72px;
+}
+
+.portrait {
+  flex: 0 0 168px;
+  width: 168px;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: var(--fill);
+  border-radius: 4px;
+}
+
+.hero-body {
+  min-width: 0;
+}
+
+.statement {
+  margin: 10px 0;
+  font-family: var(--title);
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.lede {
+  max-width: 62ch;
+  color: var(--text-2);
+}
+
+.hero .links {
+  margin-top: 18px;
+}
+
+/* ---- [3] 대표 작업 ---- */
+
+.card {
+  display: block;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 150ms;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.card h3 {
+  font-family: var(--title);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.card .body {
+  margin-top: 8px;
+  max-width: 75ch;
+  color: var(--text-2);
+}
+
+/* 미디어 — 파일이 없어도 회색 사각형이 자리를 지킨다 */
+
+.media {
+  position: relative;
+  background: var(--fill);
+  border-bottom: 0.5px solid var(--line);
+}
+
+.media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--fill);
+}
+
+.media-featured {
+  height: 150px;
+}
+
+.media-side {
+  height: 100px;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 0.5px solid var(--line);
+  font: 400 11px/1.4 var(--meta);
+  color: var(--text-3);
+}
+
+.badge.is-pending {
+  opacity: 0.6;
+}
+
+/* 대표 카드 */
+
+.card-featured {
+  border: 2px solid var(--accent);
+  margin-bottom: var(--gap);
+}
+
+.card-featured .card-body {
+  padding: 18px;
+}
+
+.card-featured h3 {
+  font-size: 16px;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: var(--fill);
+}
+
+/* 보조 카드 */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+
+.card-side .body {
+  font-size: 13px;
+}
+
+.card-side:hover {
+  border-color: var(--text-3);
+}
+
+.out {
+  margin-top: 12px;
+  color: var(--accent);
+}
+
+.card-side:hover .out {
+  text-decoration: underline;
+}
+
+.out a {
+  text-decoration: none;
+}
+
+.out a:hover {
+  text-decoration: underline;
+}
+
+/* ---- [4] 푸터 ---- */
+
+footer {
+  margin-top: 72px;
+  padding-top: 20px;
+  border-top: 0.5px solid var(--line);
+}
+
+footer .meta {
+  margin-top: 14px;
+}
+
+/* ---- 반응형 ---- */
+
+@media (max-width: 600px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .portrait {
+    flex-basis: auto;
+    width: 132px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
