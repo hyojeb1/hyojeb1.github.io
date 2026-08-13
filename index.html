@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>장효제 — 게임 클라이언트 / 엔진</title>
     <meta name="description" content="장효제 포트폴리오." />
-    <link rel="icon" href="assets/favicon.svg" />
+    <link rel="icon" href="assets/profile_icon.svg" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="site-header">
       <a class="wordmark" href="#top">장효제</a>
       <nav class="nav" aria-label="주요">
-        <a href="#work">work</a>
+        <a href="#works">works</a>
         <a href="#about">about</a>
         <a href="#contact">contact</a>
       </nav>
@@ -31,27 +31,34 @@
         <div class="hero-body">
           <p class="label">game client / engine</p>
           <p class="statement">
-            자리표시자 문장입니다. 직함 대신 무엇을 하는 사람인지 두 행 분량으로
-            선언하는 자리입니다.
+            엔진을 바닥부터 올리고, 그 위에서 팀이 저를 기다리지 않게 만듭니다.
           </p>
           <p class="lede">
-            자리표시자 보조 설명입니다. 어떤 문제를 주로 다루는지, 어떤 방식으로
-            팀에 기여하는지 두세 행 분량으로 적는 자리입니다. 실제 문장은 이후에
-            채웁니다.
+            DirectX 11과 Direct2D로 엔진을 직접 만들었고, 언리얼에서는 게임
+            시스템과 UI 아키텍처를 맡았습니다. 반복해서 요청받는 일은 기획자가
+            직접 고칠 수 있는 도구로 만들어 넘깁니다.
           </p>
           <p class="links">
-            <a href="assets/resume.pdf">resume.pdf</a>
+            <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
             <a href="https://github.com/hyojeb1" rel="noreferrer noopener"
               >github</a
             >
-            <a href="#contact">mail</a>
+            <a
+              href="https://www.linkedin.com/in/hyoje-jang-645853227/"
+              rel="noreferrer noopener"
+              >linkedin</a
+            >
+            <a href="https://www.youtube.com/@hyojeb1" rel="noreferrer noopener"
+              >youtube</a
+            >
           </p>
+
         </div>
       </section>
 
-      <!-- [3] 대표 작업 -->
-      <section id="work">
-        <h2 class="label section-label">selected work</h2>
+      <!-- [3] 작업물 -->
+      <section id="works">
+        <h2 class="label section-label">works</h2>
 
         <!-- 대표 카드 — 한 과정의 마무리. 최신이 위. -->
         <article class="card card-featured">
@@ -74,16 +81,13 @@
               <p class="meta">팀 10인(기획 3 · 아트 2 · 프밍 5) · 2026.04 ~ · 게임 시스템 / UI 아키텍처</p>
             </div>
             <p class="body">
-              신 채팅과 미션 대사를 DataTable로 열어 기획자가 조건과 대사를 직접
-              제어하게 만들었지만, Rule · Sequence · Step · Line이 서로를 참조하는
-              구조라 CSV를 직접 고치면 참조가 끊겼습니다. 먼저 검증기만 두어
-              깨진 데이터를 잡는 방향을 시도했는데, 오류를 알려줘도 기획자가 스스로
-              고칠 수는 없었습니다. 그래서 용어와 계약을 먼저 정리한 뒤 편집 자체를
-              도구로 감쌌습니다 — 읽기 전용 뷰어부터 시작해 검증을 통과하지 못하면
-              원본에 반영되지 않게 하고, SHA-256으로 외부 변경을 감지하고, 기획자는
-              대사만 계약은 도구가 책임지도록 경계를 그었습니다. 대사 수정이
-              프로그래머를 기다리지 않게 됐고, 같은 기준으로 Gold · Currency ·
-              Money로 갈려 있던 재화 명명도 Meso 하나로 통일했습니다.
+              신 채팅과 미션 대사를 DataTable로 열어 기획자가 직접 제어하게
+              했지만, Rule · Sequence · Step · Line이 서로를 참조하는 구조라 CSV를
+              직접 고치면 참조가 끊겼습니다. 검증기만 두어 깨진 데이터를 잡는
+              방향을 먼저 시도했는데, 오류를 알려줘도 기획자가 스스로 고칠 수는
+              없었습니다. 그래서 계약을 정리한 뒤 편집 자체를 도구로 감쌌습니다 —
+              검증을 통과하지 못하면 원본에 반영되지 않고, 기획자는 대사만,
+              계약은 도구가 책임집니다. 대사 수정이 프로그래머를 기다리지 않습니다.
             </p>
             <ul class="tags">
               <li>unreal engine 5</li>
@@ -107,7 +111,12 @@
             >
               <source src="assets/DeadOnBeat.mp4" type="video/mp4" />
             </video>
-            <span class="badge is-pending">playable build</span>
+            <a
+              class="badge"
+              href="https://dwawawa.itch.io/dead-on-beat"
+              rel="noreferrer noopener"
+              >playable build ↗</a
+            >
           </div>
           <div class="card-body">
             <div class="card-head">
@@ -119,13 +128,11 @@
             </div>
             <p class="body">
               DirectX 11 자체 엔진에 스키닝을 올리자 메시가 터졌고, 폭발을 잡은
-              뒤에도 관절이 뒤틀리는 증상이 남았습니다. 데이터가 잘못됐다고 보고
-              모델 쪽을 먼저 건드렸지만 뒤틀림은 그대로였습니다. 남은 의심은 회전을
-              어떻게 섞고 있느냐였고, 키프레임 사이를 선형으로 보간하던 것을
-              구면보간으로 바꾸자 증상이 사라졌습니다. 원인이 파이프라인이 아니라
-              보간이었음을 확인한 뒤 본 상수버퍼 정렬과 FBX 익스포트 규칙까지
-              정리했고, 애니메이션이 신뢰할 수 있는 토대가 되면서 그 위에 LUT
-              크로스페이드와 Dissolve를 비트와 보스 체력에 연결할 수 있었습니다.
+              뒤에도 관절이 뒤틀렸습니다. 데이터를 의심해 모델 쪽을 먼저 건드렸지만
+              그대로였습니다. 남은 의심은 회전을 섞는 방식이었고, 키프레임 사이를
+              선형으로 보간하던 것을 구면보간으로 바꾸자 사라졌습니다. 애니메이션이
+              신뢰할 수 있는 토대가 되면서, 그 위에 LUT 크로스페이드와 Dissolve를
+              비트와 보스 체력에 연결할 수 있었습니다.
             </p>
             <ul class="tags">
               <li>directx 11</li>
@@ -142,53 +149,120 @@
           </div>
         </article>
 
+        <article class="card card-featured">
+          <div class="media">
+            <img src="assets/sinclair-poster.jpg" alt="Sinclair 플레이 화면" />
+          </div>
+          <div class="card-body">
+            <div class="card-head">
+              <h3>Sinclair</h3>
+              <p class="meta">
+                팀 7인 (기획 3 · 프밍 4) · 2025.07.25 ~ 08.14 · UI 프레임워크 ·
+                씬 흐름
+              </p>
+            </div>
+            <p class="body">
+              상용 엔진 없이 Direct2D 위에 3주 만에 올린 UI 중심 성장 게임에서
+              씬과 UI 골격을 맡았습니다. 초기 구조는 버튼만 마우스 입력을 받아서,
+              클릭이 필요한 요소가 늘 때마다 버튼인 척하는 오브젝트를 만들어야
+              했고 좌표도 절대값이라 창 크기가 바뀌면 배치가 어긋났습니다. 입력을
+              MouseListenerComponent로 떼어내 어떤 오브젝트에든 붙게 하고 좌표를
+              상대값으로 옮겼습니다. 화면에 박혀 있던 대사도 파일에서 읽도록
+              분리해, 튜토리얼과 엔딩 문구를 코드 수정 없이 고칠 수 있게 했습니다.
+            </p>
+            <ul class="tags">
+              <li>direct2d</li>
+              <li>c++</li>
+              <li>win32</li>
+            </ul>
+            <p class="out">
+              <a href="https://github.com/earltrash/Sinclair" rel="noreferrer noopener"
+                >earltrash/Sinclair ↗</a
+              >
+              <a
+                href="https://www.youtube.com/watch?v=eOWUmTv5ZsQ&t=1097s"
+                rel="noreferrer noopener"
+                >플레이 영상 ↗</a
+              >
+            </p>
+          </div>
+        </article>
+
         <!-- 보조 카드 -->
         <div class="grid">
-          <a class="card card-side" href="https://github.com/hyojeb1" rel="noreferrer noopener">
-            <div class="media media-side">
-              <video
-                poster="assets/proj2-poster.jpg"
-                muted
-                loop
-                playsinline
-                preload="none"
-                aria-label="개인 프로젝트 영상"
-              >
-                <source src="assets/proj2.mp4" type="video/mp4" />
-              </video>
-            </div>
-            <div class="card-body">
-              <h3>개인 프로젝트 제목</h3>
-              <p class="meta">개인 · 기간</p>
-              <p class="body">
-                자리표시자 본문입니다. 이 카드가 증명하려는 한 가지를 두세 행
-                분량으로 적는 자리입니다.
-              </p>
-              <p class="out">readme ↗</p>
-            </div>
-          </a>
 
-          <a class="card card-side" href="https://github.com/hyojeb1" rel="noreferrer noopener">
-            <div class="media media-side">
-              <video
-                poster="assets/proj3-poster.jpg"
-                muted
-                loop
-                playsinline
-                preload="none"
-                aria-label="개인 프로젝트 영상"
-              >
-                <source src="assets/proj3.mp4" type="video/mp4" />
-              </video>
+          <article class="card card-side">
+            <div class="media">
+              <img
+                src="assets/gdi-geometrydash-poster.jpg"
+                alt="GDI Geometry Dash 플레이 화면"
+              />
             </div>
             <div class="card-body">
-              <h3>개인 프로젝트 제목</h3>
-              <p class="meta">개인 · 기간</p>
+              <h3>GDI Geometry Dash</h3>
+              <p class="meta">개인 · 2025.06 · 1학기 과제</p>
               <p class="body">
-                자리표시자 본문입니다. 앞 카드와 다른 것을 증명하도록 두세 행
-                분량으로 적는 자리입니다.
+                Win32 GDI만으로 2D 러닝 게임을 모작했습니다. 더블 버퍼링으로
+                깜빡임을 잡고, 게임 루프와 윈도우 메시지 처리를 함께 굴리는 법을
+                여기서 익혔습니다.
               </p>
-              <p class="out">readme ↗</p>
+              <p class="out">
+                <a href="https://github.com/hyojeb1/GDI_GeometryDash" rel="noreferrer noopener"
+                  >repo ↗</a
+                >
+                <a
+                  href="https://www.youtube.com/watch?v=KXAEtupydck"
+                  rel="noreferrer noopener"
+                  >영상 ↗</a
+                >
+              </p>
+            </div>
+          </article>
+
+          <article class="card card-side">
+            <div class="media">
+              <img
+                src="assets/rhythm-console-poster.jpg"
+                alt="눈치박치 콘솔 리듬게임 플레이 화면"
+              />
+            </div>
+            <div class="card-body">
+              <h3>눈치박치</h3>
+              <p class="meta">팀 3인 · 2025.06 · 약 1주</p>
+              <p class="body">
+                C++를 한 달 배운 시점에 셋이 모여 만든 콘솔 리듬게임입니다.
+                리듬 세상의 Glee Club을 모작했습니다.
+              </p>
+              <p class="out">
+                <a href="https://github.com/jinys0527/RhythmHeaven" rel="noreferrer noopener"
+                  >repo ↗</a
+                >
+                <a
+                  href="https://www.youtube.com/watch?v=wPuPFiHqEC0"
+                  rel="noreferrer noopener"
+                  >영상 ↗</a
+                >
+              </p>
+            </div>
+          </article>
+          <a
+            class="card card-side"
+            href="https://www.thisisgame.com/articles/401506"
+            rel="noreferrer noopener"
+          >
+            <div class="media">
+              <img src="assets/press_gamescom2025.jpg" alt="게임스컴 2025 현장" />
+            </div>
+            <div class="card-body">
+              <h3>게임스컴 2025 · 게임인재원 글로벌 현장 교육</h3>
+              <p class="meta">디스이즈게임 · 2025.08.22</p>
+              <p class="body">
+                기획 · 아트 · 프로그래밍에서 우수한 성과를 거둔 게임인재원 학생
+                12명이 선발돼 독일 쾰른 게임스컴을 참관했습니다. 그중 한 명으로
+                참가했습니다.
+              </p>
+              <p class="out">기사 ↗</p>
+
             </div>
           </a>
         </div>
@@ -198,9 +272,8 @@
     <!-- [4] 푸터 -->
     <footer id="contact">
       <p class="links">
-        <a href="mailto:EMAIL@EXAMPLE.COM">EMAIL@EXAMPLE.COM</a>
+        <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
         <a href="https://github.com/hyojeb1" rel="noreferrer noopener">github</a>
-        <a href="assets/resume.pdf">resume.pdf</a>
       </p>
       <p class="meta">© 2026 장효제</p>
     </footer>
@@ -213,6 +286,7 @@
         if (matchMedia('(hover: hover)').matches) {
           document.querySelectorAll('.media').forEach(function (m) {
             var v = m.querySelector('video')
+            if (!v) return
             m.addEventListener('pointerenter', function () {
               v.play().catch(function () {})
             })
