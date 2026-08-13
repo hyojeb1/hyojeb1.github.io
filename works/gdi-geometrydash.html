@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GDI Geometry Dash · 장효제</title>
+    <meta
+      name="description"
+      content="Windows GDI만으로 2D 러닝 게임을 모작한 과제. 더블 버퍼링과 게임 루프, 그리고 다른 환경에서 드러난 한계."
+    />
+    <link rel="icon" href="../assets/profile_icon.svg" />
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="../index.html">
+        <img src="../assets/profile_icon.png" alt="" aria-hidden="true" />
+        장효제
+      </a>
+    </header>
+
+    <main class="detail">
+      <a class="meta back" href="../index.html#works">← works</a>
+
+      <h1>GDI Geometry Dash</h1>
+      <p class="meta">개인 · 2025.06 · 게임인재원 1학기 과제</p>
+
+      <div class="media">
+        <img
+          src="../assets/gdi-geometrydash-poster.jpg"
+          alt="GDI Geometry Dash 플레이 화면"
+        />
+      </div>
+
+      <p class="body">
+        외부 라이브러리 없이 Win32 API와 GDI만으로 2D 러닝 게임을 모작한
+        과제입니다. 스페이스바로 점프해 장애물을 피하고, 충돌하면 게임 오버,
+        일정 점수를 넘기면 클리어합니다.
+      </p>
+      <p class="body">
+        화면이 깜빡이는 문제는 더블 버퍼링으로 잡았고, 키 입력과 화면 갱신의
+        타이밍, 게임 루프와 윈도우 메시지 처리를 함께 굴리는 법을 여기서
+        익혔습니다.
+      </p>
+      <p class="body">
+        개발 환경에서는 문제없이 돌던 것이 다른 컴퓨터에서는 오브젝트 생성이
+        어긋났습니다. 프레임마다 오브젝트를 만들고 버리는 구조라 성능이 환경에
+        따라 결과를 바꾼다는 걸 여기서 처음 겪었고, 오브젝트 풀링과 배경을 한
+        덩어리로 합치는 방향이 답이라는 것도 그때 알았습니다.
+      </p>
+
+      <ul class="tags">
+        <li>c++</li>
+        <li>win32 gdi</li>
+      </ul>
+
+      <p class="out">
+        <a
+          href="https://www.youtube.com/watch?v=KXAEtupydck"
+          rel="noreferrer noopener"
+          >플레이 영상 ↗</a
+        >
+        <a
+          href="https://github.com/hyojeb1/GDI_GeometryDash"
+          rel="noreferrer noopener"
+          >hyojeb1/GDI_GeometryDash ↗</a
+        >
+      </p>
+    </main>
+
+    <footer id="contact">
+      <p class="links">
+        <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
+        <a href="tel:+821039733519">010-3973-3519</a>
+      </p>
+    </footer>
+  </body>
+</html>

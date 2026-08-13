@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sinclair · 장효제</title>
+    <meta
+      name="description"
+      content="Direct2D 위에 3주 만에 올린 UI 중심 성장 게임. 씬과 UI 골격을 맡아 입력을 컴포넌트로 분리하고 대사를 파일로 뺐습니다."
+    />
+    <link rel="icon" href="../assets/profile_icon.svg" />
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="../index.html">
+        <img src="../assets/profile_icon.png" alt="" aria-hidden="true" />
+        장효제
+      </a>
+    </header>
+
+    <main class="detail">
+      <a class="meta back" href="../index.html#works">← works</a>
+
+      <h1>Sinclair</h1>
+      <p class="meta">
+        팀 7인 (기획 3 · 프밍 4) · 2025.07.25 ~ 08.14 · UI 프레임워크 · 씬 흐름
+      </p>
+
+      <div class="media">
+        <img src="../assets/sinclair-poster.jpg" alt="Sinclair 플레이 화면" />
+      </div>
+
+      <p class="body">
+        상용 엔진 없이 Direct2D 위에 3주 만에 올린 UI 중심 성장 게임입니다.
+        튜토리얼에서 클릭으로 규칙을 익힌 뒤 인벤토리 · 강화 · 합성으로 스탯을
+        올리고, Sinclair 1세부터 3세까지 세 번을 플레이하며 조건에 따라 엔딩이
+        갈립니다. 저는 씬과 UI 골격을 맡았습니다.
+      </p>
+      <p class="body">
+        초기 구조는 버튼만 마우스 입력을 받았습니다. 클릭이 필요한 요소가 늘
+        때마다 버튼인 척하는 오브젝트를 만들어야 했고, 좌표도 절대값이라 창
+        크기가 바뀌면 배치가 어긋났습니다. 입력을 MouseListenerComponent로
+        떼어내 어떤 오브젝트에든 붙게 하고, 좌표를 상대값으로 옮겼습니다.
+      </p>
+      <p class="body">
+        대사도 화면에 박혀 있었습니다. 텍스트 뱅크를 파일에서 읽도록 분리해
+        튜토리얼과 엔딩 문구를 코드 수정 없이 고칠 수 있게 했습니다. 그 위에
+        버튼 · 배경 · 텍스트 컴포넌트, 씬 전환과 페이드, 옵션 · 크레딧 창, 엔딩
+        분기와 누적 엔딩 기록을 얹었습니다.
+      </p>
+      <p class="body">
+        렌더 시작과 끝 호출이 씬마다 흩어져 있던 것도 코어로 옮겨 객체 생명주기를
+        한 곳에서 다루도록 정리했습니다.
+      </p>
+
+      <ul class="tags">
+        <li>direct2d</li>
+        <li>c++</li>
+        <li>win32</li>
+      </ul>
+
+      <p class="out">
+        <a
+          href="https://www.youtube.com/watch?v=eOWUmTv5ZsQ&t=1097s"
+          rel="noreferrer noopener"
+          >플레이 영상 ↗</a
+        >
+        <a href="https://github.com/earltrash/Sinclair" rel="noreferrer noopener"
+          >earltrash/Sinclair ↗</a
+        >
+      </p>
+    </main>
+
+    <footer id="contact">
+      <p class="links">
+        <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
+        <a href="tel:+821039733519">010-3973-3519</a>
+      </p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>D.O.G · Donation, O Goddess · 장효제</title>
+    <meta
+      name="description"
+      content="언리얼 5 팀 프로젝트. 게임 시스템과 UI 아키텍처를 맡아, 기획자가 대사와 계약을 스스로 다룰 수 있는 도구를 만들었습니다."
+    />
+    <link rel="icon" href="../assets/profile_icon.svg" />
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="../index.html">
+        <img src="../assets/profile_icon.png" alt="" aria-hidden="true" />
+        장효제
+      </a>
+    </header>
+
+    <main class="detail">
+      <a class="meta back" href="../index.html#works">← works</a>
+
+      <h1>D.O.G · Donation, O Goddess</h1>
+      <p class="meta">
+        팀 10인 (기획 3 · 아트 2 · 프밍 5) · 2026.04 ~ · 게임 시스템 / UI 아키텍처
+      </p>
+
+      <div class="media">
+        <video
+          poster="../assets/dog-poster.jpg"
+          controls
+          muted
+          loop
+          playsinline
+          preload="none"
+          aria-label="D.O.G 플레이 영상"
+        >
+          <source src="../assets/dog.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      <p class="body">
+        신 채팅과 미션 대사를 DataTable로 열어 기획자가 조건과 대사를 직접
+        제어하게 만들었지만, Rule · Sequence · Step · Line이 서로를 참조하는
+        구조라 CSV를 직접 고치면 참조가 끊겼습니다.
+      </p>
+      <p class="body">
+        먼저 검증기만 두어 깨진 데이터를 잡는 방향을 시도했습니다. 오류는
+        잡혔지만, 무엇이 잘못됐는지 알려줘도 기획자가 스스로 고칠 수는
+        없었습니다. 결국 프로그래머를 거쳐야 하는 건 그대로였습니다.
+      </p>
+      <p class="body">
+        그래서 용어와 계약을 먼저 정리한 뒤 편집 자체를 도구로 감쌌습니다. 읽기
+        전용 뷰어부터 시작해 단계적으로 올렸고, 검증을 통과하지 못하면 원본에
+        반영되지 않게 했습니다. SHA-256으로 외부 변경을 감지해 남이 고친 파일을
+        덮어쓰지 않도록 막았고, 기획자는 대사(MessageText)만 만지고 계약 필드는
+        도구가 책임지도록 경계를 그었습니다.
+      </p>
+      <p class="body">
+        그 결과 대사 수정이 프로그래머를 기다리지 않게 됐습니다. 같은 기준으로
+        Gold · Currency · Money로 갈려 있던 재화 명칭도 Meso 하나로 통일해 시스템
+        간 참조가 어긋날 여지를 줄였습니다.
+      </p>
+
+      <ul class="tags">
+        <li>unreal engine 5</li>
+        <li>c++</li>
+        <li>commonui</li>
+        <li>gameplay ability system</li>
+        <li>datatable · csv</li>
+        <li>python · streamlit</li>
+      </ul>
+
+      <p class="meta">
+        저장소가 사설 SVN이라 코드는 공개할 수 없습니다.
+      </p>
+    </main>
+
+    <footer id="contact">
+      <p class="links">
+        <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
+        <a href="tel:+821039733519">010-3973-3519</a>
+      </p>
+    </footer>
+  </body>
+</html>

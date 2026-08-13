@@ -25,6 +25,7 @@
 
 :root {
   /* 액센트. 흰 배경 대비가 낮아 글자색으로 쓰지 않는다.
+     단, 검은색 배경에는 글자색으로 쓴다.
      테두리·밑줄·배경으로만 쓰고 글자는 항상 어두운 색을 유지한다. */
   --accent: #f1ec95;
 
@@ -102,7 +103,7 @@ a {
 
 .section-label {
   padding-bottom: 10px;
-  border-bottom: 0.5px solid var(--line);
+  border-bottom: 2px solid var(--accent);
   margin-bottom: 20px;
   font-weight: 400;
 }
@@ -121,9 +122,11 @@ a {
   transition: border-color 150ms, color 150ms;
 }
 
+/* 노랑은 면으로만 쓸 수 있으니, 강조는 검정 면으로 받는다. */
 .links a:hover {
-  border-color: var(--text-3);
-  color: var(--text);
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
 }
 
 /* ---- [1] 헤더 ---- */
@@ -176,8 +179,8 @@ a {
 }
 
 .portrait {
-  flex: 0 0 168px;
-  width: 168px;
+  flex: 0 0 220px;
+  width: 220px;
   height: auto;
   aspect-ratio: 3 / 4;
   object-fit: cover;
@@ -230,9 +233,9 @@ a {
 /* ---- [3] 대표 작업 ---- */
 
 .card {
-  /* 정사각형 타일. 영상 16:9가 위, 남는 높이가 텍스트 예산이 된다. */
-  display: flex;
-  flex-direction: column;
+  /* 미디어가 카드를 채운다. 글은 그 위에 뜬다. */
+  position: relative;
+  display: block;
   aspect-ratio: 1 / 1;
   border: 0.5px solid var(--line);
   border-radius: var(--radius);
@@ -241,41 +244,49 @@ a {
   transition: border-color 150ms;
 }
 
-.card-body {
+/* 미디어가 카드를 채우고, 글은 그 위에 칩으로 뜬다.
+   칩은 전부 불투명이라 배경 영상이 밝든 어둡든 대비가 보장된다. */
+.card-overlay {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  padding: 16px;
+  align-items: flex-start;
+  gap: 6px;
 }
 
-.card h3 {
+.chip {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--text);
+}
+
+.card-overlay h3.chip {
   font-family: var(--title);
   font-size: 15px;
   font-weight: 400;
-  line-height: 1.4;
 }
 
-.card .body {
-  margin-top: 8px;
-  max-width: 75ch;
-  color: var(--text-2);
-  /* 예산을 넘기면 조용히 잘리지 않고 말줄임으로 드러난다. */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 7;
-  line-clamp: 7;
-  overflow: hidden;
+.chip.period {
+  font: 400 11px/1.5 var(--meta);
+}
+
+/* 밝은 화면 위에서는 검정 칩. 카드에 chips-dark를 붙이면 전체가 바뀐다. */
+.chips-dark .chip,
+.chips-dark .tags li {
+  background: var(--text);
+  color: var(--accent);
 }
 
 /* 미디어 — 파일이 없어도 회색 사각형이 자리를 지킨다 */
 
 .media {
-  position: relative;
-  flex: 0 0 auto;
-  aspect-ratio: 16 / 9;
+  position: absolute;
+  inset: 0;
   background: var(--fill);
-  border-bottom: 0.5px solid var(--line);
 }
 
 .media img,
@@ -304,17 +315,19 @@ a {
   opacity: 0.6;
 }
 
-/* 활성 배지 — 실제 플레이 가능한 빌드가 있을 때만 액센트를 칠한다. */
-a.badge {
+/* 실제 플레이 가능한 빌드가 있을 때만 액센트를 칠한다.
+   빌드로 가는 링크는 상세 페이지에 있다. */
+.badge.is-live {
   background: var(--accent);
   border-color: transparent;
   color: var(--text);
-  text-decoration: none;
-  transition: filter 150ms;
 }
 
-a.badge:hover {
-  filter: brightness(0.94);
+/* 밝은 화면 위에서 노랑이 묻힐 때 쓴다. */
+.badge.is-dark {
+  background: var(--text);
+  border-color: transparent;
+  color: var(--accent);
 }
 
 .out {
@@ -323,35 +336,14 @@ a.badge:hover {
   gap: 12px;
 }
 
-/* 대표 카드 */
-
 .card-featured {
   border: 2px solid var(--accent);
-}
-
-.card-featured .card-body {
-  padding: 18px;
-}
-
-.card-featured h3 {
-  font-size: 16px;
-}
-
-.card-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
-  flex: 0 0 auto;
   gap: 6px;
-  margin-top: auto;
-  padding-top: 14px;
   padding: 0;
   list-style: none;
 }
@@ -359,10 +351,9 @@ a.badge:hover {
 .tags li {
   padding: 3px 9px;
   border-radius: 9999px;
-  background: var(--fill);
+  background: var(--accent);
+  color: var(--text-2);
 }
-
-/* 보조 카드 */
 
 /* 대표·보조가 한 그리드에 산다. 대표는 2×2, 보조는 1×1.
    카드는 시간순으로 놓고, 남는 칸은 비워 둔다. */
@@ -372,30 +363,15 @@ a.badge:hover {
   gap: var(--gap);
 }
 
+/* 대표는 가로 2칸, 높이는 보조 카드와 같은 한 칸.
+   2.07 = (2칸 + 간격) / 1칸. 옆칸이 비어도 높이가 어긋나지 않게 직접 건다. */
 .card-featured {
   grid-column: span 2;
-  grid-row: span 2;
-}
-
-.card-side .body {
-  font-size: 13px;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  aspect-ratio: 2.07 / 1;
 }
 
 .card-side:hover {
   border-color: var(--text-3);
-}
-
-.out {
-  flex: 0 0 auto;
-  margin-top: auto;
-  padding-top: 12px;
-  color: var(--text);
-}
-
-.card-side:hover .out {
-  text-decoration: underline;
 }
 
 /* 액센트를 형광펜처럼. 글자는 어둡게 유지해 대비를 지킨다. */
@@ -411,12 +387,65 @@ a.badge:hover {
   background-color: var(--accent);
 }
 
+/* ---- 상세 페이지 ---- */
+
+.detail {
+  max-width: 720px;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 28px;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--text);
+}
+
+.detail h1 {
+  font-family: var(--title);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.detail .meta {
+  margin-top: 8px;
+}
+
+.detail .media {
+  margin: 24px 0;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* 상세에서는 자르지 않는다. 여기가 전문을 읽는 자리다. */
+.detail .body {
+  display: block;
+  max-width: none;
+  overflow: visible;
+  color: var(--text);
+}
+
+.detail .body + .body {
+  margin-top: 16px;
+}
+
+.detail .tags,
+.detail .out {
+  margin-top: 24px;
+  padding-top: 0;
+}
+
 /* ---- [4] 푸터 ---- */
 
 footer {
   margin-top: 72px;
   padding-top: 20px;
-  border-top: 0.5px solid var(--line);
+  border-top: 2px solid var(--accent);
 }
 
 /* ---- 반응형 ---- */
@@ -432,10 +461,12 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  /* 1열에서는 2칸을 걸칠 곳이 없다. */
+  /* 1열에서는 2칸을 걸칠 곳이 없다. 미디어와 칩이 모두 절대 위치라
+     비율을 풀면 카드 높이가 0이 된다. 반드시 비율을 준다. */
+  .card,
   .card-featured {
     grid-column: auto;
-    grid-row: auto;
+    aspect-ratio: 16 / 9;
   }
 
   .hero {
@@ -446,19 +477,6 @@ footer {
 
   .portrait {
     flex-basis: auto;
-    width: 132px;
-  }
-
-  /* 좁은 폭에서 정사각형은 텍스트를 담지 못한다. 영상 16:9만 유지하고
-     카드는 내용만큼 늘어난다. */
-  .card {
-    aspect-ratio: auto;
-  }
-
-  .card .body {
-    display: block;
-    -webkit-line-clamp: unset;
-    line-clamp: unset;
-    overflow: visible;
+    width: 160px;
   }
 }

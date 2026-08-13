@@ -65,92 +65,54 @@
 
         <!-- 대표 카드 — 한 과정의 마무리. 최신이 위. -->
         <div class="grid">
-        <article class="card card-featured">
-          <div class="media media-featured">
-            <video
-              poster="assets/dog-poster.jpg"
-              muted
-              loop
-              playsinline
-              preload="none"
-              aria-label="D.O.G 플레이 영상"
-            >
-              <source src="assets/dog.mp4" type="video/mp4" />
-            </video>
-            <span class="badge is-pending">playable build</span>
-          </div>
-          <div class="card-body">
-            <div class="card-head">
-              <h3>D.O.G · Donation, O Goddess</h3>
-              <p class="meta">팀 10인(기획 3 · 아트 2 · 프밍 5) · 2026.04 ~ · 게임 시스템 / UI 아키텍처</p>
-            </div>
-            <p class="body">
-              신 채팅과 미션 대사를 DataTable로 열어 기획자가 직접 제어하게
-              했지만, Rule · Sequence · Step · Line이 서로를 참조하는 구조라 CSV를
-              직접 고치면 참조가 끊겼습니다. 검증기만 두어 깨진 데이터를 잡는
-              방향을 먼저 시도했는데, 오류를 알려줘도 기획자가 스스로 고칠 수는
-              없었습니다. 그래서 계약을 정리한 뒤 편집 자체를 도구로 감쌌습니다.
-              검증을 통과하지 못하면 원본에 반영되지 않고, 기획자는 대사만,
-              계약은 도구가 책임집니다. 대사 수정이 프로그래머를 기다리지 않습니다.
-            </p>
-            <ul class="tags">
-              <li>unreal engine 5</li>
-              <li>c++</li>
-              <li>commonui</li>
-              <li>datatable · csv</li>
-              <li>python</li>
-            </ul>
-          </div>
-        </article>
-        <article class="card card-featured">
-          <div class="media media-featured">
-            <video
-              poster="assets/DeadOnBeat-poster.png"
-              muted
-              loop
-              playsinline
-              preload="none"
-              aria-label="Aurora Engine에서 DeadOnBeat 구동 영상"
-            >
-              <source src="assets/DeadOnBeat.mp4" type="video/mp4" />
-            </video>
-            <a
-              class="badge"
-              href="https://dwawawa.itch.io/dead-on-beat"
-              rel="noreferrer noopener"
-              >playable build ↗</a
-            >
-          </div>
-          <div class="card-body">
-            <div class="card-head">
-              <h3>Aurora Engine · Dead On Beat</h3>
-              <p class="meta">
-                팀 7인 (기획 2 · 아트 2 · 프밍 3) · 2025.1 ~ 2026.02 · 애니메이션 ·
-                후처리 · 툴
-              </p>
-            </div>
-            <p class="body">
-              DirectX 11 자체 엔진에 스키닝을 올리자 메시가 터졌고, 폭발을 잡은
-              뒤에도 관절이 뒤틀렸습니다. 데이터를 의심해 모델 쪽을 먼저 건드렸지만
-              그대로였습니다. 남은 의심은 회전을 섞는 방식이었고, 키프레임 사이를
-              선형으로 보간하던 것을 구면보간으로 바꾸자 사라졌습니다. 애니메이션이
-              신뢰할 수 있는 토대가 되면서, 그 위에 LUT 크로스페이드와 Dissolve를
-              비트와 보스 체력에 연결할 수 있었습니다.
-            </p>
-            <ul class="tags">
-              <li>directx 11</li>
-              <li>c++</li>
-              <li>hlsl</li>
-              <li>imgui</li>
-              <li>assimp</li>
-            </ul>
-            <p class="out">
-              <a href="https://github.com/khjune6421/AuroraEngine" rel="noreferrer noopener"
-                >khjune6421/AuroraEngine ↗</a
+          <a class="card card-featured  chips-dark" href="works/dog.html">
+            <div class="media">
+              <video
+                poster="assets/dog-poster.jpg"
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-label="D.O.G 플레이 영상"
               >
-            </p>
-          </div>
-        </article>
+                <source src="assets/dog.mp4" type="video/mp4" />
+              </video>
+              <span class="badge is-pending">playable build</span>
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip">D.O.G · Donation, O Goddess</h3>
+              <p class="chip period">2026.04 ~</p>
+              <ul class="tags">
+                <li>unreal engine 5</li>
+                <li>c++</li>
+                <li>commonui</li>
+              </ul>
+            </div>
+          </a>
+          <a class="card card-featured  chips-dark" href="works/aurora.html">
+            <div class="media">
+              <video
+                poster="assets/DeadOnBeat-poster.png"
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-label="Aurora Engine에서 Dead On Beat 구동 영상"
+              >
+                <source src="assets/DeadOnBeat.mp4" type="video/mp4" />
+              </video>
+              <span class="badge is-dark">playable build</span>
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip">Aurora Engine · Dead On Beat</h3>
+              <p class="chip period">2025.12 ~ 2026.03</p>
+              <ul class="tags">
+                <li>directx 11</li>
+                <li>c++</li>
+                <li>hlsl</li>
+              </ul>
+            </div>
+          </a>
           <a
             class="card card-side"
             href="https://www.thisisgame.com/articles/401506"
@@ -159,111 +121,57 @@
             <div class="media">
               <img src="assets/press_gamescom2025.jpg" alt="게임스컴 2025 현장" />
             </div>
-            <div class="card-body">
-              <h3>게임스컴 2025 · 게임인재원 글로벌 현장 교육</h3>
-              <p class="meta">디스이즈게임 · 2025.08.22</p>
-              <p class="body">
-                기획 · 아트 · 프로그래밍에서 우수한 성과를 거둔 게임인재원 학생
-                12명이 선발돼 독일 쾰른 게임스컴을 참관했습니다. 그중 한 명으로
-                참가했습니다.
-              </p>
-              <p class="out">기사 ↗</p>
-
+            <div class="card-overlay">
+              <h3 class="chip">게임스컴 2025 · 게임인재원</h3>
+              <p class="chip period">2025.08.22</p>
+              <ul class="tags">
+                <li>디스이즈게임</li>
+              </ul>
             </div>
           </a>
-        <article class="card card-featured">
-          <div class="media">
-            <img src="assets/sinclair-poster.jpg" alt="Sinclair 플레이 화면" />
-          </div>
-          <div class="card-body">
-            <div class="card-head">
-              <h3>Sinclair</h3>
-              <p class="meta">
-                팀 7인 (기획 3 · 프밍 4) · 2025.07.25 ~ 08.14 · UI 프레임워크 ·
-                씬 흐름
-              </p>
-            </div>
-            <p class="body">
-              상용 엔진 없이 Direct2D 위에 3주 만에 올린 UI 중심 성장 게임에서
-              씬과 UI 골격을 맡았습니다. 초기 구조는 버튼만 마우스 입력을 받아서,
-              클릭이 필요한 요소가 늘 때마다 버튼인 척하는 오브젝트를 만들어야
-              했고 좌표도 절대값이라 창 크기가 바뀌면 배치가 어긋났습니다. 입력을
-              MouseListenerComponent로 떼어내 어떤 오브젝트에든 붙게 하고 좌표를
-              상대값으로 옮겼습니다. 화면에 박혀 있던 대사도 파일에서 읽도록
-              분리해, 튜토리얼과 엔딩 문구를 코드 수정 없이 고칠 수 있게 했습니다.
-            </p>
-            <ul class="tags">
-              <li>direct2d</li>
-              <li>c++</li>
-              <li>win32</li>
-            </ul>
-            <p class="out">
-              <a href="https://github.com/earltrash/Sinclair" rel="noreferrer noopener"
-                >earltrash/Sinclair ↗</a
-              >
-              <a
-                href="https://www.youtube.com/watch?v=eOWUmTv5ZsQ&t=1097s"
-                rel="noreferrer noopener"
-                >플레이 영상 ↗</a
-              >
-            </p>
-          </div>
-        </article>
-          <article class="card card-side">
+          <a class="card card-featured" href="works/sinclair.html">
             <div class="media">
-              <img
-                src="assets/gdi-geometrydash-poster.jpg"
-                alt="GDI Geometry Dash 플레이 화면"
-              />
+              <img src="assets/sinclair-poster.jpg" alt="Sinclair 플레이 화면" />
             </div>
-            <div class="card-body">
-              <h3>GDI Geometry Dash</h3>
-              <p class="meta">개인 · 2025.06 · 1학기 과제</p>
-              <p class="body">
-                Win32 GDI만으로 2D 러닝 게임을 모작했습니다. 더블 버퍼링으로
-                깜빡임을 잡고, 게임 루프와 윈도우 메시지 처리를 함께 굴리는 법을
-                여기서 익혔습니다.
-              </p>
-              <p class="out">
-                <a href="https://github.com/hyojeb1/GDI_GeometryDash" rel="noreferrer noopener"
-                  >repo ↗</a
-                >
-                <a
-                  href="https://www.youtube.com/watch?v=KXAEtupydck"
-                  rel="noreferrer noopener"
-                  >영상 ↗</a
-                >
-              </p>
+            <div class="card-overlay">
+              <h3 class="chip">Sinclair</h3>
+              <p class="chip period">2025.07 ~ 08</p>
+              <ul class="tags">
+                <li>direct2d</li>
+                <li>c++</li>
+                <li>win32</li>
+              </ul>
             </div>
-          </article>
-          <article class="card card-side">
+          </a>
+          <a class="card card-side" href="works/gdi-geometrydash.html">
             <div class="media">
-              <img
-                src="assets/rhythm-console-poster.jpg"
-                alt="눈치박치 콘솔 리듬게임 플레이 화면"
-              />
+              <img src="assets/gdi-geometrydash-poster.jpg" alt="GDI Geometry Dash 플레이 화면" />
             </div>
-            <div class="card-body">
-              <h3>눈치박치</h3>
-              <p class="meta">팀 3인 · 2025.06 · 약 1주</p>
-              <p class="body">
-                C++를 한 달 배운 시점에 셋이 모여 만든 콘솔 리듬게임입니다.
-                리듬 세상의 Glee Club을 모작했습니다.
-              </p>
-              <p class="out">
-                <a href="https://github.com/jinys0527/RhythmHeaven" rel="noreferrer noopener"
-                  >repo ↗</a
-                >
-                <a
-                  href="https://www.youtube.com/watch?v=wPuPFiHqEC0"
-                  rel="noreferrer noopener"
-                  >영상 ↗</a
-                >
-              </p>
+            <div class="card-overlay">
+              <h3 class="chip">GDI Geometry Dash</h3>
+              <p class="chip period">2025.06</p>
+              <ul class="tags">
+                <li>c++</li>
+                <li>win32 gdi</li>
+              </ul>
             </div>
-          </article>
+          </a>
+          <a class="card card-side" href="works/rhythm-console.html">
+            <div class="media">
+              <img src="assets/rhythm-console-poster.jpg" alt="눈치박치 콘솔 리듬게임 플레이 화면" />
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip">눈치박치</h3>
+              <p class="chip period">2025.06</p>
+              <ul class="tags">
+                <li>c++</li>
+                <li>console</li>
+              </ul>
+            </div>
+          </a>
         </div>
       </section>
+
     </main>
 
     <!-- [4] 푸터 -->
