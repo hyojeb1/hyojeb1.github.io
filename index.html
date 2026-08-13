@@ -3,19 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>장효제 — 게임 클라이언트 / 엔진</title>
+    <title>장효제 · 게임 클라이언트 / 엔진</title>
     <meta name="description" content="장효제 포트폴리오." />
     <link rel="icon" href="assets/profile_icon.svg" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="site-header">
-      <a class="wordmark" href="#top">장효제</a>
-      <nav class="nav" aria-label="주요">
-        <a href="#works">works</a>
-        <a href="#about">about</a>
-        <a href="#contact">contact</a>
-      </nav>
+      <a class="wordmark" href="#top">
+        <img src="assets/profile_icon.png" alt="" aria-hidden="true" />
+        장효제
+      </a>
     </header>
 
     <main id="top">
@@ -38,6 +36,11 @@
             시스템과 UI 아키텍처를 맡았습니다. 반복해서 요청받는 일은 기획자가
             직접 고칠 수 있는 도구로 만들어 넘깁니다.
           </p>
+          <ul class="meta facts">
+            <li><span>2020.03~</span><span>동국대학교 컴퓨터공학</span><span>3.38/4.5</span></li>
+            <li><span>2020.09~2022.08</span><span>공군 통신병</span></li>
+            <li><span>2025.01~</span><span>게임인재원 7기</span></li>
+          </ul>
           <p class="links">
             <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
             <a href="https://github.com/hyojeb1" rel="noreferrer noopener"
@@ -61,6 +64,7 @@
         <h2 class="label section-label">works</h2>
 
         <!-- 대표 카드 — 한 과정의 마무리. 최신이 위. -->
+        <div class="grid">
         <article class="card card-featured">
           <div class="media media-featured">
             <video
@@ -77,7 +81,7 @@
           </div>
           <div class="card-body">
             <div class="card-head">
-              <h3>D.O.G — Donation, O Goddess</h3>
+              <h3>D.O.G · Donation, O Goddess</h3>
               <p class="meta">팀 10인(기획 3 · 아트 2 · 프밍 5) · 2026.04 ~ · 게임 시스템 / UI 아키텍처</p>
             </div>
             <p class="body">
@@ -85,7 +89,7 @@
               했지만, Rule · Sequence · Step · Line이 서로를 참조하는 구조라 CSV를
               직접 고치면 참조가 끊겼습니다. 검증기만 두어 깨진 데이터를 잡는
               방향을 먼저 시도했는데, 오류를 알려줘도 기획자가 스스로 고칠 수는
-              없었습니다. 그래서 계약을 정리한 뒤 편집 자체를 도구로 감쌌습니다 —
+              없었습니다. 그래서 계약을 정리한 뒤 편집 자체를 도구로 감쌌습니다.
               검증을 통과하지 못하면 원본에 반영되지 않고, 기획자는 대사만,
               계약은 도구가 책임집니다. 대사 수정이 프로그래머를 기다리지 않습니다.
             </p>
@@ -98,7 +102,6 @@
             </ul>
           </div>
         </article>
-
         <article class="card card-featured">
           <div class="media media-featured">
             <video
@@ -120,7 +123,7 @@
           </div>
           <div class="card-body">
             <div class="card-head">
-              <h3>Aurora Engine — Dead On Beat</h3>
+              <h3>Aurora Engine · Dead On Beat</h3>
               <p class="meta">
                 팀 7인 (기획 2 · 아트 2 · 프밍 3) · 2025.1 ~ 2026.02 · 애니메이션 ·
                 후처리 · 툴
@@ -148,7 +151,26 @@
             </p>
           </div>
         </article>
+          <a
+            class="card card-side"
+            href="https://www.thisisgame.com/articles/401506"
+            rel="noreferrer noopener"
+          >
+            <div class="media">
+              <img src="assets/press_gamescom2025.jpg" alt="게임스컴 2025 현장" />
+            </div>
+            <div class="card-body">
+              <h3>게임스컴 2025 · 게임인재원 글로벌 현장 교육</h3>
+              <p class="meta">디스이즈게임 · 2025.08.22</p>
+              <p class="body">
+                기획 · 아트 · 프로그래밍에서 우수한 성과를 거둔 게임인재원 학생
+                12명이 선발돼 독일 쾰른 게임스컴을 참관했습니다. 그중 한 명으로
+                참가했습니다.
+              </p>
+              <p class="out">기사 ↗</p>
 
+            </div>
+          </a>
         <article class="card card-featured">
           <div class="media">
             <img src="assets/sinclair-poster.jpg" alt="Sinclair 플레이 화면" />
@@ -187,10 +209,6 @@
             </p>
           </div>
         </article>
-
-        <!-- 보조 카드 -->
-        <div class="grid">
-
           <article class="card card-side">
             <div class="media">
               <img
@@ -218,7 +236,6 @@
               </p>
             </div>
           </article>
-
           <article class="card card-side">
             <div class="media">
               <img
@@ -245,26 +262,6 @@
               </p>
             </div>
           </article>
-          <a
-            class="card card-side"
-            href="https://www.thisisgame.com/articles/401506"
-            rel="noreferrer noopener"
-          >
-            <div class="media">
-              <img src="assets/press_gamescom2025.jpg" alt="게임스컴 2025 현장" />
-            </div>
-            <div class="card-body">
-              <h3>게임스컴 2025 · 게임인재원 글로벌 현장 교육</h3>
-              <p class="meta">디스이즈게임 · 2025.08.22</p>
-              <p class="body">
-                기획 · 아트 · 프로그래밍에서 우수한 성과를 거둔 게임인재원 학생
-                12명이 선발돼 독일 쾰른 게임스컴을 참관했습니다. 그중 한 명으로
-                참가했습니다.
-              </p>
-              <p class="out">기사 ↗</p>
-
-            </div>
-          </a>
         </div>
       </section>
     </main>
@@ -273,9 +270,8 @@
     <footer id="contact">
       <p class="links">
         <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
-        <a href="https://github.com/hyojeb1" rel="noreferrer noopener">github</a>
+        <a href="tel:+821039733519">010-3973-3519</a>
       </p>
-      <p class="meta">© 2026 장효제</p>
     </footer>
 
     <script>
