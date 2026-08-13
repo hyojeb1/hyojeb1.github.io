@@ -122,11 +122,11 @@ a {
   transition: border-color 150ms, color 150ms;
 }
 
-/* 노랑은 면으로만 쓸 수 있으니, 강조는 검정 면으로 받는다. */
+/* 노랑 면에는 검정 글자, 검정 면에는 노랑 글자. 이 반전만 쓴다. */
 .links a:hover {
   background: var(--text);
   border-color: var(--text);
-  color: var(--bg);
+  color: var(--accent);
 }
 
 /* ---- [1] 헤더 ---- */
@@ -251,10 +251,28 @@ a {
   left: 12px;
   right: 12px;
   bottom: 12px;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
+}
+
+/* 제목이 실제 링크이고, ::after가 카드 전체를 덮어 어디를 눌러도 열린다.
+   <a> 중첩 없이 배지도 각자 링크로 산다. */
+.stretched {
+  text-decoration: none;
+}
+
+.stretched::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.card:hover .stretched {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .chip {
@@ -299,10 +317,18 @@ a {
 }
 
 
-.badge {
+/* 좌상단 배지 줄. 카드 링크(::after) 위에 얹혀야 눌린다. */
+.card-badges {
   position: absolute;
   top: 10px;
   left: 10px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
   padding: 3px 8px;
   border-radius: 4px;
   background: var(--bg);
@@ -313,6 +339,17 @@ a {
 
 .badge.is-pending {
   opacity: 0.6;
+}
+
+a.badge {
+  text-decoration: none;
+  transition: background-color 150ms, color 150ms, border-color 150ms;
+}
+
+a.badge:hover {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--accent);
 }
 
 /* 실제 플레이 가능한 빌드가 있을 때만 액센트를 칠한다.
@@ -352,7 +389,7 @@ a {
   padding: 3px 9px;
   border-radius: 9999px;
   background: var(--accent);
-  color: var(--text-2);
+  color: var(--text);
 }
 
 /* 대표·보조가 한 그리드에 산다. 대표는 2×2, 보조는 1×1.
