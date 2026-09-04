@@ -1,0 +1,611 @@
+/* Chess Insights 전용. style.css의 토큰·헤더·타이포를 그대로 쓰고
+   여기서는 데이터 표·필터·차트만 더한다. style.css는 건드리지 않는다.
+   DESIGN.md 제약: 밝은 배경, 액센트는 면·테두리로만, 그라디언트/섀도우 없음,
+   en/em dash 금지(기간은 ~, 구분은 ·). */
+
+/* 상세 페이지는 720px이지만 여기는 표가 주인공이라 폭을 넓힌다. */
+body:has(main.chess) {
+  max-width: 1180px;
+}
+
+.chess {
+  max-width: none;
+  /* 표의 숫자 열은 세로로 맞아야 한다. var(--meta)는 고정폭이 아니다. */
+  --num: ui-monospace, SFMono-Regular, 'Cascadia Mono', Consolas, monospace;
+  --win: #1a1a1c;
+  --draw: #9a9a9e;
+  --loss: #dedede;
+}
+
+.chess .err {
+  padding: 12px 14px;
+  border: 0.5px solid var(--line);
+  border-left: 2px solid var(--text);
+  border-radius: var(--radius);
+}
+
+.chess code {
+  font: 400 12px/1.5 var(--num);
+}
+
+/* ---- 필터 ---- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin: 24px 0 0;
+  padding: 12px 14px;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--fill);
+}
+
+.fgroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flabel {
+  font: 400 11px/1.5 var(--meta);
+  color: var(--text-3);
+}
+
+.seg {
+  display: inline-flex;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.seg button,
+.tabs button {
+  border: 0;
+  background: none;
+  padding: 5px 10px;
+  font: 400 11px/1.5 var(--meta);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.seg button + button {
+  border-left: 0.5px solid var(--line);
+}
+
+.seg button.on {
+  background: var(--accent);
+  color: var(--text);
+}
+
+.seg button:hover:not(.on) {
+  background: var(--fill);
+  color: var(--text);
+}
+
+.custom-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 400 11px/1.5 var(--meta);
+}
+
+.filters input[type='date'],
+.filters select {
+  padding: 4px 6px;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font: 400 11px/1.5 var(--num);
+  color: var(--text);
+}
+
+.fstate {
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+/* ---- 탭 ---- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 20px 0 24px;
+  border-bottom: 2px solid var(--accent);
+}
+
+.tabs button {
+  padding: 8px 14px;
+  font-size: 12px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tabs button.on {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+.tabs button:hover:not(.on) {
+  color: var(--text);
+}
+
+/* ---- 블록 ---- */
+
+.chess h2 {
+  margin: 36px 0 12px;
+  font: 400 15px/1.4 var(--title);
+  padding-bottom: 6px;
+  border-bottom: 0.5px solid var(--line);
+}
+
+.chess h3 {
+  margin: 22px 0 8px;
+  font: 400 13px/1.4 var(--title);
+}
+
+.panel > h2:first-child {
+  margin-top: 8px;
+}
+
+.note {
+  margin: 6px 0 0;
+  font: 400 11px/1.6 var(--meta);
+  color: var(--text-3);
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+/* ---- 요약 숫자 ---- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.stats div {
+  background: var(--bg);
+  padding: 10px 12px;
+}
+
+.stats dt {
+  font: 400 10px/1.4 var(--meta);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.stats dd {
+  margin: 3px 0 0;
+  font: 400 17px/1.2 var(--num);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats dd small {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* ---- 핵심 질문 ---- */
+
+.qa {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.qa div {
+  background: var(--bg);
+  padding: 10px 12px;
+}
+
+.qa dt {
+  font: 400 11px/1.5 var(--meta);
+  color: var(--text-3);
+}
+
+.qa dd {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+.qa dd b {
+  font-weight: 400;
+  border-bottom: 2px solid var(--accent);
+}
+
+.qa dd .n {
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+/* ---- 표 ---- */
+
+.tw {
+  overflow-x: auto;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+}
+
+table.d {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+table.d th,
+table.d td {
+  padding: 5px 9px;
+  text-align: left;
+  border-bottom: 0.5px solid var(--line);
+  white-space: nowrap;
+}
+
+table.d thead th {
+  position: sticky;
+  top: 0;
+  background: var(--fill);
+  font: 400 10px/1.5 var(--meta);
+  color: var(--text-2);
+  z-index: 1;
+}
+
+table.d tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+table.d td.n,
+table.d th.n {
+  text-align: right;
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+}
+
+table.d td.name {
+  white-space: normal;
+  min-width: 190px;
+}
+
+table.d tbody tr.z:hover {
+  background: var(--fill);
+}
+
+table.d tbody tr.z {
+  cursor: pointer;
+}
+
+table.d tbody tr.open {
+  background: var(--fill);
+}
+
+table.d tfoot td {
+  padding: 5px 9px;
+  border-top: 0.5px solid var(--line);
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+  font-size: 11px;
+}
+
+th[data-sort] {
+  cursor: pointer;
+  user-select: none;
+}
+
+th[data-sort]:hover {
+  color: var(--text);
+}
+
+th.sorted {
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+/* 승/무/패 막대. 색만으로 구분하지 않는다. 숫자를 항상 옆에 둔다. */
+.wdl {
+  display: inline-flex;
+  width: 76px;
+  height: 7px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--loss);
+  vertical-align: middle;
+}
+
+.wdl i {
+  display: block;
+  height: 100%;
+}
+
+.wdl .w {
+  background: var(--win);
+}
+
+.wdl .d {
+  background: var(--draw);
+}
+
+.form {
+  font-family: var(--num);
+  letter-spacing: 1px;
+}
+
+.form .w {
+  color: var(--text);
+}
+
+.form .d {
+  color: var(--text-3);
+}
+
+.form .l {
+  color: var(--text-3);
+}
+
+.tag-eco {
+  display: inline-block;
+  padding: 0 5px;
+  border: 0.5px solid var(--line);
+  border-radius: 3px;
+  font: 400 10px/1.6 var(--num);
+  color: var(--text-2);
+}
+
+.res-w,
+.res-d,
+.res-l {
+  font-family: var(--num);
+  font-size: 11px;
+}
+
+.res-w {
+  border-bottom: 2px solid var(--accent);
+}
+
+.res-l {
+  color: var(--text-3);
+}
+
+/* ---- 오프닝 상세 패널 ---- */
+
+tr.detail-row > td {
+  padding: 0 !important;
+  background: var(--fill);
+}
+
+.dpanel {
+  padding: 14px;
+  border-left: 2px solid var(--accent);
+}
+
+.dpanel .stats {
+  background: var(--line);
+}
+
+.dpanel .moves {
+  margin-top: 10px;
+  font: 400 12px/1.7 var(--num);
+  color: var(--text-2);
+  white-space: normal;
+}
+
+/* ---- 차트 ---- */
+
+figure.chart {
+  margin: 12px 0 0;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  overflow-x: auto;
+}
+
+figure.chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart .axis {
+  font: 400 9px/1 var(--num);
+  fill: var(--text-3);
+}
+
+.chart .grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.chart .line {
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1;
+}
+
+.chart .avg {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.chart .bar {
+  fill: var(--text);
+}
+
+.chart .bar-l {
+  fill: var(--loss);
+}
+
+.chart .dot {
+  fill: var(--text);
+}
+
+.legend {
+  margin-top: 8px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font: 400 10px/1.5 var(--meta);
+  color: var(--text-3);
+}
+
+.legend span::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+  background: currentColor;
+}
+
+.legend .k1::before {
+  background: var(--text);
+  height: 3px;
+}
+
+/* ---- Move Explorer ---- */
+
+.explorer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.crumbs button {
+  padding: 3px 8px;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font: 400 11px/1.5 var(--num);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.crumbs button:last-child {
+  background: var(--accent);
+  color: var(--text);
+}
+
+.crumbs button:hover {
+  color: var(--text);
+}
+
+/* 체스판. 유니코드 체스 글리프는 ONE Mobile 서브셋에 없으므로
+   폰트 스택에서 본문 폰트를 의도적으로 제외한다. */
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 1;
+  border: 0.5px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  font-family: 'Segoe UI Symbol', 'Apple Symbols', 'Noto Sans Symbols 2',
+    'DejaVu Sans', sans-serif;
+}
+
+.board div {
+  display: grid;
+  place-items: center;
+  font-size: clamp(18px, 3.4vw, 30px);
+  line-height: 1;
+  color: #111;
+}
+
+.board div.dark {
+  background: #e3ded0;
+}
+
+.board div.light {
+  background: #faf8f2;
+}
+
+.bmeta {
+  margin-top: 8px;
+  font: 400 11px/1.6 var(--meta);
+  color: var(--text-3);
+  word-break: break-all;
+}
+
+/* ---- 게임 목록 ---- */
+
+.more {
+  margin-top: 12px;
+  padding: 6px 12px;
+  border: 0.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font: 400 11px/1.5 var(--meta);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.more:hover {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--accent);
+}
+
+.foot {
+  margin-top: 56px;
+  padding-top: 16px;
+  border-top: 2px solid var(--accent);
+}
+
+/* ---- 반응형 ---- */
+
+@media (max-width: 900px) {
+  .cols,
+  .explorer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .board {
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 600px) {
+  .filters {
+    gap: 10px 12px;
+  }
+
+  .fgroup {
+    flex: 1 1 100%;
+  }
+
+  .tabs {
+    overflow-x: auto;
+  }
+
+  table.d th,
+  table.d td {
+    padding: 5px 7px;
+  }
+}

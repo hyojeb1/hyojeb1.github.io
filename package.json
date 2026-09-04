@@ -1,0 +1,13 @@
+{
+  "name": "hyojeb1-github-io",
+  "private": true,
+  "version": "1.0.0",
+  "description": "장효제 포트폴리오. 사이트 자체는 빌드가 없다. 이 package.json은 Chess Insights 데이터 갱신 스크립트만을 위한 것이다.",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "update-chess": "node scripts/update-chess.mjs",
+    "update-chess:full": "node scripts/update-chess.mjs --refresh",
+    "serve": "npx --yes serve ."
+  }
+}

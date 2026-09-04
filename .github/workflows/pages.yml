@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # 저장소 루트를 통째로 올리지 않는다. 사이트 파일만 골라 올린다.
-      - run: mkdir _site && cp -r index.html style.css assets works _site/
+      - run: mkdir _site && cp -r index.html style.css assets works chess _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

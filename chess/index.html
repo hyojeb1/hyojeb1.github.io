@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      // 서버가 /chess -> /chess/ 리다이렉트를 해주지 않으면 문서 base가 / 가 되어
+      // style.css, app.js, vendor, data 상대 경로가 전부 404가 된다.
+      // 그러면 app.js가 아예 실행되지 않아 에러 표시도 뜨지 않는다. 먼저 바로잡는다.
+      if (!location.pathname.endsWith('/') && !location.pathname.endsWith('.html')) {
+        location.replace(location.pathname + '/' + location.search + location.hash);
+      }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chess Insights · MogwaMaster · 장효제</title>
+    <meta
+      name="description"
+      content="Chess.com Published Data API로 모은 Rapid 전적을 오프닝·수순·상대 실력 기준으로 분석한 정적 대시보드."
+    />
+    <link rel="icon" href="../assets/profile_icon.svg" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="chess.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="../index.html">
+        <img src="../assets/profile_icon.png" alt="" aria-hidden="true" />
+        장효제
+      </a>
+    </header>
+
+    <main class="detail chess">
+      <a class="meta back" href="../index.html">← 홈</a>
+
+      <h1>Chess Insights</h1>
+      <p class="meta" id="head-meta">데이터를 읽는 중…</p>
+
+      <noscript>
+        <p class="body">
+          이 페이지는 정적 JSON을 브라우저에서 집계한다. JavaScript가 필요하다.
+          원본 데이터는 <code>chess/data/rapid-summary.json</code>에 있다.
+        </p>
+      </noscript>
+
+      <p class="body err" id="load-error" hidden></p>
+
+      <!-- 필터. 모든 섹션이 같은 필터를 공유한다. -->
+      <form class="filters" id="filters" hidden>
+        <div class="fgroup">
+          <span class="flabel">기간</span>
+          <div class="seg" id="f-period" role="group" aria-label="기간">
+            <button type="button" value="all" class="on">전체</button>
+            <button type="button" value="30">30일</button>
+            <button type="button" value="90">90일</button>
+            <button type="button" value="365">1년</button>
+            <button type="button" value="custom">지정</button>
+          </div>
+          <span class="custom-range" id="f-range" hidden>
+            <input type="date" id="f-from" aria-label="시작일" />
+            <span aria-hidden="true">~</span>
+            <input type="date" id="f-to" aria-label="종료일" />
+          </span>
+        </div>
+
+        <div class="fgroup">
+          <span class="flabel">색</span>
+          <div class="seg" id="f-color" role="group" aria-label="색">
+            <button type="button" value="both" class="on">양쪽</button>
+            <button type="button" value="w">백</button>
+            <button type="button" value="b">흑</button>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <span class="flabel">내 rating</span>
+          <select id="f-band" aria-label="내 rating 구간"></select>
+        </div>
+
+        <div class="fgroup">
+          <span class="flabel">최소 게임</span>
+          <div class="seg" id="f-min" role="group" aria-label="오프닝 최소 게임 수">
+            <button type="button" value="1">1+</button>
+            <button type="button" value="5">5+</button>
+            <button type="button" value="10" class="on">10+</button>
+            <button type="button" value="20">20+</button>
+          </div>
+        </div>
+
+        <p class="fstate meta" id="f-state"></p>
+      </form>
+
+      <nav class="tabs" id="tabs" hidden aria-label="섹션">
+        <button type="button" value="overview" class="on">Overview</button>
+        <button type="button" value="rating">Rating</button>
+        <button type="button" value="openings">Openings</button>
+        <button type="button" value="explorer">Move Explorer</button>
+        <button type="button" value="games">Games</button>
+      </nav>
+
+      <section id="panel-overview" class="panel"></section>
+      <section id="panel-rating" class="panel" hidden></section>
+      <section id="panel-openings" class="panel" hidden></section>
+      <section id="panel-explorer" class="panel" hidden></section>
+      <section id="panel-games" class="panel" hidden></section>
+
+      <p class="meta foot" id="foot"></p>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

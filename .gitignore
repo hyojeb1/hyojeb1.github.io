@@ -6,3 +6,8 @@
 .claude/
 .idea/
 .DS_Store
+# Chess Insights: Chess.com 월별 원본 캐시. 스크립트로 다시 받을 수 있어 커밋하지 않는다.
+data/chess/cache/
+
+# npm 산출물 (사이트 자체는 의존성이 없다)
+node_modules/
