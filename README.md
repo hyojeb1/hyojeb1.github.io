@@ -8,8 +8,10 @@ style.css
 assets/        profile.jpg, *.mp4, *-poster.jpg, resume.pdf
 works/         프로젝트 상세 페이지
 chess/         Chess Insights (아래)
-scripts/       Chess.com 데이터 갱신 스크립트
+travel/        여행 사진첩 (아래). 생성물이지만 커밋한다
+scripts/       Chess.com 데이터 갱신, travel 빌드 스크립트
 data/chess/    원본 PGN과 월별 캐시 (배포되지 않는다)
+data/travel/   여행 원고 Markdown (배포되지 않는다)
 ```
 
 로컬 확인은 `index.html`을 브라우저로 열면 된다.
@@ -125,3 +127,62 @@ Score %(무=0.5) / 최근 5판을 함께 놓았고, 표본이 작은 오프닝�
 
 Stockfish를 붙이더라도 그것은 **자체 엔진 분석**이다. Chess.com의 Game Review /
 Accuracy / Brilliant / Great 같은 자체 지표와 같다고 표시하지 않는다.
+
+---
+
+## Travel (`/travel/`)
+
+여행 사진첩. 한 여행이 한 페이지(`/travel/<slug>/`)이고 일차별로 메모와 사진이 있다.
+`style.css`의 폰트·토큰·헤더를 쓰고, `travel/travel.css`가 색 토큰을 다크로 바꾼다.
+
+```
+data/travel/<slug>.md      원고. 파일 이름이 URL
+scripts/build-travel.py    원고 + 원본 사진 → travel/
+travel/travel.css          손으로 쓴다
+travel/lightbox.js         손으로 쓴다
+travel/index.html          생성 (여행 목록)
+travel/<slug>/             생성 (index.html, img/*.webp)
+```
+
+원본 사진은 저장소에 넣지 않는다. 원고 머리말의 `photos:`가 로컬 폴더를 가리킨다.
+
+### 원고 형식
+
+```
+---
+title: 2026 도쿄
+start: 2026-09-17
+end: 2026-09-22
+photos: C:\Users\user\Downloads\2026도쿄_날짜별
+---
+
+## 1일차_0917          ← photos 아래 폴더 이름과 같아야 한다
+
+메모. 줄바꿈은 그대로 줄바꿈, 빈 줄은 문단.
+<https://...>           링크 (도메인 ↗ 로 보인다). [글자](https://...) 도 된다
+![사진 설명](KakaoTalk_...jpg)   그 사진에만 설명이 붙는다 (선택)
+```
+
+### 빌드
+
+**하루는 새벽 6시에 바뀐다.** 06시 전에 찍은 사진은 폴더와 상관없이 전날 밤(띠의 24시 이후)에
+들어가고, 원고의 `### 01:30` 같은 06시 전 이벤트도 전날 밤으로 읽는다. 예외는 첫날이다. 06시 이후
+이벤트보다 앞에 적힌 06시 전 이벤트(출발하는 새벽)는 그날 아침으로 둔다. EXIF가 없는 사진은
+넣어 둔 폴더의 일차에 시각 미상으로 남는다.
+
+각 일차 폴더 안에 `pick/`을 만들고 쓸 사진을 복사한다. 순서는 촬영 시각(EXIF,
+없으면 KakaoTalk 파일명 시각)이다.
+
+```
+npm run build-travel                       pick/ 만 쓴다 (= python scripts/build-travel.py)
+python scripts/build-travel.py --sample 8  pick/ 이 없는 일차는 8장을 자동으로 뽑는다 (시안용)
+```
+
+`--sample`로 만든 페이지에는 노란 "시안" 띠가 붙는다. 그 상태로 커밋하지 않는다.
+필요: Python 3 + Pillow.
+
+스크립트가 하는 일: EXIF 방향 적용 → EXIF·XMP 전부 제거(GPS 포함, 출력에서 다시
+검사하고 남아 있으면 멈춘다) → 긴 변 720px 썸네일과 2000px 확대본 WebP. ICC 색
+프로필만 남긴다. 원본보다 새 WebP가 있으면 다시 만들지 않고, 쓰이지 않는 WebP는 지운다.
+
+동영상은 아직 넣지 않는다. GitHub는 100MB 넘는 파일을 받지 않는다.

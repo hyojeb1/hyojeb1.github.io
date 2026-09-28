@@ -1,0 +1,401 @@
+/* travel 전용. style.css의 폰트·토큰·헤더를 그대로 쓰고 style.css는 건드리지 않는다.
+   다른 점은 색 토큰을 다크로 바꾼 것 하나다. 컴포넌트는 토큰을 따라 같이 바뀐다.
+   DESIGN.md를 따르는 것: 액센트 조합은 반전 하나(검정 면에 노랑 글자, 노랑 면에 검정 글자),
+   그라디언트/섀도우 없음, en/em dash 없음, 모션은 공간 관계 설명에만. */
+
+:root {
+  color-scheme: dark;
+  --bg: #111113;
+  --text: #ececec;
+  --text-2: #b4b4b9;
+  --text-3: #8a8a90; /* 배경 대비 5.6:1 */
+  --line: rgba(255, 255, 255, 0.14);
+  --fill: #1c1c1f; /* 사진 자리 */
+
+  --grid-gap: 6px;
+}
+
+/* 상세 페이지는 960px이지만 여기는 사진이 주인공이라 폭을 넓힌다. */
+body:has(main.travel) {
+  max-width: 1280px;
+}
+
+.draft {
+  margin: 0 -20px;
+  padding: 8px 20px;
+  background: var(--accent);
+  color: #1a1a1c;
+  font: 400 12px/1.5 var(--meta);
+  text-align: center;
+}
+
+/* ---------- 머리 ---------- */
+
+.trip-head {
+  padding-bottom: 8px;
+}
+
+.back {
+  font: 400 12px/1.5 var(--meta);
+  color: var(--text-3);
+  text-decoration: none;
+}
+.back:hover {
+  color: var(--text);
+}
+
+.trip-head h1 {
+  margin-top: 8px;
+  font: 400 clamp(40px, 7vw, 64px) / 1.1 var(--title);
+}
+
+.range {
+  margin-top: 8px;
+  font: 400 12px/1.5 var(--meta);
+  color: var(--text-2);
+}
+
+.trip-head nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 24px;
+}
+.trip-head nav a {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0.5px solid var(--line);
+  border-radius: 50%;
+  font: 400 12px/1 var(--meta);
+  color: var(--text-2);
+  text-decoration: none;
+  transition: border-color 150ms, color 150ms;
+}
+.trip-head nav a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- 일차 ---------- */
+
+.day {
+  padding: 48px 0 16px;
+  border-top: 0.5px solid var(--line);
+  scroll-margin-top: 8px;
+}
+.trip-head + .day {
+  margin-top: 32px;
+}
+
+.day > header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.day h2 {
+  font: 400 28px/1.2 var(--title);
+  color: var(--accent);
+}
+.date {
+  font: 400 12px/1.5 var(--meta);
+  color: var(--text-3);
+}
+
+.memo {
+  max-width: 40em;
+  color: var(--text-2);
+}
+.memo p {
+  margin-top: 12px;
+}
+.memo a {
+  color: var(--text);
+  text-underline-offset: 3px;
+}
+.memo:empty {
+  display: none;
+}
+
+/* ---------- 시간 띠 ----------
+   그날 폴더의 사진 전부가 10분 단위 막대로 들어간다. 이미지가 아니라 시각만.
+   가로축과 막대 높이는 여행 전체에서 같아서 일차끼리 비교된다. */
+
+.timeline {
+  margin: 28px 0 0;
+}
+.band {
+  position: relative;
+}
+.bars {
+  position: relative;
+  height: 56px;
+  border-bottom: 0.5px solid var(--line);
+}
+.bars i {
+  position: absolute;
+  bottom: 0;
+  min-width: 2px;
+  background: var(--text-3);
+  border-radius: 1px 1px 0 0;
+}
+.bars b {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 0.5px dashed var(--line);
+}
+
+/* 이벤트 구간: 검정 면에 노랑. 누르면 아래 이벤트로 간다 */
+.spans {
+  position: relative;
+  height: 22px;
+  margin-top: 4px;
+}
+.spans a {
+  position: absolute;
+  top: 0;
+  min-width: 18px;
+  height: 18px;
+  border-top: 2px solid var(--accent);
+  font: 400 11px/16px var(--meta);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.ticks {
+  position: relative;
+  height: 16px;
+}
+.ticks span {
+  position: absolute;
+  translate: -50% 0;
+  font: 400 11px/1.4 var(--meta);
+  color: var(--text-3);
+}
+
+.timeline figcaption {
+  margin-top: 8px;
+  font: 400 11px/1.5 var(--meta);
+  color: var(--text-3);
+}
+
+/* ---------- 이벤트 ---------- */
+
+.events {
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.event {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 24px;
+  padding: 24px 0;
+  border-top: 0.5px solid var(--line);
+  scroll-margin-top: 16px;
+}
+.event:target .ev-n {
+  background: var(--accent);
+  color: #1a1a1c;
+}
+
+.ev-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 12px/1.5 var(--meta);
+  color: var(--text-3);
+}
+.ev-n {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 0.5px solid var(--accent);
+  border-radius: 50%;
+  font-size: 11px;
+  color: var(--accent);
+}
+.event h3 {
+  margin-top: 10px;
+  font: 400 20px/1.35 var(--title);
+}
+
+.shots {
+  display: flex;
+  gap: var(--grid-gap);
+}
+.shots a {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--fill);
+}
+.shots img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 480px;
+  object-fit: cover;
+}
+
+/* 자리표시자: 아직 사람이 채우지 않은 자리 */
+.ph {
+  color: var(--text-3);
+}
+h3.ph,
+p.ph {
+  display: inline-block;
+  padding: 0 8px;
+  border: 0.5px dashed var(--text-3);
+  border-radius: 4px;
+}
+p.ph {
+  margin-top: 10px;
+  font-size: 13px;
+}
+.ph-img {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  height: 200px;
+  border: 0.5px dashed var(--text-3);
+  border-radius: var(--radius);
+  font: 400 12px/1.5 var(--meta);
+}
+
+/* ---------- 요약 ---------- */
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  margin: 28px 0 0;
+}
+.stats dt {
+  font: 400 11px/1.5 var(--meta);
+  color: var(--text-3);
+}
+.stats dd {
+  margin: 2px 0 0;
+  font: 400 20px/1.3 var(--title);
+}
+
+/* ---------- 여행 목록 ---------- */
+
+.trips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--gap);
+  margin-top: 40px;
+}
+.trip-card {
+  text-decoration: none;
+}
+.trip-card img,
+.trip-card .ph-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--fill);
+}
+.trip-card .t {
+  display: block;
+  margin-top: 12px;
+  font: 400 20px/1.3 var(--title);
+}
+.trip-card .r {
+  font: 400 12px/1.5 var(--meta);
+  color: var(--text-3);
+}
+
+/* ---------- 라이트박스 ---------- */
+
+.lightbox {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(8, 8, 9, 0.96);
+  color: var(--text);
+}
+.lightbox::backdrop {
+  background: transparent;
+}
+.lightbox[open] {
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+.lightbox img {
+  place-self: center;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 72px);
+  object-fit: contain;
+  touch-action: pan-y;
+  user-select: none;
+}
+.lb-info {
+  display: flex;
+  gap: 16px;
+  padding: 12px 24px 20px;
+  color: var(--text-2);
+}
+.lb-count {
+  margin-left: auto;
+  font: 400 12px/1.65 var(--meta);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.lightbox button {
+  position: absolute;
+  padding: 16px;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font: 400 28px/1 var(--sans);
+  cursor: pointer;
+}
+.lightbox button:hover {
+  color: var(--text);
+}
+.lb-prev {
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+}
+.lb-next {
+  right: 0;
+  top: 50%;
+  translate: 0 -50%;
+}
+.lb-close {
+  right: 0;
+  top: 0;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --grid-gap: 4px;
+  }
+  .event {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .day {
+    padding-top: 36px;
+  }
+  /* 폰에서는 좌우로 밀어 넘긴다 */
+  .lb-prev,
+  .lb-next {
+    display: none;
+  }
+}
