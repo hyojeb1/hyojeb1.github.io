@@ -133,6 +133,7 @@ Accuracy / Brilliant / Great 같은 자체 지표와 같다고 표시하지 않�
 ## Travel (`/travel/`)
 
 여행 사진첩. 한 여행이 한 페이지(`/travel/<slug>/`)이고 일차별로 메모와 사진이 있다.
+도쿄 페이지는 날짜를 선택해 지도 동선을 재생하고 해당 날짜의 이벤트 초안을 본다.
 `style.css`의 폰트·토큰·헤더를 쓰고, `travel/travel.css`가 색 토큰을 다크로 바꾼다.
 
 ```
@@ -140,11 +141,13 @@ data/travel/<slug>.md      원고. 파일 이름이 URL
 scripts/build-travel.py    원고 + 원본 사진 → travel/
 travel/travel.css          손으로 쓴다
 travel/lightbox.js         손으로 쓴다
+travel/route.js            지도 동선 재생. 손으로 쓴다
 travel/index.html          생성 (여행 목록)
 travel/<slug>/             생성 (index.html, img/*.webp)
 ```
 
-원본 사진은 저장소에 넣지 않는다. 원고 머리말의 `photos:`가 로컬 폴더를 가리킨다.
+원본 사진과 Google Takeout 타임라인은 저장소에 넣지 않는다. 원고 머리말의
+`photos:`와 선택적인 `timeline:`이 로컬 파일을 가리킨다.
 
 ### 원고 형식
 
@@ -154,6 +157,7 @@ title: 2026 도쿄
 start: 2026-09-17
 end: 2026-09-22
 photos: C:\Users\user\Downloads\2026도쿄_날짜별
+timeline: C:\Users\user\Downloads\2026도쿄_날짜별\타임라인.json
 ---
 
 ## 1일차_0917          ← photos 아래 폴더 이름과 같아야 한다
@@ -161,28 +165,30 @@ photos: C:\Users\user\Downloads\2026도쿄_날짜별
 메모. 줄바꿈은 그대로 줄바꿈, 빈 줄은 문단.
 <https://...>           링크 (도메인 ↗ 로 보인다). [글자](https://...) 도 된다
 ![사진 설명](KakaoTalk_...jpg)   그 사진에만 설명이 붙는다 (선택)
+### 13:50 (확인 전 이벤트 제목)
 ```
 
 ### 빌드
 
-**하루는 새벽 6시에 바뀐다.** 06시 전에 찍은 사진은 폴더와 상관없이 전날 밤(띠의 24시 이후)에
-들어가고, 원고의 `### 01:30` 같은 06시 전 이벤트도 전날 밤으로 읽는다. 예외는 첫날이다. 06시 이후
-이벤트보다 앞에 적힌 06시 전 이벤트(출발하는 새벽)는 그날 아침으로 둔다. EXIF가 없는 사진은
-넣어 둔 폴더의 일차에 시각 미상으로 남는다.
+**하루는 새벽 6시에 바뀐다.** `timeline:`이 있는 도쿄 페이지는 Takeout의
+`semanticSegments.timelinePath`만 사용해 도쿄 일대의 날짜별 경로를 만든다. 비행기 구간과
+한국 위치, `rawSignals`는 공개 페이지에 싣지 않는다. 기록이 끊긴 구간은 이어 그리지 않는다.
+지도는 OpenStreetMap 타일과 Leaflet을 사용하므로 화면 표시에는 인터넷 연결이 필요하다.
+괄호로 감싼 이벤트 제목은 확인 전 초안이고, `지도 추정` 표시는 위치 기록에서 추론한 제목이다.
+카톡으로 공유받은 사진의 EXIF 시각·GPS는 지도 동선이나 이벤트 분류에 쓰지 않는다.
 
-각 일차 폴더 안에 `pick/`을 만들고 쓸 사진을 복사한다. 순서는 촬영 시각(EXIF,
-없으면 KakaoTalk 파일명 시각)이다.
+각 일차 폴더 안에 `pick/`을 만들고 쓸 사진을 복사한다. 도쿄 페이지에서는 폴더의 일차에
+붙고 파일명 순서로 나온다. 다른 여행에서 `timeline:`이 없으면 기존의 사진 시각 띠를 쓴다.
 
 ```
-npm run build-travel                       pick/ 만 쓴다 (= python scripts/build-travel.py)
-python scripts/build-travel.py --sample 8  pick/ 이 없는 일차는 8장을 자동으로 뽑는다 (시안용)
+npm run build-travel                       (= python scripts/build-travel.py)
 ```
 
-`--sample`로 만든 페이지에는 노란 "시안" 띠가 붙는다. 그 상태로 커밋하지 않는다.
+확인 전 이벤트가 남아 있는 페이지에는 노란 "시안" 띠가 붙는다. 공개 전 확인이 필요하다.
 필요: Python 3 + Pillow.
 
 스크립트가 하는 일: EXIF 방향 적용 → EXIF·XMP 전부 제거(GPS 포함, 출력에서 다시
-검사하고 남아 있으면 멈춘다) → 긴 변 720px 썸네일과 2000px 확대본 WebP. ICC 색
+검사하고 남아 있으면 멈춘다) → 긴 변 1200px 썸네일과 2400px 확대본 WebP. ICC 색
 프로필만 남긴다. 원본보다 새 WebP가 있으면 다시 만들지 않고, 쓰이지 않는 WebP는 지운다.
 
 동영상은 아직 넣지 않는다. GitHub는 100MB 넘는 파일을 받지 않는다.

@@ -16,6 +16,7 @@ travel/travel.css 와 travel/lightbox.js 는 손으로 쓰는 파일이라 이 �
 
 import datetime as dt
 import html
+import json
 import math
 import re
 import sys
@@ -265,12 +266,15 @@ if (!location.pathname.endsWith('/') && !location.pathname.endsWith('.html')) {
 </script>"""
 
 
-def page(title, body, up, draft=False):
+def page(title, body, up, draft=False, map_page=False):
     """up: 저장소 루트까지의 상대 경로 ('../' 또는 '../../')"""
     banner = (
         '<p class="draft">시안: 점선 안의 글은 확인 전 초안이거나 자리표시자다.</p>\n'
         if draft else ""
     )
+    map_css = ('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" '
+               'integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">'
+               if map_page else "")
     return f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -282,6 +286,7 @@ def page(title, body, up, draft=False):
 <link rel="icon" href="{up}assets/profile_icon.svg">
 <link rel="stylesheet" href="{up}style.css">
 <link rel="stylesheet" href="{up}travel/travel.css">
+{map_css}
 </head>
 <body>
 {banner}<header class="site-header">
@@ -352,6 +357,9 @@ def build_trip(trip):
     img_dir = out / "img"
     img_dir.mkdir(parents=True, exist_ok=True)
     photos_root = Path(meta["photos"])
+    route = build_route(meta) if "timeline" in meta else None
+    if route:
+        return build_map_trip(trip, route, photos_root, out, img_dir)
 
     # 1) 모든 일차를 먼저 훑는다. 띠의 가로축과 막대 높이를 여행 전체에서 같게 맞추려고.
     #    폴더는 달력 날짜로 나뉘어 있지만 띠는 06시 경계로 다시 나눈다.
@@ -514,6 +522,131 @@ def build_trip(trip):
         page(f"{meta['title']} · 장효제", body, "../../", draft=draft), encoding="utf-8"
     )
     return dict(slug=slug, meta=meta, total=total, draft=draft, used=sorted(used))
+
+
+def build_route(meta):
+    """Takeout의 이동 경로만 공개용으로 추린다. 원본과 원시 신호는 복사하지 않는다."""
+    source = Path(meta["timeline"])
+    data = json.loads(source.read_text(encoding="utf-8"))
+    start = dt.date.fromisoformat(meta["start"])
+    end = dt.date.fromisoformat(meta["end"])
+    flights = [
+        (dt.datetime.fromisoformat(s["startTime"]), dt.datetime.fromisoformat(s["endTime"]))
+        for s in data["semanticSegments"]
+        if s.get("activity", {}).get("topCandidate", {}).get("type") == "FLYING"
+    ]
+    days = {str(start + dt.timedelta(days=i)): [] for i in range((end - start).days + 1)}
+    for s in data["semanticSegments"]:
+        if "timelinePath" not in s:
+            continue
+        a, b = dt.datetime.fromisoformat(s["startTime"]), dt.datetime.fromisoformat(s["endTime"])
+        if any(a < flight_end and b > flight_start for flight_start, flight_end in flights):
+            continue
+        pieces = {}
+        for p in s["timelinePath"]:
+            t = dt.datetime.fromisoformat(p["time"])
+            day = str((t - dt.timedelta(hours=DAY_START)).date())
+            coords = re.findall(r"-?\d+(?:\.\d+)?", p["point"])
+            if day not in days or len(coords) < 2:
+                continue
+            lat, lon = map(float, coords[:2])
+            if 35.5 <= lat <= 35.9 and 139.5 <= lon <= 140.5:
+                pieces.setdefault(day, []).append([p["time"], round(lat, 5), round(lon, 5)])
+        for day, points in pieces.items():
+            if points:
+                days[day].append(sorted(points))
+    if not any(days.values()):
+        sys.exit(f"{source}: 여행 기간의 도쿄 경로가 없다")
+    print("  지도 경로:", ", ".join(f"{day} {sum(map(len, parts))}점" for day, parts in days.items()))
+    return days
+
+
+def build_map_trip(trip, route, photos_root, out, img_dir):
+    """위치 기록을 중심으로 보여준다. 카톡 사진의 시각은 여행 동선에 쓰지 않는다."""
+    meta = trip["meta"]
+    used, sections = set(), []
+    total = 0
+    for day in trip["days"]:
+        folder = photos_root / day["folder"]
+        if not folder.is_dir():
+            sys.exit(f"사진 폴더가 없다: {folder}")
+        total += len(media(folder))
+        shots = []
+        for src in sorted(pick_files(folder)):
+            p = export(src, img_dir)
+            used.update((f"{p['stem']}.webp", f"{p['stem']}-t.webp"))
+            cap = day["captions"].get(src.name, "")
+            alt = cap or f"{day['n']}일차 여행 사진"
+            shots.append(
+                f'<a href="img/{p["stem"]}.webp" data-caption="{html.escape(cap)}">'
+                f'<img src="img/{p["stem"]}-t.webp" width="{p["w"]}" height="{p["h"]}" '
+                f'alt="{html.escape(alt)}" loading="lazy" decoding="async"></a>'
+            )
+        d = day["date"]
+        gallery = f'<div class="shots">{"".join(shots)}</div>' if shots else ""
+        events = []
+        for i, ev in enumerate(day["events"], 1):
+            title = ev["title"]
+            draft_title = is_draft(title)
+            if draft_title:
+                title = title[1:-1]
+            title_class = ' class="ph"' if draft_title else ""
+            heading = f'<h3{title_class}>{html.escape(title)}</h3>'
+            memo = f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"] else ""
+            events.append(f"""<li class="event" id="d{day['n']}e{i}">
+<p class="ev-time"><span class="ev-n">{i}</span>{clock(ev['start'])}</p>
+{heading}{memo}
+</li>""")
+        event_list = f'<ol class="events">{chr(10).join(events)}</ol>' if events else ""
+        sections.append(f"""<section class="day" data-day="{d}" aria-label="{day['n']}일차 · {d.month}월 {d.day}일" hidden>
+<div class="memo">{paragraphs(day['memo'])}</div>
+{event_list}
+{gallery}
+</section>""")
+    for f in img_dir.iterdir():
+        if f.name not in used:
+            f.unlink()
+    route_data = json.dumps(route, ensure_ascii=False, separators=(",", ":"))
+    body = f"""<main class="travel map-trip">
+<header class="trip-head">
+<a class="back" href="../index.html">← travel</a>
+<h1>{html.escape(meta['title'])}</h1>
+<p class="range">{fmt_range(meta['start'], meta['end'])}</p>
+</header>
+<section class="route" aria-label="여행 동선">
+<div class="route-controls">
+<div class="route-days" role="group" aria-label="일차 선택">
+<button type="button" data-day="all" aria-pressed="true">전체</button>
+{''.join(f'<button type="button" data-day="{d["date"]}" aria-pressed="false">{d["n"]}일차</button>' for d in trip['days'])}
+</div>
+<div class="route-playback">
+<button type="button" id="route-play" aria-label="경로 재생">▶</button>
+<label for="route-progress">발자국</label>
+<input id="route-progress" type="range" min="0" value="0" aria-label="경로 위치">
+<output id="route-time" for="route-progress"></output>
+<label for="route-speed">속도</label>
+<select id="route-speed" aria-label="재생 속도"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select>
+</div>
+</div>
+<div id="route-map" aria-label="도쿄 여행 이동 경로 지도"></div>
+<p class="route-note">Google 지도 타임라인의 기록된 경로만 표시합니다. 기록이 없는 구간은 이어 그리지 않았습니다.</p>
+</section>
+{chr(10).join(sections)}
+</main>
+<dialog class="lightbox" aria-label="사진 크게 보기">
+<img alt=""><p class="lb-info"><span class="lb-cap"></span><span class="lb-count"></span></p>
+<button class="lb-prev" aria-label="이전 사진">←</button>
+<button class="lb-next" aria-label="다음 사진">→</button>
+<button class="lb-close" aria-label="닫기">×</button>
+</dialog>
+<script type="application/json" id="route-data">{route_data}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="../route.js"></script>
+<script src="../lightbox.js"></script>"""
+    (out / "index.html").write_text(
+        page(f"{meta['title']} · 장효제", body, "../../", draft=True, map_page=True), encoding="utf-8"
+    )
+    return dict(slug=trip["slug"], meta=meta, total=total, draft=True, used=sorted(used))
 
 
 def build_index(trips):

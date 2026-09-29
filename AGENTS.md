@@ -27,7 +27,10 @@
 `travel/`은 여행 사진첩이다. 상세는 `README.md`.
 
 - `travel/` 아래 HTML·WebP는 `scripts/build-travel.py`의 생성물이다. 손으로 고치지 않는다.
-  손으로 쓰는 건 `travel.css`, `lightbox.js`, 원고 `data/travel/*.md`뿐이다.
+  손으로 쓰는 건 `travel.css`, `lightbox.js`, `route.js`, 원고 `data/travel/*.md`뿐이다.
+- Google Takeout 원본 `타임라인.json`은 로컬에만 둔다. 도쿄 페이지의 지도는
+  `semanticSegments.timelinePath`에서 추린 경로만 사용한다. 위치로 추론한 이벤트 제목은
+  `지도 추정` 초안으로 표시하고, 사진 EXIF 시각·GPS로 동선을 단정하지 않는다.
 - 메모는 원고에 적힌 문장만 쓴다. 여행기·사진 설명을 지어내지 않는다.
 - 사진 고르기는 사람이 한다. 일행이 나온 사진의 공개 여부도 사람이 정한다.
 - 이벤트 초안의 근거로 여행 단톡방 내보내기(`Downloads`에 있음)를 쓸 수 있다. 저장소에는
