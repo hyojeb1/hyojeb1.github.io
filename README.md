@@ -143,10 +143,10 @@ travel/travel.css          손으로 쓴다
 travel/lightbox.js         손으로 쓴다
 travel/route.js            지도 동선 재생. 손으로 쓴다
 travel/index.html          생성 (여행 목록)
-travel/<slug>/             생성 (index.html, img/*.webp)
+travel/<slug>/             생성 (index.html, img/*.webp); 일차 영상·포스터는 직접 보관
 ```
 
-원본 사진과 Google Takeout 타임라인은 저장소에 넣지 않는다. 원고 머리말의
+원본 사진과 기기의 Google 지도 타임라인 내보내기 JSON은 저장소에 넣지 않는다. 원고 머리말의
 `photos:`와 선택적인 `timeline:`이 로컬 파일을 가리킨다.
 
 ### 원고 형식
@@ -170,10 +170,13 @@ timeline: C:\Users\user\Downloads\2026도쿄_날짜별\타임라인.json
 
 ### 빌드
 
-**하루는 새벽 6시에 바뀐다.** `timeline:`이 있는 도쿄 페이지는 Takeout의
-`semanticSegments.timelinePath`만 사용해 도쿄 일대의 날짜별 경로를 만든다. 비행기 구간과
-한국 위치, `rawSignals`는 공개 페이지에 싣지 않는다. 기록이 끊긴 구간은 이어 그리지 않는다.
-지도는 OpenStreetMap 타일과 Leaflet을 사용하므로 화면 표시에는 인터넷 연결이 필요하다.
+**하루는 새벽 6시에 바뀐다.** `timeline:`이 있는 도쿄 페이지는 기기에서 내보낸 타임라인의
+`semanticSegments.timelinePath`만 사용해 날짜별 경로를 만든다. 한국 쪽은 인천공항
+기록만 싣고 집 근처 위치는 제외한다. 비행 중 위치와 `rawSignals`도 싣지 않으며,
+기록이 끊긴 구간도 시간순 좌표 사이를 직선으로 잇는다. 이는 실제 이동 경로가 아니라
+발자취를 되짚기 위한 연결선이다. 재생 중 지도는 현재 위치를 따라가고,
+주변 좌표의 이동 폭에 맞춰 장거리에서는 줌아웃, 한 장소 주변에서는 줌인한다.
+지도는 MapLibre GL JS와 OpenFreeMap 벡터 지도를 사용하므로 화면 표시에는 인터넷 연결이 필요하다.
 괄호로 감싼 이벤트 제목은 확인 전 초안이고, `지도 추정` 표시는 위치 기록에서 추론한 제목이다.
 카톡으로 공유받은 사진의 EXIF 시각·GPS는 지도 동선이나 이벤트 분류에 쓰지 않는다.
 
@@ -184,11 +187,15 @@ timeline: C:\Users\user\Downloads\2026도쿄_날짜별\타임라인.json
 npm run build-travel                       (= python scripts/build-travel.py)
 ```
 
-확인 전 이벤트가 남아 있는 페이지에는 노란 "시안" 띠가 붙는다. 공개 전 확인이 필요하다.
+지도 경로는 기기에서 내보낸 Google 지도 타임라인의 위치 기록으로 만들고 명백한 단일 좌표 오차를 제거한다.
+지명은 한글 이름이 제공되면 한글로, 없으면 원래 이름으로 표시한다. 방문 장소와 메모는 공개 전 사람이 확인한다.
 필요: Python 3 + Pillow.
 
 스크립트가 하는 일: EXIF 방향 적용 → EXIF·XMP 전부 제거(GPS 포함, 출력에서 다시
 검사하고 남아 있으면 멈춘다) → 긴 변 1200px 썸네일과 2400px 확대본 WebP. ICC 색
 프로필만 남긴다. 원본보다 새 WebP가 있으면 다시 만들지 않고, 쓰이지 않는 WebP는 지운다.
 
-동영상은 아직 넣지 않는다. GitHub는 100MB 넘는 파일을 받지 않는다.
+도쿄 여행의 영상과 포스터는 `travel/2026-tokyo/dayN.mp4`, `dayN.jpg`에
+저장소 파일로 보관한다. 현재는 5일차만 있다. 원고의 `cover_day: 5`는 여행 목록 카드의
+영상과 상세 헤더의 이미지를 고른다. 상세 페이지에서는 해당 일차를 선택했을 때 그날
+영상이 보인다. 빌드 스크립트는 이 파일들을 삭제하지 않는다. GitHub는 100MB 넘는 파일을 받지 않는다.

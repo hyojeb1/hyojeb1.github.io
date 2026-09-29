@@ -81,9 +81,8 @@ def parse_trip(path):
             ememo, ecaps = split_captions(ebody)
             captions.update(ecaps)
             events.append(dict(start=h + mi / 60, title=em.group(3).strip(), memo=ememo))
-        # 06시 전 이벤트는 그날 밤(24시 이후)이다. 단 첫날, 원고에서 06시 이후 이벤트보다
-        # 앞에 적힌 것은 출발하는 새벽이라 그대로 둔다
-        daytime_seen = bool(days)
+        # 06시 전 이벤트가 그날 첫 기록이면 새벽 출발이고, 낮 기록 뒤라면 그날 밤이다.
+        daytime_seen = False
         for ev in events:
             if ev["start"] >= DAY_START:
                 daytime_seen = True
@@ -272,8 +271,7 @@ def page(title, body, up, draft=False, map_page=False):
         '<p class="draft">시안: 점선 안의 글은 확인 전 초안이거나 자리표시자다.</p>\n'
         if draft else ""
     )
-    map_css = ('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" '
-               'integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">'
+    map_css = ('<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.css">'
                if map_page else "")
     return f"""<!doctype html>
 <html lang="ko">
@@ -525,7 +523,7 @@ def build_trip(trip):
 
 
 def build_route(meta):
-    """Takeout의 이동 경로만 공개용으로 추린다. 원본과 원시 신호는 복사하지 않는다."""
+    """기기 타임라인의 이동 경로만 공개용으로 추린다. 원본과 원시 신호는 복사하지 않는다."""
     source = Path(meta["timeline"])
     data = json.loads(source.read_text(encoding="utf-8"))
     start = dt.date.fromisoformat(meta["start"])
@@ -539,32 +537,83 @@ def build_route(meta):
     for s in data["semanticSegments"]:
         if "timelinePath" not in s:
             continue
-        a, b = dt.datetime.fromisoformat(s["startTime"]), dt.datetime.fromisoformat(s["endTime"])
-        if any(a < flight_end and b > flight_start for flight_start, flight_end in flights):
-            continue
-        pieces = {}
+        part, part_day, part_region = [], None, None
         for p in s["timelinePath"]:
             t = dt.datetime.fromisoformat(p["time"])
             day = str((t - dt.timedelta(hours=DAY_START)).date())
+            if t.date() == start and t.hour < DAY_START:
+                day = str(start)
             coords = re.findall(r"-?\d+(?:\.\d+)?", p["point"])
-            if day not in days or len(coords) < 2:
+            if len(coords) < 2:
                 continue
             lat, lon = map(float, coords[:2])
-            if 35.5 <= lat <= 35.9 and 139.5 <= lon <= 140.5:
-                pieces.setdefault(day, []).append([p["time"], round(lat, 5), round(lon, 5)])
-        for day, points in pieces.items():
-            if points:
-                days[day].append(sorted(points))
+            tokyo = 35.5 <= lat <= 35.9 and 139.5 <= lon <= 140.5
+            incheon = 37.43 <= lat <= 37.47 and 126.43 <= lon <= 126.47
+            narita = 35.74 <= lat <= 35.81 and 140.34 <= lon <= 140.42
+            flying = any(a <= t < b for a, b in flights)
+            region = "japan" if tokyo else "incheon" if incheon else None
+            if day not in days or region is None or (flying and not (incheon or narita)):
+                if part:
+                    days[part_day].append(part)
+                    part = []
+                continue
+            if part and (day != part_day or region != part_region):
+                days[part_day].append(part)
+                part = []
+            part_day, part_region = day, region
+            part.append([p["time"], round(lat, 5), round(lon, 5)])
+        if part:
+            days[part_day].append(part)
     if not any(days.values()):
         sys.exit(f"{source}: 여행 기간의 도쿄 경로가 없다")
+    for day, parts in days.items():
+        days[day] = remove_route_spikes(parts)
     print("  지도 경로:", ", ".join(f"{day} {sum(map(len, parts))}점" for day, parts in days.items()))
     return days
+
+
+def route_distance(a, b):
+    x = math.radians(b[2] - a[2]) * math.cos(math.radians((a[1] + b[1]) / 2))
+    y = math.radians(b[1] - a[1])
+    return 6371000 * math.hypot(x, y)
+
+
+def remove_route_spikes(parts):
+    """앞뒤 경로에서 벗어나는 단일 위치 오차만 제거한다."""
+    flat = [(i, p) for i, part in enumerate(parts) for p in part]
+    while True:
+        bad = None
+        for j in range(1, len(flat) - 1):
+            a, b, c = (flat[k][1] for k in (j - 1, j, j + 1))
+            ab = (dt.datetime.fromisoformat(b[0]) - dt.datetime.fromisoformat(a[0])).total_seconds()
+            bc = (dt.datetime.fromisoformat(c[0]) - dt.datetime.fromisoformat(b[0])).total_seconds()
+            ac = ab + bc
+            if min(ab, bc) <= 0:
+                continue
+            d1, d2, direct = route_distance(a, b), route_distance(b, c), route_distance(a, c)
+            if (d1 / ab > 45 or d2 / bc > 45) and direct / ac <= 45 and d1 + d2 > direct * 1.25 + 1000:
+                bad = j
+                break
+        if bad is None:
+            break
+        flat.pop(bad)
+    cleaned = [[] for _ in parts]
+    for i, p in flat:
+        cleaned[i].append(p)
+    return [part for part in cleaned if part]
 
 
 def build_map_trip(trip, route, photos_root, out, img_dir):
     """위치 기록을 중심으로 보여준다. 카톡 사진의 시각은 여행 동선에 쓰지 않는다."""
     meta = trip["meta"]
+    cover_day = meta.get("cover_day")
+    cover_image = f"day{cover_day}.jpg"
+    cover_video = f"day{cover_day}.mp4"
+    if cover_day and not (out / cover_image).is_file():
+        sys.exit(f"대문 이미지가 없다: {out / cover_image}")
+    cover_html = (f'<img class="trip-cover-image" src="{cover_image}" alt="">' if cover_day else "")
     used, sections = set(), []
+    pins = {}
     total = 0
     for day in trip["days"]:
         folder = photos_root / day["folder"]
@@ -584,8 +633,29 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
             )
         d = day["date"]
         gallery = f'<div class="shots">{"".join(shots)}</div>' if shots else ""
+        video = f"day{day['n']}.mp4"
+        poster = f"day{day['n']}.jpg"
+        if (out / video).is_file() and not (out / poster).is_file():
+            sys.exit(f"영상 포스터가 없다: {out / poster}")
+        caption = html.escape(meta.get(f"day{day['n']}_caption", f"{day['n']}일차 영상"))
+        day_video = (f'''<figure class="day-video">
+<video controls playsinline preload="none" poster="{poster}" width="720" height="960" aria-label="{caption}">
+<source src="{video}" type="video/mp4">
+</video>
+<figcaption>{caption}</figcaption>
+</figure>''' if (out / video).is_file() else "")
         events = []
+        day_points = [p for part in route[str(d)] for p in part]
+        pins[str(d)] = []
         for i, ev in enumerate(day["events"], 1):
+            event_time = dt.datetime.combine(d, dt.time(), dt.timezone(dt.timedelta(hours=9))) + dt.timedelta(hours=ev["start"])
+            if day["n"] == 1 and i == 1:
+                # 출발지의 사적 위치 대신 서울 시내의 대표 좌표만 공개한다.
+                lat, lon = 37.5665, 126.9780
+            else:
+                nearest = min(day_points, key=lambda p: abs((dt.datetime.fromisoformat(p[0]) - event_time).total_seconds()))
+                lat, lon = nearest[1:]
+            pins[str(d)].append([i, lat, lon, f"d{day['n']}e{i}", ev["title"]])
             title = ev["title"]
             draft_title = is_draft(title)
             if draft_title:
@@ -598,8 +668,9 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 {heading}{memo}
 </li>""")
         event_list = f'<ol class="events">{chr(10).join(events)}</ol>' if events else ""
-        sections.append(f"""<section class="day" data-day="{d}" aria-label="{day['n']}일차 · {d.month}월 {d.day}일" hidden>
+        sections.append(f"""<section class="day" data-day="{d}" aria-label="{day['n']}일차 · {d.month}월 {d.day}일"{'' if day['n'] == 1 else ' hidden'}>
 <div class="memo">{paragraphs(day['memo'])}</div>
+{day_video}
 {event_list}
 {gallery}
 </section>""")
@@ -607,17 +678,22 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
         if f.name not in used:
             f.unlink()
     route_data = json.dumps(route, ensure_ascii=False, separators=(",", ":"))
+    pin_data = json.dumps(pins, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
     body = f"""<main class="travel map-trip">
-<header class="trip-head">
+<header class="trip-head{' has-cover' if cover_day else ''}">
+{cover_html}
+<div class="trip-head-copy">
 <a class="back" href="../index.html">← travel</a>
 <h1>{html.escape(meta['title'])}</h1>
 <p class="range">{fmt_range(meta['start'], meta['end'])}</p>
+{f'<p class="cover-caption">{html.escape(meta.get(f"day{cover_day}_caption", ""))}</p>' if cover_day else ''}
+</div>
 </header>
 <section class="route" aria-label="여행 동선">
 <div class="route-controls">
 <div class="route-days" role="group" aria-label="일차 선택">
-<button type="button" data-day="all" aria-pressed="true">전체</button>
-{''.join(f'<button type="button" data-day="{d["date"]}" aria-pressed="false">{d["n"]}일차</button>' for d in trip['days'])}
+<button type="button" data-day="all" aria-pressed="false">전체</button>
+{''.join(f'<button type="button" data-day="{d["date"]}" aria-pressed="{str(d["n"] == 1).lower()}">{d["n"]}일차</button>' for d in trip['days'])}
 </div>
 <div class="route-playback">
 <button type="button" id="route-play" aria-label="경로 재생">▶</button>
@@ -629,7 +705,6 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 </div>
 </div>
 <div id="route-map" aria-label="도쿄 여행 이동 경로 지도"></div>
-<p class="route-note">Google 지도 타임라인의 기록된 경로만 표시합니다. 기록이 없는 구간은 이어 그리지 않았습니다.</p>
 </section>
 {chr(10).join(sections)}
 </main>
@@ -640,21 +715,27 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 <button class="lb-close" aria-label="닫기">×</button>
 </dialog>
 <script type="application/json" id="route-data">{route_data}</script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script type="application/json" id="event-pins">{pin_data}</script>
+<script src="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.js"></script>
 <script src="../route.js"></script>
 <script src="../lightbox.js"></script>"""
     (out / "index.html").write_text(
-        page(f"{meta['title']} · 장효제", body, "../../", draft=True, map_page=True), encoding="utf-8"
+        page(f"{meta['title']} · 장효제", body, "../../", map_page=True), encoding="utf-8"
     )
-    return dict(slug=trip["slug"], meta=meta, total=total, draft=True, used=sorted(used))
+    return dict(slug=trip["slug"], meta=meta, total=total, draft=False, used=sorted(used),
+                cover_day=cover_day, cover_video=(out / cover_video).is_file())
 
 
 def build_index(trips):
     cards = []
     for t in sorted(trips, key=lambda t: t["meta"]["start"], reverse=True):
         thumbs = [u for u in t["used"] if u.endswith("-t.webp")]
-        img = (f'<img src="{t["slug"]}/img/{thumbs[0]}" alt="">' if thumbs
-               else '<span class="ph ph-img">대표 사진</span>')
+        cover = f'{t["slug"]}/day{t["cover_day"]}' if t.get("cover_day") else None
+        img = (f'<video poster="{cover}.jpg" muted loop playsinline preload="none" aria-label="{html.escape(t["meta"].get(f"day{t["cover_day"]}_caption", "여행 영상"))}"><source src="{cover}.mp4" type="video/mp4"></video>'
+               if cover and t["cover_video"] else
+               f'<img src="{cover}.jpg" alt="">' if cover else
+               f'<img src="{t["slug"]}/img/{thumbs[0]}" alt="">' if thumbs else
+               '<span class="ph ph-img">대표 사진</span>')
         cards.append(f"""<a class="trip-card" href="{t['slug']}/index.html">
 {img}
 <span class="t">{html.escape(t['meta']['title'])}</span>
@@ -668,7 +749,20 @@ def build_index(trips):
 <div class="trips">
 {chr(10).join(cards)}
 </div>
-</main>"""
+</main>
+<script>
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {{
+  document.querySelectorAll('.trip-card video').forEach((video) => {{
+    const card = video.closest('.trip-card');
+    if (matchMedia('(hover: hover)').matches) {{
+      card.addEventListener('pointerenter', () => video.play().catch(() => {{}}));
+      card.addEventListener('pointerleave', () => video.pause());
+    }} else if (video === document.querySelector('.trip-card video')) {{
+      video.play().catch(() => {{}});
+    }}
+  }});
+}}
+</script>"""
     (OUT / "index.html").write_text(
         page("travel · 장효제", body, "../", draft=any(t["draft"] for t in trips)), encoding="utf-8"
     )

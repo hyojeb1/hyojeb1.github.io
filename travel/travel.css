@@ -54,6 +54,35 @@ body:has(main.travel) {
   font: 400 12px/1.5 var(--meta);
   color: var(--text-2);
 }
+.map-trip .trip-head.has-cover {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(280px, 42vw, 520px);
+  padding: 24px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--fill);
+}
+.trip-cover-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 58%;
+}
+.has-cover .trip-head-copy {
+  position: relative;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  background: rgba(17, 17, 19, 0.9);
+}
+.cover-caption {
+  margin-top: 20px;
+  color: var(--text-2);
+  font: 400 12px/1.5 var(--meta);
+}
 
 .trip-head nav {
   display: flex;
@@ -317,8 +346,7 @@ p.ph {
   color: var(--accent);
 }
 .route-playback label,
-.route-playback output,
-.route-note {
+.route-playback output {
   font: 400 12px/1.5 var(--meta);
   color: var(--text-2);
 }
@@ -336,10 +364,22 @@ p.ph {
   border-radius: var(--radius);
   background: var(--fill);
 }
-.route-note {
-  margin-top: 8px;
+.route .event-pin {
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 2px solid #1a1a1c;
+  border-radius: 50%;
+  background: #f1ec95;
+  color: #1a1a1c;
+  font: 700 13px/26px var(--meta);
+  text-align: center;
 }
-.route .leaflet-control-attribution {
+.route .event-pin:focus-visible {
+  outline: 3px solid #1a1a1c;
+  outline-offset: 2px;
+}
+.route .maplibregl-ctrl-attrib {
   color: #1a1a1c;
 }
 .day > .shots {
@@ -350,6 +390,22 @@ p.ph {
 }
 .map-trip .event {
   display: block;
+}
+.day-video {
+  max-width: 360px;
+  margin: 24px 0 0;
+}
+.day-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  background: var(--fill);
+}
+.day-video figcaption {
+  margin-top: 8px;
+  color: var(--text-2);
+  font: 400 12px/1.5 var(--meta);
 }
 
 /* ---------- 여행 목록 ---------- */
@@ -364,6 +420,7 @@ p.ph {
   text-decoration: none;
 }
 .trip-card img,
+.trip-card video,
 .trip-card .ph-img {
   display: block;
   width: 100%;
@@ -372,6 +429,9 @@ p.ph {
   object-fit: cover;
   border-radius: var(--radius);
   background: var(--fill);
+}
+.trip-card video {
+  pointer-events: none;
 }
 .trip-card .t {
   display: block;
@@ -460,6 +520,10 @@ p.ph {
   }
   .day {
     padding-top: 36px;
+  }
+  .map-trip .trip-head.has-cover {
+    min-height: 400px;
+    padding: 12px;
   }
   #route-map {
     height: 62vh;

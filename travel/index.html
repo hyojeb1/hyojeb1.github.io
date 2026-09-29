@@ -16,7 +16,6 @@ if (!location.pathname.endsWith('/') && !location.pathname.endsWith('.html')) {
 
 </head>
 <body>
-<p class="draft">시안: 점선 안의 글은 확인 전 초안이거나 자리표시자다.</p>
 <header class="site-header">
 <a class="wordmark" href="../index.html">
 <img src="../assets/profile_icon.png" alt="" aria-hidden="true">
@@ -30,11 +29,24 @@ if (!location.pathname.endsWith('/') && !location.pathname.endsWith('.html')) {
 </header>
 <div class="trips">
 <a class="trip-card" href="2026-tokyo/index.html">
-<span class="ph ph-img">대표 사진</span>
+<video poster="2026-tokyo/day5.jpg" muted loop playsinline preload="none" aria-label="9월 21일 · 비 내리는 아사쿠사"><source src="2026-tokyo/day5.mp4" type="video/mp4"></video>
 <span class="t">2026 도쿄</span>
-<span class="r">2026. 9. 17 ~ 9. 22 · 5박 6일 · 사진 825장</span>
+<span class="r">2026. 9. 17 ~ 9. 22 · 5박 6일 · 사진 829장</span>
 </a>
 </div>
 </main>
+<script>
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.querySelectorAll('.trip-card video').forEach((video) => {
+    const card = video.closest('.trip-card');
+    if (matchMedia('(hover: hover)').matches) {
+      card.addEventListener('pointerenter', () => video.play().catch(() => {}));
+      card.addEventListener('pointerleave', () => video.pause());
+    } else if (video === document.querySelector('.trip-card video')) {
+      video.play().catch(() => {});
+    }
+  });
+}
+</script>
 </body>
 </html>

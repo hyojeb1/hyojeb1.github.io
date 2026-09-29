@@ -28,6 +28,8 @@
 
 - `travel/` 아래 HTML·WebP는 `scripts/build-travel.py`의 생성물이다. 손으로 고치지 않는다.
   손으로 쓰는 건 `travel.css`, `lightbox.js`, `route.js`, 원고 `data/travel/*.md`뿐이다.
+- 선택한 일차 영상·포스터 `travel/<slug>/dayN.mp4`, `dayN.jpg`는 저장소에서 직접 관리한다.
+  빌드 스크립트는 이 파일들을 보존하고, 실제 파일이 있는 일차에만 영상을 표시한다.
 - Google Takeout 원본 `타임라인.json`은 로컬에만 둔다. 도쿄 페이지의 지도는
   `semanticSegments.timelinePath`에서 추린 경로만 사용한다. 위치로 추론한 이벤트 제목은
   `지도 추정` 초안으로 표시하고, 사진 EXIF 시각·GPS로 동선을 단정하지 않는다.
