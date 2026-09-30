@@ -69,7 +69,7 @@ def parse_trip(path):
         if not hm:
             sys.exit(f"{path.name}: '## {heading}' 은 '## N일차_MMDD' 형식이 아니다")
         date = dt.date(year, int(hm.group(2)), int(hm.group(3)))
-        body, visit_stops = split_visit_stops(body)
+        visit_stops = []
         body, place_pins = split_place_pins(body)
 
         parts = re.split(r"^### ", body, flags=re.M)
@@ -81,9 +81,10 @@ def parse_trip(path):
             if not em:
                 sys.exit(f"{path.name} {heading}: '### {eh.strip()}' 은 '### HH:MM 제목' 형식이 아니다")
             h, mi = int(em.group(1)), int(em.group(2))
+            ebody, estops = split_visit_stops(ebody)
             ememo, ecaps, eimages = split_event_media(ebody)
             captions.update(ecaps)
-            events.append(dict(start=h + mi / 60, title=em.group(3).strip(), memo=ememo, images=eimages))
+            events.append(dict(start=h + mi / 60, title=em.group(3).strip(), memo=ememo, images=eimages, stops=estops))
         # 06시 전 이벤트가 그날 첫 기록이면 새벽 출발이고, 낮 기록 뒤라면 그날 밤이다.
         daytime_seen = False
         for ev in events:
