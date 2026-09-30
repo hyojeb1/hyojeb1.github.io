@@ -43,6 +43,7 @@ DAY_HEADING = re.compile(r"^(\d+)일차_(\d{2})(\d{2})$")
 EVENT_HEADING = re.compile(r"^(\d{1,2}):(\d{2})\s*(.*)$")
 KAKAO_NAME = re.compile(r"(\d{8})_(\d{6})")
 PLACE_PIN = re.compile(r"^@pin\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\s+(.+)$")
+VISIT_STOP = re.compile(r"^@stop\s+(\d+)\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\s+(.+)$")
 
 # ---------- 원고 ----------
 
@@ -68,6 +69,7 @@ def parse_trip(path):
         if not hm:
             sys.exit(f"{path.name}: '## {heading}' 은 '## N일차_MMDD' 형식이 아니다")
         date = dt.date(year, int(hm.group(2)), int(hm.group(3)))
+        body, visit_stops = split_visit_stops(body)
         body, place_pins = split_place_pins(body)
 
         parts = re.split(r"^### ", body, flags=re.M)
@@ -91,10 +93,40 @@ def parse_trip(path):
                 ev["start"] += 24
         events.sort(key=lambda ev: ev["start"])
         days.append(dict(folder=heading, n=int(hm.group(1)), date=date,
-                         memo=memo, captions=captions, events=events, place_pins=place_pins))
+                         memo=memo, captions=captions, events=events,
+                         place_pins=place_pins, visit_stops=visit_stops))
     return dict(slug=path.stem, meta=meta, days=days)
 
 
+
+
+def split_visit_stops(body):
+    """@stop 번호 위도,경도 제목 + 다음 문단들을 방문 순서 카드와 숫자 지도 핀으로 만든다."""
+    starts = list(re.finditer(r"^@stop\s+\d+\s+-?\d+(?:\.\d+)?,\s*-?\d+(?:\.\d+)?\s+.+$", body, flags=re.M))
+    if not starts:
+        return body, []
+    stops, spans = [], []
+    for idx, start in enumerate(starts):
+        line_end = body.find("\n", start.start())
+        if line_end < 0:
+            line_end = len(body)
+        header = body[start.start():line_end].strip()
+        m = VISIT_STOP.fullmatch(header)
+        if not m:
+            continue
+        next_start = starts[idx + 1].start() if idx + 1 < len(starts) else len(body)
+        event_start = body.find("\n### ", line_end, next_start)
+        block_end = event_start if event_start >= 0 else next_start
+        memo = body[line_end:block_end].strip()
+        stops.append(dict(
+            number=int(m.group(1)), lat=float(m.group(2)), lon=float(m.group(3)),
+            title=m.group(4).strip(), memo=memo
+        ))
+        spans.append((start.start(), block_end))
+    for start, end in reversed(spans):
+        body = body[:start] + body[end:]
+    stops.sort(key=lambda s: s["number"])
+    return body, stops
 
 def split_place_pins(body):
     """원고의 @pin lat,lon 이름 줄을 지도 전용 장소 핀으로 분리한다."""
@@ -674,17 +706,25 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
         events = []
         day_points = [p for part in route[str(d)] for p in part]
         pins[str(d)] = []
-        for place in day.get("place_pins", []):
-            pins[str(d)].append([None, place["lat"], place["lon"], f"day{day['n']}", place["title"]])
-        for i, ev in enumerate(day["events"], 1):
-            event_time = dt.datetime.combine(d, dt.time(), dt.timezone(dt.timedelta(hours=9))) + dt.timedelta(hours=ev["start"])
-            if day["n"] == 1 and i == 1:
-                # 출발지의 사적 위치 대신 서울 시내의 대표 좌표만 공개한다.
-                lat, lon = 37.5665, 126.9780
-            else:
-                nearest = min(day_points, key=lambda p: abs((dt.datetime.fromisoformat(p[0]) - event_time).total_seconds()))
-                lat, lon = nearest[1:]
-            pins[str(d)].append([i, lat, lon, f"d{day['n']}e{i}", ev["title"]])
+        visit_stops = day.get("visit_stops", [])
+        if visit_stops:
+            for stop in visit_stops:
+                pins[str(d)].append([
+                    stop["number"], stop["lat"], stop["lon"],
+                    f"d{day['n']}s{stop['number']}", stop["title"]
+                ])
+        else:
+            for place in day.get("place_pins", []):
+                pins[str(d)].append([None, place["lat"], place["lon"], f"day{day['n']}", place["title"]])
+            for i, ev in enumerate(day["events"], 1):
+                event_time = dt.datetime.combine(d, dt.time(), dt.timezone(dt.timedelta(hours=9))) + dt.timedelta(hours=ev["start"])
+                if day["n"] == 1 and i == 1:
+                    # 출발지의 사적 위치 대신 서울 시내의 대표 좌표만 공개한다.
+                    lat, lon = 37.5665, 126.9780
+                else:
+                    nearest = min(day_points, key=lambda p: abs((dt.datetime.fromisoformat(p[0]) - event_time).total_seconds()))
+                    lat, lon = nearest[1:]
+                pins[str(d)].append([i, lat, lon, f"d{day['n']}e{i}", ev["title"]])
             title = ev["title"]
             draft_title = is_draft(title)
             if draft_title:
@@ -707,10 +747,21 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 {heading}{memo}
 {event_gallery}
 </li>""")
+        visit_items = []
+        for stop in day.get("visit_stops", []):
+            stop_memo = f'<div class="memo">{paragraphs(stop["memo"])}</div>' if stop["memo"] else ""
+            visit_items.append(f"""<li class="event visit-stop" id="d{day['n']}s{stop['number']}">
+<p class="ev-time"><span class="ev-n">{stop['number']}</span>피규어 매장 순회</p>
+<h3>{html.escape(stop['title'])}</h3>
+{stop_memo}
+</li>""")
+        visit_list = (f'<div class="visit-log"><h3>피규어 매장 순회</h3><ol class="events visit-stops">{chr(10).join(visit_items)}</ol></div>'
+                      if visit_items else "")
         event_list = f'<ol class="events">{chr(10).join(events)}</ol>' if events else ""
         sections.append(f"""<section class="day" data-day="{d}" aria-label="{day['n']}일차 · {d.month}월 {d.day}일"{'' if day['n'] == 1 else ' hidden'}>
 <div class="memo">{paragraphs(day['memo'])}</div>
 {day_video}
+{visit_list}
 {event_list}
 {gallery}
 </section>""")
