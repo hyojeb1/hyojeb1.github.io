@@ -741,6 +741,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 
     used, sections = set(), []
     pins = {}
+    visit_paths = {}
     total = 0 if local_photos else int(meta.get("photo_count", "0"))
 
     for day in trip["days"]:
@@ -789,16 +790,20 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
         events = []
         day_points = [p for part in route.get(str(d), []) for p in part]
         pins[str(d)] = []
+        visit_paths[str(d)] = []
 
         for place in day.get("place_pins", []):
             pins[str(d)].append([None, place["lat"], place["lon"], f"day{day['n']}", place["title"], "place"])
 
+        event_coords = []
         for i, ev in enumerate(day["events"], 1):
             event_time = (
                 dt.datetime.combine(d, dt.time(), dt.timezone(dt.timedelta(hours=9)))
                 + dt.timedelta(hours=ev["start"])
             )
-            if day["n"] == 1 and i == 1:
+            if ev.get("location"):
+                lat, lon = ev["location"]
+            elif day["n"] == 1 and i == 1:
                 # 출발지의 사적 위치 대신 서울 시내의 대표 좌표만 공개한다.
                 lat, lon = 37.5665, 126.9780
             elif day_points:
@@ -811,16 +816,22 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                 lat, lon = ev["stops"][0]["lat"], ev["stops"][0]["lon"]
             else:
                 lat = lon = None
+            event_coords.append((lat, lon))
 
+        for i, ev in enumerate(day["events"], 1):
+            lat, lon = event_coords[i - 1]
+            event_id = f"d{day['n']}e{i}"
             if lat is not None:
-                pins[str(d)].append([i, lat, lon, f"d{day['n']}e{i}", ev["title"], "event"])
+                pins[str(d)].append([i, lat, lon, event_id, ev["title"], "event"])
 
             stop_items = []
+            segment = [[lon, lat]] if lat is not None else []
             for stop in ev.get("stops", []):
-                stop_id = f"d{day['n']}e{i}s{stop['number']}"
+                stop_id = f"{event_id}s{stop['number']}"
                 pins[str(d)].append([
                     stop["number"], stop["lat"], stop["lon"], stop_id, stop["title"], "stop"
                 ])
+                segment.append([stop["lon"], stop["lat"]])
                 stop_memo = (
                     f'<div class="memo">{paragraphs(stop["memo"])}</div>'
                     if stop["memo"] else ""
@@ -830,6 +841,21 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 <h4>{html.escape(stop['title'])}</h4>
 {stop_memo}
 </li>""")
+
+            event_places = ev.get("place_pins", [])
+            for place in event_places:
+                pins[str(d)].append([
+                    None, place["lat"], place["lon"], event_id, place["title"], "place"
+                ])
+                segment.append([place["lon"], place["lat"]])
+
+            if (ev.get("stops") or event_places) and i < len(event_coords):
+                next_lat, next_lon = event_coords[i]
+                if next_lat is not None:
+                    segment.append([next_lon, next_lat])
+            if (ev.get("stops") or event_places) and len(segment) > 1:
+                visit_paths[str(d)].append(segment)
+
             stop_list = (
                 f'<ol class="visit-stops">{"".join(stop_items)}</ol>'
                 if stop_items else ""
@@ -853,9 +879,10 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                     f'<a href="{src}"{cap_attr}><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></a>'
                 )
             event_gallery = f'<div class="shots">{"".join(manual_shots)}</div>' if manual_shots else ""
+            event_time_label = clock(ev["start"]) + ("경" if ev.get("approx") else "")
 
-            events.append(f"""<li class="event" id="d{day['n']}e{i}">
-<p class="ev-time"><span class="ev-n">{i}</span>{clock(ev['start'])}</p>
+            events.append(f"""<li class="event" id="{event_id}">
+<p class="ev-time"><span class="ev-n">{i}</span>{event_time_label}</p>
 {heading}{memo}
 {stop_list}
 {event_gallery}
@@ -884,6 +911,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 
     route_data = json.dumps(route, ensure_ascii=False, separators=(",", ":"))
     pin_data = json.dumps(pins, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
+    visit_path_data = json.dumps(visit_paths, ensure_ascii=False, separators=(",", ":"))
     body = f"""<main class="travel map-trip">
 <header class="trip-head{' has-cover' if cover_day else ''}">
 {cover_html}
@@ -921,6 +949,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 </dialog>
 <script type="application/json" id="route-data">{route_data}</script>
 <script type="application/json" id="event-pins">{pin_data}</script>
+<script type="application/json" id="visit-paths">{visit_path_data}</script>
 <script src="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.js"></script>
 <script src="../route.js"></script>
 <script src="../lightbox.js"></script>"""
