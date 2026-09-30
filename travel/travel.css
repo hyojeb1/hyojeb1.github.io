@@ -273,8 +273,18 @@ body:has(main.travel) {
 .visit-stop .memo {
   margin-top: 8px;
 }
+.visit-stop .ev-n {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--text-3);
+  border-radius: 4px;
+  color: var(--text-2);
+  background: transparent;
+  font-size: 10px;
+}
 .visit-stop:target .ev-n {
-  background: var(--accent);
+  border-color: var(--text);
+  background: var(--text);
   color: #1a1a1c;
 }
 
@@ -407,6 +417,15 @@ p.ph {
   border-width: 2px;
   background: #fff;
   font: 900 18px/16px var(--meta);
+}
+.route .stop-pin {
+  width: 22px;
+  min-height: 22px;
+  border: 2px solid #f1ec95;
+  border-radius: 6px;
+  background: #111113;
+  color: #f1ec95;
+  font: 700 11px/18px var(--meta);
 }
 .route .event-pin:focus-visible {
   outline: 3px solid #1a1a1c;
