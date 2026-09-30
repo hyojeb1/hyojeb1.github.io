@@ -28,7 +28,7 @@
 
 - `travel/` 아래 HTML·WebP는 `scripts/build-travel.py`의 생성물이다. 손으로 고치지 않는다.
   손으로 쓰는 건 `travel.css`, `lightbox.js`, `route.js`, 원고 `data/travel/*.md`뿐이다.
-  `main` push 시 Pages workflow가 빌더와 회귀 검사를 실행하고 생성 HTML을 자동 동기화한다.
+  `main` push 시 Pages workflow가 빌더와 회귀 검사를 실행하고 생성 HTML을 Pages artifact로 배포한다.
 - 선택한 일차 영상·포스터 `travel/<slug>/dayN.mp4`, `dayN.jpg`는 저장소에서 직접 관리한다.
   빌드 스크립트는 이 파일들을 보존하고, 실제 파일이 있는 일차에만 영상을 표시한다.
 - Google Takeout 원본 `타임라인.json`과 원본 사진은 로컬에만 둔다. 공개 저장소에는
