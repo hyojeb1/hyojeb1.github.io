@@ -15,7 +15,11 @@ const routeData = makeNode();
 const pinData = makeNode();
 pinData.textContent = JSON.stringify({
   '2026-09-17': [[1, 37.5665, 126.978, 'd1e1', '서울 출발']],
-  '2026-09-19': [[1, 35.70, 139.80, 'd3e1', '숙소 출발'], [2, 35.646, 140.034, 'd3e2', 'TGS']],
+  '2026-09-19': [
+    [1, 35.70, 139.80, 'd3e1', '숙소 출발', 'event'],
+    [1, 35.699, 139.799, 'd3e1s1', '순회 지점', 'stop'],
+    [2, 35.646, 140.034, 'd3e2', 'TGS', 'event']
+  ],
   '2026-09-22': [[1, 35.77, 140.38, 'd6e1', '나리타']]
 });
 routeData.textContent = JSON.stringify({
@@ -98,7 +102,10 @@ assert.equal(map.sources.progress.data.features[0].geometry.coordinates.length, 
 buttons[3].handlers.click();
 assert.equal(map.sources.route.data.features[0].geometry.coordinates.length, 2); // 귀국편도 연결
 buttons[2].handlers.click();
-assert.equal(markers.length, 2);
+assert.equal(markers.length, 3);
+assert.equal(markers[0].element.className, 'event-pin');
+assert.equal(markers[1].element.className, 'event-pin stop-pin');
+assert.equal(markers[1].element.textContent, 1);
 nodes['#route-progress'].value = 1;
 nodes['#route-progress'].handlers.input();
 assert.ok(map.zoom < 12); // 도쿄에서 치바로 가는 동안 줌아웃
