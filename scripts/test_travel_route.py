@@ -29,13 +29,32 @@ assert '<script type="module"' not in page
 assert '<section class="day" data-day="2026-09-17" aria-label="1일차 · 9월 17일">' in page
 pins = json.loads(re.search(r'<script type="application/json" id="event-pins">(.*?)</script>', page).group(1))
 trip = builder["parse_trip"](Path("data/travel/2026-tokyo.md"))
-assert {day: len(items) for day, items in pins.items()} == {
-    str(day["date"]): len(day["events"]) for day in trip["days"]
-}
+
+for day in trip["days"]:
+    day_key = str(day["date"])
+    by_id = {item[3]: item for item in pins[day_key]}
+    for i, event in enumerate(day["events"], 1):
+        event_id = f'd{day["n"]}e{i}'
+        assert event_id in by_id
+        assert by_id[event_id][0] == i
+        assert f'id="{event_id}"' in page
+        for stop in event.get("stops", []):
+            stop_id = f'{event_id}s{stop["number"]}'
+            assert stop_id in by_id
+            assert by_id[stop_id][0] == stop["number"]
+            assert f'id="{stop_id}"' in page
+
 assert pins["2026-09-19"][0][4] == "숙소에서 출발"
-assert all(item[0] == n and f'id="{item[3]}"' in page
-           for items in pins.values() for n, item in enumerate(items, 1))
-assert pins["2026-09-17"][0][1:3] == [37.5665, 126.978]  # 자택 좌표는 공개하지 않는다
+assert next(item for item in pins["2026-09-17"] if item[3] == "d1e1")[1:3] == [37.5665, 126.978]  # 자택 좌표는 공개하지 않는다
+
+# 2일차의 14:32 이벤트가 아키바 5개 매장 순회를 품고, 다음 메인 이벤트는 17:42다.
+assert page.index('id="d2e2"') < page.index('id="d2e2s1"') < page.index('id="d2e2s5"') < page.index('id="d2e3"')
+assert '아키하바라 피규어 매장 순회' in page
+assert '코토부키야 아키하바라관' not in page
+
+# CI에서는 원본 Google 타임라인 대신 저장소의 공개 경로 스냅샷을 사용한다.
+public_route = json.loads(Path("data/travel/2026-tokyo-route.json").read_text(encoding="utf-8"))
+assert route == public_route
 assert (Path("travel/2026-tokyo/day5.mp4").is_file()
         and Path("travel/2026-tokyo/day5.jpg").is_file())
 assert '<img class="trip-cover-image" src="day5.jpg" alt="">' in page
