@@ -32,16 +32,21 @@ trip = builder["parse_trip"](Path("data/travel/2026-tokyo.md"))
 
 for day in trip["days"]:
     day_key = str(day["date"])
-    by_id = {item[3]: item for item in pins[day_key]}
     for i, event in enumerate(day["events"], 1):
         event_id = f'd{day["n"]}e{i}'
-        assert event_id in by_id
-        assert by_id[event_id][0] == i
+        event_pin = next(
+            item for item in pins[day_key]
+            if item[3] == event_id and len(item) > 5 and item[5] == "event"
+        )
+        assert event_pin[0] == i
         assert f'id="{event_id}"' in page
         for stop in event.get("stops", []):
             stop_id = f'{event_id}s{stop["number"]}'
-            assert stop_id in by_id
-            assert by_id[stop_id][0] == stop["number"]
+            stop_pin = next(
+                item for item in pins[day_key]
+                if item[3] == stop_id and len(item) > 5 and item[5] == "stop"
+            )
+            assert stop_pin[0] == stop["number"]
             assert f'id="{stop_id}"' in page
 
 assert pins["2026-09-19"][0][4] == "숙소에서 출발"
