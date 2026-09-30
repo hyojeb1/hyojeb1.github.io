@@ -112,13 +112,14 @@
     const previous = [];
     markers = (day === 'all' ? [] : dates).flatMap((date) => pins[date].map(([number, lat, lon, id, title]) => {
       const button = document.createElement('button');
+      const placeOnly = number === null;
       button.type = 'button';
-      button.className = 'event-pin';
-      button.textContent = number;
+      button.className = placeOnly ? 'event-pin place-pin' : 'event-pin';
+      button.textContent = placeOnly ? '·' : number;
       button.title = title;
-      button.setAttribute('aria-label', `${date} ${number}번 · ${title}`);
+      button.setAttribute('aria-label', placeOnly ? `${date} · ${title}` : `${date} ${number}번 · ${title}`);
       button.addEventListener('click', () => {
-        document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
       const overlap = previous.filter(([y, x]) => Math.abs(y - lat) < 0.00008 && Math.abs(x - lon) < 0.00008).length;
       previous.push([lat, lon]);
