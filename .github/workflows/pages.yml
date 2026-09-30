@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -22,8 +22,38 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install travel build dependency
+        run: python -m pip install Pillow
+
+      - name: Build travel pages
+        run: |
+          python -m py_compile scripts/build-travel.py
+          python scripts/build-travel.py
+
+      - name: Test travel pages
+        run: |
+          python scripts/test_travel_route.py
+          node scripts/test_route_playback.js
+
+      - name: Sync generated travel HTML
+        run: |
+          if ! git diff --quiet -- travel/index.html travel/2026-tokyo/index.html; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add travel/index.html travel/2026-tokyo/index.html
+            git commit -m "여행 페이지 자동 생성 [skip ci]"
+            git push
+          fi
+
       # 저장소 루트를 통째로 올리지 않는다. 사이트 파일만 골라 올린다.
       - run: mkdir _site && cp -r index.html style.css assets works chess travel _site/
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
