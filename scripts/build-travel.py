@@ -726,28 +726,28 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                     nearest = min(day_points, key=lambda p: abs((dt.datetime.fromisoformat(p[0]) - event_time).total_seconds()))
                     lat, lon = nearest[1:]
                 pins[str(d)].append([i, lat, lon, f"d{day['n']}e{i}", ev["title"]])
-            title = ev["title"]
-            draft_title = is_draft(title)
-            if draft_title:
-                title = title[1:-1]
-            title_class = ' class="ph"' if draft_title else ""
-            heading = f'<h3{title_class}>{html.escape(title)}</h3>'
-            memo = f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"] else ""
-            manual_shots = []
-            for media_item in ev.get("images", []):
-                src = html.escape(media_item["src"], quote=True)
-                cap = html.escape(media_item["caption"])
-                alt = cap or f"{day['n']}일차 {title} 사진"
-                cap_attr = f' data-caption="{cap}"' if cap else ""
-                manual_shots.append(
-                    f'<a href="{src}"{cap_attr}><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></a>'
-                )
-            event_gallery = f'<div class="shots">{"".join(manual_shots)}</div>' if manual_shots else ""
-            events.append(f"""<li class="event" id="d{day['n']}e{i}">
-<p class="ev-time"><span class="ev-n">{i}</span>{clock(ev['start'])}</p>
-{heading}{memo}
-{event_gallery}
-</li>""")
+                title = ev["title"]
+                draft_title = is_draft(title)
+                if draft_title:
+                    title = title[1:-1]
+                title_class = ' class="ph"' if draft_title else ""
+                heading = f'<h3{title_class}>{html.escape(title)}</h3>'
+                memo = f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"] else ""
+                manual_shots = []
+                for media_item in ev.get("images", []):
+                    src = html.escape(media_item["src"], quote=True)
+                    cap = html.escape(media_item["caption"])
+                    alt = cap or f"{day['n']}일차 {title} 사진"
+                    cap_attr = f' data-caption="{cap}"' if cap else ""
+                    manual_shots.append(
+                        f'<a href="{src}"{cap_attr}><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></a>'
+                    )
+                event_gallery = f'<div class="shots">{"".join(manual_shots)}</div>' if manual_shots else ""
+                events.append(f"""<li class="event" id="d{day['n']}e{i}">
+    <p class="ev-time"><span class="ev-n">{i}</span>{clock(ev['start'])}</p>
+    {heading}{memo}
+    {event_gallery}
+    </li>""")
         visit_items = []
         for stop in day.get("visit_stops", []):
             stop_memo = f'<div class="memo">{paragraphs(stop["memo"])}</div>' if stop["memo"] else ""
