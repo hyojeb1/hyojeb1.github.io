@@ -56,7 +56,7 @@ def parse_trip(path):
         (k.strip(), v.strip())
         for k, v in (line.split(":", 1) for line in m.group(1).splitlines() if ":" in line)
     )
-    for key in ("title", "start", "end", "photos"):
+    for key in ("title", "start", "end"):
         if key not in meta:
             sys.exit(f"{path.name}: 머리말에 {key} 가 없다")
 
@@ -409,15 +409,50 @@ def band_html(timed, ranges, a, b, peak):
 </div>"""
 
 
+
+def resolve_meta_path(value):
+    """메타데이터 경로를 해석한다. 저장소 상대 경로와 Windows 절대 경로를 모두 허용한다."""
+    raw = value.strip()
+    path = Path(raw)
+    if path.is_absolute() or re.match(r"^[A-Za-z]:[\\/]", raw):
+        return path
+    return ROOT / path
+
+
+def route_for_trip(meta):
+    """로컬에서는 원본 타임라인을 우선하고, CI에서는 공개용 경로 스냅샷을 읽는다."""
+    timeline = meta.get("timeline")
+    public = meta.get("route")
+    public_path = resolve_meta_path(public) if public else None
+
+    if timeline:
+        timeline_path = resolve_meta_path(timeline)
+        if timeline_path.is_file():
+            route = build_route(meta, timeline_path)
+            if public_path:
+                public_path.parent.mkdir(parents=True, exist_ok=True)
+                public_path.write_text(
+                    json.dumps(route, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+            return route
+
+    if public_path and public_path.is_file():
+        return json.loads(public_path.read_text(encoding="utf-8"))
+
+    return None
+
 def build_trip(trip):
     slug, meta = trip["slug"], trip["meta"]
     out = OUT / slug
     img_dir = out / "img"
     img_dir.mkdir(parents=True, exist_ok=True)
-    photos_root = Path(meta["photos"])
-    route = build_route(meta) if "timeline" in meta else None
+    photos_root = resolve_meta_path(meta["photos"]) if meta.get("photos") else None
+    route = route_for_trip(meta)
     if route:
         return build_map_trip(trip, route, photos_root, out, img_dir)
+    if photos_root is None or not photos_root.is_dir():
+        sys.exit(f"{trip['slug']}: 사진 원본이나 공개 경로 데이터가 없다")
 
     # 1) 모든 일차를 먼저 훑는다. 띠의 가로축과 막대 높이를 여행 전체에서 같게 맞추려고.
     #    폴더는 달력 날짜로 나뉘어 있지만 띠는 06시 경계로 다시 나눈다.
@@ -582,9 +617,9 @@ def build_trip(trip):
     return dict(slug=slug, meta=meta, total=total, draft=draft, used=sorted(used))
 
 
-def build_route(meta):
+def build_route(meta, source=None):
     """기기 타임라인의 이동 경로만 공개용으로 추린다. 원본과 원시 신호는 복사하지 않는다."""
-    source = Path(meta["timeline"])
+    source = source or resolve_meta_path(meta["timeline"])
     data = json.loads(source.read_text(encoding="utf-8"))
     start = dt.date.fromisoformat(meta["start"])
     end = dt.date.fromisoformat(meta["end"])
@@ -664,7 +699,7 @@ def remove_route_spikes(parts):
 
 
 def build_map_trip(trip, route, photos_root, out, img_dir):
-    """위치 기록을 중심으로 보여준다. 카톡 사진의 시각은 여행 동선에 쓰지 않는다."""
+    """공개 경로를 중심으로 보여준다. 로컬 원본 사진이 없어도 CI에서 다시 생성할 수 있다."""
     meta = trip["meta"]
     cover_day = meta.get("cover_day")
     cover_image = f"day{cover_day}.jpg"
@@ -672,25 +707,30 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
     if cover_day and not (out / cover_image).is_file():
         sys.exit(f"대문 이미지가 없다: {out / cover_image}")
     cover_html = (f'<img class="trip-cover-image" src="{cover_image}" alt="">' if cover_day else "")
+
+    local_photos = photos_root is not None and photos_root.is_dir()
     used, sections = set(), []
     pins = {}
-    total = 0
+    total = 0 if local_photos else int(meta.get("photo_count", "0"))
+
     for day in trip["days"]:
-        folder = photos_root / day["folder"]
-        if not folder.is_dir():
-            sys.exit(f"사진 폴더가 없다: {folder}")
-        total += len(media(folder))
         shots = []
-        for src in sorted(pick_files(folder)):
-            p = export(src, img_dir)
-            used.update((f"{p['stem']}.webp", f"{p['stem']}-t.webp"))
-            cap = day["captions"].get(src.name, "")
-            alt = cap or f"{day['n']}일차 여행 사진"
-            shots.append(
-                f'<a href="img/{p["stem"]}.webp" data-caption="{html.escape(cap)}">'
-                f'<img src="img/{p["stem"]}-t.webp" width="{p["w"]}" height="{p["h"]}" '
-                f'alt="{html.escape(alt)}" loading="lazy" decoding="async"></a>'
-            )
+        if local_photos:
+            folder = photos_root / day["folder"]
+            if not folder.is_dir():
+                sys.exit(f"사진 폴더가 없다: {folder}")
+            total += len(media(folder))
+            for src in sorted(pick_files(folder)):
+                p = export(src, img_dir)
+                used.update((f"{p['stem']}.webp", f"{p['stem']}-t.webp"))
+                cap = day["captions"].get(src.name, "")
+                alt = cap or f"{day['n']}일차 여행 사진"
+                shots.append(
+                    f'<a href="img/{p["stem"]}.webp" data-caption="{html.escape(cap)}">'
+                    f'<img src="img/{p["stem"]}-t.webp" width="{p["w"]}" height="{p["h"]}" '
+                    f'alt="{html.escape(alt)}" loading="lazy" decoding="async"></a>'
+                )
+
         d = day["date"]
         gallery = f'<div class="shots">{"".join(shots)}</div>' if shots else ""
         video = f"day{day['n']}.mp4"
@@ -704,71 +744,97 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 </video>
 <figcaption>{caption}</figcaption>
 </figure>''' if (out / video).is_file() else "")
+
         events = []
-        day_points = [p for part in route[str(d)] for p in part]
+        day_points = [p for part in route.get(str(d), []) for p in part]
         pins[str(d)] = []
-        visit_stops = day.get("visit_stops", [])
-        if visit_stops:
-            for stop in visit_stops:
-                pins[str(d)].append([
-                    stop["number"], stop["lat"], stop["lon"],
-                    f"d{day['n']}s{stop['number']}", stop["title"]
-                ])
-        else:
-            for place in day.get("place_pins", []):
-                pins[str(d)].append([None, place["lat"], place["lon"], f"day{day['n']}", place["title"]])
-            for i, ev in enumerate(day["events"], 1):
-                event_time = dt.datetime.combine(d, dt.time(), dt.timezone(dt.timedelta(hours=9))) + dt.timedelta(hours=ev["start"])
-                if day["n"] == 1 and i == 1:
-                    # 출발지의 사적 위치 대신 서울 시내의 대표 좌표만 공개한다.
-                    lat, lon = 37.5665, 126.9780
-                else:
-                    nearest = min(day_points, key=lambda p: abs((dt.datetime.fromisoformat(p[0]) - event_time).total_seconds()))
-                    lat, lon = nearest[1:]
+
+        for place in day.get("place_pins", []):
+            pins[str(d)].append([None, place["lat"], place["lon"], f"day{day['n']}", place["title"]])
+
+        for i, ev in enumerate(day["events"], 1):
+            event_time = (
+                dt.datetime.combine(d, dt.time(), dt.timezone(dt.timedelta(hours=9)))
+                + dt.timedelta(hours=ev["start"])
+            )
+            if day["n"] == 1 and i == 1:
+                # 출발지의 사적 위치 대신 서울 시내의 대표 좌표만 공개한다.
+                lat, lon = 37.5665, 126.9780
+            elif day_points:
+                nearest = min(
+                    day_points,
+                    key=lambda p: abs((dt.datetime.fromisoformat(p[0]) - event_time).total_seconds()),
+                )
+                lat, lon = nearest[1:]
+            elif ev.get("stops"):
+                lat, lon = ev["stops"][0]["lat"], ev["stops"][0]["lon"]
+            else:
+                lat = lon = None
+
+            if lat is not None:
                 pins[str(d)].append([i, lat, lon, f"d{day['n']}e{i}", ev["title"]])
-                title = ev["title"]
-                draft_title = is_draft(title)
-                if draft_title:
-                    title = title[1:-1]
-                title_class = ' class="ph"' if draft_title else ""
-                heading = f'<h3{title_class}>{html.escape(title)}</h3>'
-                memo = f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"] else ""
-                manual_shots = []
-                for media_item in ev.get("images", []):
-                    src = html.escape(media_item["src"], quote=True)
-                    cap = html.escape(media_item["caption"])
-                    alt = cap or f"{day['n']}일차 {title} 사진"
-                    cap_attr = f' data-caption="{cap}"' if cap else ""
-                    manual_shots.append(
-                        f'<a href="{src}"{cap_attr}><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></a>'
-                    )
-                event_gallery = f'<div class="shots">{"".join(manual_shots)}</div>' if manual_shots else ""
-                events.append(f"""<li class="event" id="d{day['n']}e{i}">
-    <p class="ev-time"><span class="ev-n">{i}</span>{clock(ev['start'])}</p>
-    {heading}{memo}
-    {event_gallery}
-    </li>""")
-        visit_items = []
-        for stop in day.get("visit_stops", []):
-            stop_memo = f'<div class="memo">{paragraphs(stop["memo"])}</div>' if stop["memo"] else ""
-            visit_items.append(f"""<li class="event visit-stop" id="d{day['n']}s{stop['number']}">
-<p class="ev-time"><span class="ev-n">{stop['number']}</span>피규어 매장 순회</p>
-<h3>{html.escape(stop['title'])}</h3>
+
+            stop_items = []
+            for stop in ev.get("stops", []):
+                stop_id = f"d{day['n']}e{i}s{stop['number']}"
+                pins[str(d)].append([
+                    stop["number"], stop["lat"], stop["lon"], stop_id, stop["title"]
+                ])
+                stop_memo = (
+                    f'<div class="memo">{paragraphs(stop["memo"])}</div>'
+                    if stop["memo"] else ""
+                )
+                stop_items.append(f"""<li class="visit-stop" id="{stop_id}">
+<p class="ev-time"><span class="ev-n">{stop['number']}</span>순회 {stop['number']}</p>
+<h4>{html.escape(stop['title'])}</h4>
 {stop_memo}
 </li>""")
-        visit_list = (f'<div class="visit-log"><h3>피규어 매장 순회</h3><ol class="events visit-stops">{chr(10).join(visit_items)}</ol></div>'
-                      if visit_items else "")
+            stop_list = (
+                f'<ol class="visit-stops">{"".join(stop_items)}</ol>'
+                if stop_items else ""
+            )
+
+            title = ev["title"]
+            draft_title = is_draft(title)
+            if draft_title:
+                title = title[1:-1]
+            title_class = ' class="ph"' if draft_title else ""
+            heading = f'<h3{title_class}>{html.escape(title)}</h3>'
+            memo = f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"] else ""
+
+            manual_shots = []
+            for media_item in ev.get("images", []):
+                src = html.escape(media_item["src"], quote=True)
+                cap = html.escape(media_item["caption"])
+                alt = cap or f"{day['n']}일차 {title} 사진"
+                cap_attr = f' data-caption="{cap}"' if cap else ""
+                manual_shots.append(
+                    f'<a href="{src}"{cap_attr}><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></a>'
+                )
+            event_gallery = f'<div class="shots">{"".join(manual_shots)}</div>' if manual_shots else ""
+
+            events.append(f"""<li class="event" id="d{day['n']}e{i}">
+<p class="ev-time"><span class="ev-n">{i}</span>{clock(ev['start'])}</p>
+{heading}{memo}
+{stop_list}
+{event_gallery}
+</li>""")
+
         event_list = f'<ol class="events">{chr(10).join(events)}</ol>' if events else ""
         sections.append(f"""<section class="day" data-day="{d}" aria-label="{day['n']}일차 · {d.month}월 {d.day}일"{'' if day['n'] == 1 else ' hidden'}>
 <div class="memo">{paragraphs(day['memo'])}</div>
 {day_video}
-{visit_list}
 {event_list}
 {gallery}
 </section>""")
-    for f in img_dir.iterdir():
-        if f.name not in used:
-            f.unlink()
+
+    # 로컬 원본을 가지고 다시 뽑을 때만 생성 WebP를 정리한다.
+    # CI에는 원본 사진이 없으므로 기존 공개 이미지를 건드리지 않는다.
+    if local_photos:
+        for f in img_dir.iterdir():
+            if f.name not in used:
+                f.unlink()
+
     route_data = json.dumps(route, ensure_ascii=False, separators=(",", ":"))
     pin_data = json.dumps(pins, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
     body = f"""<main class="travel map-trip">
@@ -814,8 +880,10 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
     (out / "index.html").write_text(
         page(f"{meta['title']} · 장효제", body, "../../", map_page=True), encoding="utf-8"
     )
-    return dict(slug=trip["slug"], meta=meta, total=total, draft=False, used=sorted(used),
-                cover_day=cover_day, cover_video=(out / cover_video).is_file())
+    return dict(
+        slug=trip["slug"], meta=meta, total=total, draft=False, used=sorted(used),
+        cover_day=cover_day, cover_video=(out / cover_video).is_file(),
+    )
 
 
 def build_index(trips):
