@@ -5,6 +5,7 @@ end: 2026-09-22
 photos: C:\Users\user\Downloads\2026도쿄_날짜별
 timeline: C:\Users\user\Downloads\2026도쿄_날짜별\타임라인.json
 route: data/travel/2026-tokyo-route.json
+media: data/travel/2026-tokyo-media.json
 photo_count: 829
 cover_day: 5
 day5_caption: 9월 21일 · 비 내리는 아사쿠사
@@ -87,6 +88,8 @@ ANIPLEX 마린 1/7을 만났고, GRIDMAN UNIVERSE Dreamy Divas 3체 세트 ¥38,
 ### 19:18 (게이머즈 건물, 4층 가차퐁)
 
 ### 21:14 요도바시 카메라 멀티미디어 Akiba
+
+@pin 35.6984409,139.7706076 로스트비프 오노 아키하바라점
 
 이후 로스트비프 오노 아키하바라점에 갔다. 정확한 방문 시각은 기록하지 못했다.
 
