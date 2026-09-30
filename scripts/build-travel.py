@@ -40,9 +40,10 @@ GAP_MIN = 60      # 자동 구간: 이만큼 사진이 끊기면 다음 이벤�
 MIN_EVENT = 3     # 자동 구간: 이보다 적은 장수는 이벤트로 세우지 않는다(띠에는 남는다)
 
 DAY_HEADING = re.compile(r"^(\d+)일차_(\d{2})(\d{2})$")
-EVENT_HEADING = re.compile(r"^(\d{1,2}):(\d{2})\s*(.*)$")
+EVENT_HEADING = re.compile(r"^(\d{1,2}):(\d{2})(경)?\s*(.*)$")
 KAKAO_NAME = re.compile(r"(\d{8})_(\d{6})")
 PLACE_PIN = re.compile(r"^@pin\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\s+(.+)$")
+EVENT_LOCATION = re.compile(r"^@loc\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$")
 VISIT_STOP = re.compile(r"^@stop\s+(\d+)\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\s+(.+)$")
 
 # ---------- 원고 ----------
@@ -70,21 +71,32 @@ def parse_trip(path):
             sys.exit(f"{path.name}: '## {heading}' 은 '## N일차_MMDD' 형식이 아니다")
         date = dt.date(year, int(hm.group(2)), int(hm.group(3)))
         visit_stops = []
-        body, place_pins = split_place_pins(body)
 
         parts = re.split(r"^### ", body, flags=re.M)
-        memo, captions = split_captions(parts[0])
+        day_body, place_pins = split_place_pins(parts[0])
+        memo, captions = split_captions(day_body)
         events = []
         for part in parts[1:]:
             eh, _, ebody = part.partition("\n")
             em = EVENT_HEADING.match(eh.strip())
             if not em:
-                sys.exit(f"{path.name} {heading}: '### {eh.strip()}' 은 '### HH:MM 제목' 형식이 아니다")
+                sys.exit(f"{path.name} {heading}: '### {eh.strip()}' 은 '### HH:MM[경] 제목' 형식이 아니다")
             h, mi = int(em.group(1)), int(em.group(2))
+            ebody, location = split_event_location(ebody)
+            ebody, eplace_pins = split_place_pins(ebody)
             ebody, estops = split_visit_stops(ebody)
             ememo, ecaps, eimages = split_event_media(ebody)
             captions.update(ecaps)
-            events.append(dict(start=h + mi / 60, title=em.group(3).strip(), memo=ememo, images=eimages, stops=estops))
+            events.append(dict(
+                start=h + mi / 60,
+                approx=bool(em.group(3)),
+                title=em.group(4).strip(),
+                memo=ememo,
+                images=eimages,
+                stops=estops,
+                place_pins=eplace_pins,
+                location=location,
+            ))
         # 06시 전 이벤트가 그날 첫 기록이면 새벽 출발이고, 낮 기록 뒤라면 그날 밤이다.
         daytime_seen = False
         for ev in events:
@@ -128,6 +140,19 @@ def split_visit_stops(body):
         body = body[:start] + body[end:]
     stops.sort(key=lambda s: s["number"])
     return body, stops
+
+def split_event_location(body):
+    """@loc 위도,경도는 메인 이벤트 핀 위치만 덮어쓰고 본문에서는 제거한다."""
+    location = None
+    lines = []
+    for line in body.splitlines():
+        m = EVENT_LOCATION.fullmatch(line.strip())
+        if m:
+            location = (float(m.group(1)), float(m.group(2)))
+        else:
+            lines.append(line)
+    return "\n".join(lines), location
+
 
 def split_place_pins(body):
     """원고의 @pin lat,lon 이름 줄을 지도 전용 장소 핀으로 분리한다."""
