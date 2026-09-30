@@ -200,8 +200,8 @@ npm run build-travel                       (= python scripts/build-travel.py)
 필요: Python 3 + Pillow.
 
 `main`에 push하면 Pages workflow가 Python/Pillow를 준비하고 `build-travel.py`와
-회귀 검사를 실행한 뒤 생성된 여행 HTML을 배포한다. 생성된 HTML이 바뀌면 workflow가
-`[skip ci]` 커밋으로 저장소에도 동기화한다.
+회귀 검사를 실행한 뒤 생성된 여행 HTML을 Pages artifact로 바로 배포한다. CI는 생성물을
+별도 커밋하지 않으므로 여러 push가 겹쳐도 빌드 커밋 충돌이 나지 않는다.
 
 스크립트가 하는 일: EXIF 방향 적용 → EXIF·XMP 전부 제거(GPS 포함, 출력에서 다시
 검사하고 남아 있으면 멈춘다) → 긴 변 1200px 썸네일과 2400px 확대본 WebP. ICC 색
