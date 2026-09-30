@@ -14,6 +14,7 @@
   }
   const data = JSON.parse(document.querySelector('#route-data').textContent);
   const pins = JSON.parse(document.querySelector('#event-pins').textContent);
+  const visitPaths = JSON.parse(document.querySelector('#visit-paths')?.textContent || '{}');
   const map = new maplibregl.Map({
     container: element,
     style: 'https://tiles.openfreemap.org/styles/liberty',
@@ -40,6 +41,17 @@
     features: path.length > 1 ? [{
       type: 'Feature', geometry: { type: 'LineString', coordinates: path }, properties: {}
     }] : []
+  });
+
+  const lines = (segments) => ({
+    type: 'FeatureCollection',
+    features: segments
+      .filter((segment) => segment.length > 1)
+      .map((segment) => ({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: segment },
+        properties: {}
+      }))
   });
   const formatTime = new Intl.DateTimeFormat('ko-KR', {
     timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -108,6 +120,8 @@
     if (!points.length) return;
     coords = points.map((p) => p.coord);
     map.getSource('route').setData(line(coords));
+    const selectedVisitPaths = dates.flatMap((date) => visitPaths[date] || []);
+    map.getSource('visit').setData(lines(selectedVisitPaths));
     markers.forEach((marker) => marker.remove());
     const previous = [];
     markers = (day === 'all' ? [] : dates).flatMap((date) => pins[date].map(([number, lat, lon, id, title, kind = 'event']) => {
@@ -150,9 +164,11 @@
       }
     }
     map.addSource('route', { type: 'geojson', data: empty });
+    map.addSource('visit', { type: 'geojson', data: empty });
     map.addSource('progress', { type: 'geojson', data: empty });
     map.addSource('cursor', { type: 'geojson', data: empty });
     map.addLayer({ id: 'route-line', type: 'line', source: 'route', paint: { 'line-color': '#1a1a1c', 'line-opacity': 0.65, 'line-width': 5 } });
+    map.addLayer({ id: 'visit-line', type: 'line', source: 'visit', paint: { 'line-color': '#f1ec95', 'line-opacity': 0.85, 'line-width': 2.5, 'line-dasharray': [1.5, 1.5] } });
     map.addLayer({ id: 'progress-outline', type: 'line', source: 'progress', paint: { 'line-color': '#1a1a1c', 'line-width': 8 } });
     map.addLayer({ id: 'progress-line', type: 'line', source: 'progress', paint: { 'line-color': '#f1ec95', 'line-width': 5 } });
     map.addLayer({ id: 'cursor-dot', type: 'circle', source: 'cursor', paint: { 'circle-radius': 7, 'circle-color': '#f1ec95', 'circle-stroke-color': '#1a1a1c', 'circle-stroke-width': 2 } });
