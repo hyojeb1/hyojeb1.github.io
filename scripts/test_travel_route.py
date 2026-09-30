@@ -47,10 +47,19 @@ for day in trip["days"]:
 assert pins["2026-09-19"][0][4] == "숙소에서 출발"
 assert next(item for item in pins["2026-09-17"] if item[3] == "d1e1")[1:3] == [37.5665, 126.978]  # 자택 좌표는 공개하지 않는다
 
-# 2일차의 14:32 이벤트가 아키바 5개 매장 순회를 품고, 다음 메인 이벤트는 17:42다.
-assert page.index('id="d2e2"') < page.index('id="d2e2s1"') < page.index('id="d2e2s5"') < page.index('id="d2e3"')
+# 2일차는 아니메이트가 먼저고, 그 다음 14:32 피규어 매장 순회가 4개 매장을 품는다.
+assert page.index('id="d2e2"') < page.index('아ニメイト秋葉原2号館') < page.index('id="d2e3"')
+assert page.index('id="d2e3"') < page.index('id="d2e3s1"') < page.index('id="d2e3s4"') < page.index('id="d2e4"')
+assert '14:25경' in page
 assert '아키하바라 피규어 매장 순회' in page
 assert '코토부키야 아키하바라관' not in page
+
+# 세부 방문지는 보조 연결선으로 지도 경로에 이어진다.
+visit_paths = json.loads(re.search(r'<script type="application/json" id="visit-paths">(.*?)</script>', page).group(1))
+day2_paths = visit_paths["2026-09-18"]
+assert any([139.77155, 35.69793] in segment for segment in day2_paths)  # 아미아미 Figure Tower
+assert any([139.77053, 35.70035] in segment for segment in day2_paths)  # 만다라케
+assert any([139.7706076, 35.6984409] in segment for segment in day2_paths)  # 로스트비프 오노
 
 # CI에서는 원본 Google 타임라인 대신 저장소의 공개 경로 스냅샷을 사용한다.
 public_route = json.loads(Path("data/travel/2026-tokyo-route.json").read_text(encoding="utf-8"))
