@@ -28,11 +28,15 @@
 
 - `travel/` 아래 HTML·WebP는 `scripts/build-travel.py`의 생성물이다. 손으로 고치지 않는다.
   손으로 쓰는 건 `travel.css`, `lightbox.js`, `route.js`, 원고 `data/travel/*.md`뿐이다.
+  `main` push 시 Pages workflow가 빌더와 회귀 검사를 실행하고 생성 HTML을 자동 동기화한다.
 - 선택한 일차 영상·포스터 `travel/<slug>/dayN.mp4`, `dayN.jpg`는 저장소에서 직접 관리한다.
   빌드 스크립트는 이 파일들을 보존하고, 실제 파일이 있는 일차에만 영상을 표시한다.
-- Google Takeout 원본 `타임라인.json`은 로컬에만 둔다. 도쿄 페이지의 지도는
-  `semanticSegments.timelinePath`에서 추린 경로만 사용한다. 위치로 추론한 이벤트 제목은
-  `지도 추정` 초안으로 표시하고, 사진 EXIF 시각·GPS로 동선을 단정하지 않는다.
+- Google Takeout 원본 `타임라인.json`과 원본 사진은 로컬에만 둔다. 공개 저장소에는
+  필터링된 `data/travel/<slug>-route.json`과 선택 사진 매니페스트
+  `data/travel/<slug>-media.json`만 둔다. CI는 이 공개 스냅샷만으로 HTML을 재생성한다.
+  로컬 빌드에서 원본 타임라인이 있으면 공개 경로 스냅샷을 갱신한다.
+- 도쿄 페이지의 지도는 `semanticSegments.timelinePath`에서 추린 경로만 사용한다.
+  위치로 추론한 이벤트 제목은 `지도 추정` 초안으로 표시하고, 사진 EXIF 시각·GPS로 동선을 단정하지 않는다.
 - 메모는 원고에 적힌 문장만 쓴다. 여행기·사진 설명을 지어내지 않는다.
 - 사진 고르기는 사람이 한다. 일행이 나온 사진의 공개 여부도 사람이 정한다.
 - 이벤트 초안의 근거로 여행 단톡방 내보내기(`Downloads`에 있음)를 쓸 수 있다. 저장소에는
