@@ -42,7 +42,7 @@ MIN_EVENT = 3     # 자동 구간: 이보다 적은 장수는 이벤트로 세�
 DAY_HEADING = re.compile(r"^(\d+)일차_(\d{2})(\d{2})$")
 EVENT_HEADING = re.compile(r"^(\d{1,2}):(\d{2})\s*(.*)$")
 KAKAO_NAME = re.compile(r"(\d{8})_(\d{6})")
-
+PLACE_PIN = re.compile(r"^@pin\\s+(-?\\d+(?:\\.\\d+)?),\\s*(-?\\d+(?:\\.\\d+)?)\\s+(.+)$")\n
 
 # ---------- 원고 ----------
 
