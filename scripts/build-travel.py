@@ -40,7 +40,7 @@ GAP_MIN = 60      # 자동 구간: 이만큼 사진이 끊기면 다음 이벤�
 MIN_EVENT = 3     # 자동 구간: 이보다 적은 장수는 이벤트로 세우지 않는다(띠에는 남는다)
 
 DAY_HEADING = re.compile(r"^(\d+)일차_(\d{2})(\d{2})$")
-EVENT_HEADING = re.compile(r"^(\d{1,2}):(\d{2})(경)?\s*(.*)$")
+EVENT_HEADING = re.compile(r"^(\d{1,2}):(\d{2})(경| 이후)?\s*(.*)$")
 KAKAO_NAME = re.compile(r"(\d{8})_(\d{6})")
 PLACE_PIN = re.compile(r"^@pin\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\s+(.+)$")
 EVENT_LOCATION = re.compile(r"^@loc\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$")
@@ -89,7 +89,7 @@ def parse_trip(path):
             captions.update(ecaps)
             events.append(dict(
                 start=h + mi / 60,
-                approx=bool(em.group(3)),
+                time_suffix=em.group(3) or "",
                 title=em.group(4).strip(),
                 memo=ememo,
                 images=eimages,
@@ -806,14 +806,15 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
             elif day["n"] == 1 and i == 1:
                 # 출발지의 사적 위치 대신 서울 시내의 대표 좌표만 공개한다.
                 lat, lon = 37.5665, 126.9780
+            elif ev.get("stops"):
+                # 순회 이벤트 자체의 위치는 첫 방문지에 둔다.
+                lat, lon = ev["stops"][0]["lat"], ev["stops"][0]["lon"]
             elif day_points:
                 nearest = min(
                     day_points,
                     key=lambda p: abs((dt.datetime.fromisoformat(p[0]) - event_time).total_seconds()),
                 )
                 lat, lon = nearest[1:]
-            elif ev.get("stops"):
-                lat, lon = ev["stops"][0]["lat"], ev["stops"][0]["lon"]
             else:
                 lat = lon = None
             event_coords.append((lat, lon))
@@ -825,13 +826,21 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                 pins[str(d)].append([i, lat, lon, event_id, ev["title"], "event"])
 
             stop_items = []
-            segment = [[lon, lat]] if lat is not None else []
+            segment = []
+            if ev.get("stops") and i > 1:
+                previous_lat, previous_lon = event_coords[i - 2]
+                if previous_lat is not None:
+                    segment.append([previous_lon, previous_lat])
+            if ev.get("stops") and lat is not None:
+                segment.append([lon, lat])
             for stop in ev.get("stops", []):
                 stop_id = f"{event_id}s{stop['number']}"
                 pins[str(d)].append([
                     stop["number"], stop["lat"], stop["lon"], stop_id, stop["title"], "stop"
                 ])
-                segment.append([stop["lon"], stop["lat"]])
+                point = [stop["lon"], stop["lat"]]
+                if not segment or segment[-1] != point:
+                    segment.append(point)
                 stop_memo = (
                     f'<div class="memo">{paragraphs(stop["memo"])}</div>'
                     if stop["memo"] else ""
@@ -847,13 +856,12 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                 pins[str(d)].append([
                     None, place["lat"], place["lon"], event_id, place["title"], "place"
                 ])
-                segment.append([place["lon"], place["lat"]])
 
-            if (ev.get("stops") or event_places) and i < len(event_coords):
+            if ev.get("stops") and i < len(event_coords):
                 next_lat, next_lon = event_coords[i]
-                if next_lat is not None:
+                if next_lat is not None and segment[-1] != [next_lon, next_lat]:
                     segment.append([next_lon, next_lat])
-            if (ev.get("stops") or event_places) and len(segment) > 1:
+            if ev.get("stops") and len(segment) > 1:
                 visit_paths[str(d)].append(segment)
 
             stop_list = (
@@ -879,7 +887,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                     f'<a href="{src}"{cap_attr}><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></a>'
                 )
             event_gallery = f'<div class="shots">{"".join(manual_shots)}</div>' if manual_shots else ""
-            event_time_label = clock(ev["start"]) + ("경" if ev.get("approx") else "")
+            event_time_label = clock(ev["start"]) + ev.get("time_suffix", "")
 
             events.append(f"""<li class="event" id="{event_id}">
 <p class="ev-time"><span class="ev-n">{i}</span>{event_time_label}</p>

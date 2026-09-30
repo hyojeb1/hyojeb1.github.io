@@ -58,13 +58,13 @@ nodes['#route-speed'].value = 1;
 let map;
 let scheduled;
 class FakeMap {
-  constructor(options) { map = this; this.center = options.center; this.zoom = options.zoom; this.handlers = {}; this.sources = {}; }
+  constructor(options) { map = this; this.center = options.center; this.zoom = options.zoom; this.handlers = {}; this.sources = {}; this.layers = {}; }
   addControl() {}
   on(event, fn) { this.handlers[event] = fn; }
   getStyle() { return { layers: [] }; }
   addSource(id, source) { this.sources[id] = { data: source.data, setData(data) { this.data = data; } }; }
   getSource(id) { return this.sources[id]; }
-  addLayer() {}
+  addLayer(layer) { this.layers[layer.id] = layer; }
   getZoom() { return this.zoom; }
   jumpTo({ center, zoom }) { this.center = center; this.zoom = zoom; }
   fitBounds() {}
@@ -90,6 +90,7 @@ const context = {
 };
 vm.runInNewContext(fs.readFileSync('travel/route.js', 'utf8'), context);
 map.handlers.load();
+assert.equal(map.layers['visit-line'].paint['line-color'], '#535b63');
 assert.deepEqual(Array.from(map.center), [139.8, 35.7]); // 첫 화면은 일본
 assert.equal(map.zoom, 10);
 assert.equal(markers.length, 1);

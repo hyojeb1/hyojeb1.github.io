@@ -106,22 +106,22 @@ ANIPLEX 마린 1/7을 만났고, GRIDMAN UNIVERSE Dreamy Divas 3체 세트 ¥38,
 <https://m.maniahouse.co.kr/product/detail.html?product_no=17658&cate_no=1&display_group=4>
 
 ### 17:42 (대로변 GIGO에서 합류)
+@loc 35.6992456,139.7709552
 
 ### 19:18 (게이머즈 건물, 4층 가차퐁)
 
 ### 21:14 요도바시 카메라 멀티미디어 Akiba
 
-@pin 35.6984409,139.7706076 로스트비프 오노 아키하바라점
+### 21:14 이후 저녁으로 로스트비프를 먹었다
+@loc 35.6984409,139.7706076
 
 이후 로스트비프 오노 아키하바라점에 갔다. 정확한 방문 시각은 기록하지 못했다.
-
-저녁으로 로스트비프를 먹었다.
 
 [Google Maps](https://www.google.com/maps/place/%EB%A1%9C%EC%8A%A4%ED%8A%B8+%EB%B9%84%ED%94%84+%EC%98%A4%EB%85%B8+%EC%95%84%ED%82%A4%ED%95%98%EB%B0%94%EB%9D%BC%EC%A0%90/@35.6986484,139.7700761,19.83z/data=!3m1!5s0x60188c1d1c1c25a1:0x37e98694fdcbd30c!4m6!3m5!1s0x60188c1d19140001:0x6bbfd1a1cafa29df!8m2!3d35.6984409!4d139.7706076!16s%2Fg%2F11bwyyn7j3?entry=ttu&g_ep=EgoyMDI2MDkyNy4xIKXMDSoASAFQAw%3D%3D)
 
 ### 23:55 숙소 복귀
 
-### 00:07 (밤샘)
+밤을 새웠다.
 
 ## 3일차_0919
 

@@ -168,7 +168,7 @@
     map.addSource('progress', { type: 'geojson', data: empty });
     map.addSource('cursor', { type: 'geojson', data: empty });
     map.addLayer({ id: 'route-line', type: 'line', source: 'route', paint: { 'line-color': '#1a1a1c', 'line-opacity': 0.65, 'line-width': 5 } });
-    map.addLayer({ id: 'visit-line', type: 'line', source: 'visit', paint: { 'line-color': '#f1ec95', 'line-opacity': 0.85, 'line-width': 2.5, 'line-dasharray': [1.5, 1.5] } });
+    map.addLayer({ id: 'visit-line', type: 'line', source: 'visit', layout: { 'line-cap': 'round' }, paint: { 'line-color': '#535b63', 'line-width': 3, 'line-dasharray': [1, 2] } });
     map.addLayer({ id: 'progress-outline', type: 'line', source: 'progress', paint: { 'line-color': '#1a1a1c', 'line-width': 8 } });
     map.addLayer({ id: 'progress-line', type: 'line', source: 'progress', paint: { 'line-color': '#f1ec95', 'line-width': 5 } });
     map.addLayer({ id: 'cursor-dot', type: 'circle', source: 'cursor', paint: { 'circle-radius': 7, 'circle-color': '#f1ec95', 'circle-stroke-color': '#1a1a1c', 'circle-stroke-width': 2 } });
