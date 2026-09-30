@@ -1,5 +1,51 @@
 // 기기의 타임라인 좌표를 시간순 직선으로 잇고 날짜별로 되짚는다.
 (() => {
+  function normalizeDay2Akiba() {
+    const day = document.querySelector('.day[data-day="2026-09-18"]');
+    if (!day) return;
+    const list = day.querySelector(':scope > .events');
+    const circuit = day.querySelector(':scope > .visit-log');
+    const akiba = day.querySelector('#d2e2');
+    const oldKotobukiya = day.querySelector('#d2e3');
+    if (circuit && akiba) {
+      const title = akiba.querySelector('h3');
+      if (title) title.textContent = '아키하바라 피규어 매장 순회';
+      akiba.append(circuit);
+      circuit.querySelectorAll('[id^="d2s"]').forEach((item) => {
+        item.id = item.id.replace('d2s', 'd2e2s');
+      });
+    }
+    if (oldKotobukiya) oldKotobukiya.remove();
+    if (list && !day.querySelector('#d2-food')) {
+      const yodo = day.querySelector('#d2e6');
+      if (yodo) {
+        const item = document.createElement('li');
+        item.className = 'event';
+        item.id = 'd2-food';
+        const meta = document.createElement('p');
+        meta.className = 'ev-time';
+        const num = document.createElement('span');
+        num.className = 'ev-n';
+        meta.append(num, document.createTextNode('요도바시 이후'));
+        const title = document.createElement('h3');
+        title.textContent = '로스트비프 오노 아키하바라점';
+        const memo = document.createElement('div');
+        memo.className = 'memo';
+        const p = document.createElement('p');
+        p.textContent = '저녁으로 로스트비프를 먹었다.';
+        memo.append(p);
+        item.append(meta, title, memo);
+        yodo.after(item);
+      }
+    }
+    if (list) {
+      [...list.children].forEach((item, index) => {
+        const n = item.querySelector(':scope > .ev-time > .ev-n');
+        if (n) n.textContent = index + 1;
+      });
+    }
+  }
+  normalizeDay2Akiba();
   const element = document.querySelector('#route-map');
   const buttons = [...document.querySelectorAll('.route-days button')];
   const dayPanels = [...document.querySelectorAll('.map-trip .day')];
