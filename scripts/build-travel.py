@@ -78,9 +78,9 @@ def parse_trip(path):
             if not em:
                 sys.exit(f"{path.name} {heading}: '### {eh.strip()}' 은 '### HH:MM 제목' 형식이 아니다")
             h, mi = int(em.group(1)), int(em.group(2))
-            ememo, ecaps = split_captions(ebody)
+            ememo, ecaps, eimages = split_event_media(ebody)
             captions.update(ecaps)
-            events.append(dict(start=h + mi / 60, title=em.group(3).strip(), memo=ememo))
+            events.append(dict(start=h + mi / 60, title=em.group(3).strip(), memo=ememo, images=eimages))
         # 06시 전 이벤트가 그날 첫 기록이면 새벽 출발이고, 낮 기록 뒤라면 그날 밤이다.
         daytime_seen = False
         for ev in events:
@@ -109,6 +109,20 @@ def split_captions(body):
             lines.append(line)
     return "\n".join(lines).strip(), captions
 
+
+
+def split_event_media(body):
+    """이벤트 본문 안의 ./상대경로 이미지는 그 이벤트 갤러리로 붙인다.
+    그 외 Markdown 이미지는 기존처럼 로컬 pick 사진의 캡션으로 취급한다."""
+    images, lines = [], []
+    for line in body.strip().splitlines():
+        cm = re.fullmatch(r"!\[(.*)\]\((.+)\)", line.strip())
+        if cm and cm.group(2).strip().startswith("./"):
+            images.append(dict(src=cm.group(2).strip(), caption=cm.group(1).strip()))
+        else:
+            lines.append(line)
+    memo, captions = split_captions("\n".join(lines))
+    return memo, captions, images
 
 def inline(text):
     """이스케이프 후 링크만 살린다. 적힌 글자는 그대로 둔다."""
@@ -663,9 +677,20 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
             title_class = ' class="ph"' if draft_title else ""
             heading = f'<h3{title_class}>{html.escape(title)}</h3>'
             memo = f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"] else ""
+            manual_shots = []
+            for media_item in ev.get("images", []):
+                src = html.escape(media_item["src"], quote=True)
+                cap = html.escape(media_item["caption"])
+                alt = cap or f"{day['n']}일차 {title} 사진"
+                cap_attr = f' data-caption="{cap}"' if cap else ""
+                manual_shots.append(
+                    f'<a href="{src}"{cap_attr}><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></a>'
+                )
+            event_gallery = f'<div class="shots">{"".join(manual_shots)}</div>' if manual_shots else ""
             events.append(f"""<li class="event" id="d{day['n']}e{i}">
 <p class="ev-time"><span class="ev-n">{i}</span>{clock(ev['start'])}</p>
 {heading}{memo}
+{event_gallery}
 </li>""")
         event_list = f'<ol class="events">{chr(10).join(events)}</ol>' if events else ""
         sections.append(f"""<section class="day" data-day="{d}" aria-label="{day['n']}일차 · {d.month}월 {d.day}일"{'' if day['n'] == 1 else ' hidden'}>
