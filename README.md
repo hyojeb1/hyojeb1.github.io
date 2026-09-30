@@ -147,7 +147,9 @@ travel/<slug>/             생성 (index.html, img/*.webp); 일차 영상·포�
 ```
 
 원본 사진과 기기의 Google 지도 타임라인 내보내기 JSON은 저장소에 넣지 않는다. 원고 머리말의
-`photos:`와 선택적인 `timeline:`이 로컬 파일을 가리킨다.
+`photos:`와 `timeline:`은 로컬 파일을 가리킨다. 지도형 여행은 저장소에 공개 가능한
+`route:` 스냅샷과 `media:` 선택 사진 매니페스트를 함께 둔다. 로컬 원본이 있으면 이를
+갱신하고, GitHub Actions처럼 원본이 없는 환경에서는 공개 스냅샷만으로 HTML을 다시 만든다.
 
 ### 원고 형식
 
@@ -158,6 +160,9 @@ start: 2026-09-17
 end: 2026-09-22
 photos: C:\Users\user\Downloads\2026도쿄_날짜별
 timeline: C:\Users\user\Downloads\2026도쿄_날짜별\타임라인.json
+route: data/travel/2026-tokyo-route.json
+media: data/travel/2026-tokyo-media.json
+photo_count: 829
 ---
 
 ## 1일차_0917          ← photos 아래 폴더 이름과 같아야 한다
@@ -166,6 +171,9 @@ timeline: C:\Users\user\Downloads\2026도쿄_날짜별\타임라인.json
 <https://...>           링크 (도메인 ↗ 로 보인다). [글자](https://...) 도 된다
 ![사진 설명](KakaoTalk_...jpg)   그 사진에만 설명이 붙는다 (선택)
 ### 13:50 (확인 전 이벤트 제목)
+
+@stop 1 35.69803,139.77188 아미아미 아키하바라 라디오회관점
+이 이벤트 안에서 순서대로 방문한 장소의 메모. 지도에는 1번 숫자 핀으로 표시된다.
 ```
 
 ### 빌드
@@ -190,6 +198,10 @@ npm run build-travel                       (= python scripts/build-travel.py)
 지도 경로는 기기에서 내보낸 Google 지도 타임라인의 위치 기록으로 만들고 명백한 단일 좌표 오차를 제거한다.
 지명은 한글 이름이 제공되면 한글로, 없으면 원래 이름으로 표시한다. 방문 장소와 메모는 공개 전 사람이 확인한다.
 필요: Python 3 + Pillow.
+
+`main`에 push하면 Pages workflow가 Python/Pillow를 준비하고 `build-travel.py`와
+회귀 검사를 실행한 뒤 생성된 여행 HTML을 배포한다. 생성된 HTML이 바뀌면 workflow가
+`[skip ci]` 커밋으로 저장소에도 동기화한다.
 
 스크립트가 하는 일: EXIF 방향 적용 → EXIF·XMP 전부 제거(GPS 포함, 출력에서 다시
 검사하고 남아 있으면 멈춘다) → 긴 변 1200px 썸네일과 2400px 확대본 WebP. ICC 색
