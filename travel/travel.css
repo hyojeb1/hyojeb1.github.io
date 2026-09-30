@@ -252,6 +252,32 @@ body:has(main.travel) {
   font: 400 20px/1.35 var(--title);
 }
 
+.visit-stops {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 0.5px solid var(--line);
+}
+.visit-stop {
+  padding: 18px 0;
+  border-bottom: 0.5px solid var(--line);
+  scroll-margin-top: 16px;
+}
+.visit-stop:last-child {
+  border-bottom: 0;
+}
+.visit-stop h4 {
+  margin-top: 8px;
+  font: 400 17px/1.4 var(--title);
+}
+.visit-stop .memo {
+  margin-top: 8px;
+}
+.visit-stop:target .ev-n {
+  background: var(--accent);
+  color: #1a1a1c;
+}
+
 .shots {
   display: flex;
   gap: var(--grid-gap);
