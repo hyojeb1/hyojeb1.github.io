@@ -766,7 +766,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
         pins[str(d)] = []
 
         for place in day.get("place_pins", []):
-            pins[str(d)].append([None, place["lat"], place["lon"], f"day{day['n']}", place["title"]])
+            pins[str(d)].append([None, place["lat"], place["lon"], f"day{day['n']}", place["title"], "place"])
 
         for i, ev in enumerate(day["events"], 1):
             event_time = (
@@ -788,13 +788,13 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                 lat = lon = None
 
             if lat is not None:
-                pins[str(d)].append([i, lat, lon, f"d{day['n']}e{i}", ev["title"]])
+                pins[str(d)].append([i, lat, lon, f"d{day['n']}e{i}", ev["title"], "event"])
 
             stop_items = []
             for stop in ev.get("stops", []):
                 stop_id = f"d{day['n']}e{i}s{stop['number']}"
                 pins[str(d)].append([
-                    stop["number"], stop["lat"], stop["lon"], stop_id, stop["title"]
+                    stop["number"], stop["lat"], stop["lon"], stop_id, stop["title"], "stop"
                 ])
                 stop_memo = (
                     f'<div class="memo">{paragraphs(stop["memo"])}</div>'
