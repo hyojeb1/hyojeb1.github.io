@@ -68,6 +68,7 @@ def parse_trip(path):
         if not hm:
             sys.exit(f"{path.name}: '## {heading}' 은 '## N일차_MMDD' 형식이 아니다")
         date = dt.date(year, int(hm.group(2)), int(hm.group(3)))
+        body, place_pins = split_place_pins(body)
 
         parts = re.split(r"^### ", body, flags=re.M)
         memo, captions = split_captions(parts[0])
@@ -90,9 +91,21 @@ def parse_trip(path):
                 ev["start"] += 24
         events.sort(key=lambda ev: ev["start"])
         days.append(dict(folder=heading, n=int(hm.group(1)), date=date,
-                         memo=memo, captions=captions, events=events))
+                         memo=memo, captions=captions, events=events, place_pins=place_pins))
     return dict(slug=path.stem, meta=meta, days=days)
 
+
+
+def split_place_pins(body):
+    """원고의 @pin lat,lon 이름 줄을 지도 전용 장소 핀으로 분리한다."""
+    pins, lines = [], []
+    for line in body.splitlines():
+        m = PLACE_PIN.fullmatch(line.strip())
+        if m:
+            pins.append(dict(lat=float(m.group(1)), lon=float(m.group(2)), title=m.group(3).strip()))
+        else:
+            lines.append(line)
+    return "\n".join(lines), pins
 
 def is_draft(title):
     """( )로 감싼 제목은 사람이 아직 확인하지 않은 초안이다."""
@@ -661,6 +674,8 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
         events = []
         day_points = [p for part in route[str(d)] for p in part]
         pins[str(d)] = []
+        for place in day.get("place_pins", []):
+            pins[str(d)].append([None, place["lat"], place["lon"], f"day{day['n']}", place["title"]])
         for i, ev in enumerate(day["events"], 1):
             event_time = dt.datetime.combine(d, dt.time(), dt.timezone(dt.timedelta(hours=9))) + dt.timedelta(hours=ev["start"])
             if day["n"] == 1 and i == 1:
