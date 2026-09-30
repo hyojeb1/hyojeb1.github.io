@@ -709,12 +709,18 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
     cover_html = (f'<img class="trip-cover-image" src="{cover_image}" alt="">' if cover_day else "")
 
     local_photos = photos_root is not None and photos_root.is_dir()
+    media_path = resolve_meta_path(meta["media"]) if meta.get("media") else None
+    public_media = {}
+    if not local_photos and media_path and media_path.is_file():
+        public_media = json.loads(media_path.read_text(encoding="utf-8"))
+
     used, sections = set(), []
     pins = {}
     total = 0 if local_photos else int(meta.get("photo_count", "0"))
 
     for day in trip["days"]:
-        shots = []
+        d = day["date"]
+        day_media = []
         if local_photos:
             folder = photos_root / day["folder"]
             if not folder.is_dir():
@@ -723,15 +729,25 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
             for src in sorted(pick_files(folder)):
                 p = export(src, img_dir)
                 used.update((f"{p['stem']}.webp", f"{p['stem']}-t.webp"))
-                cap = day["captions"].get(src.name, "")
-                alt = cap or f"{day['n']}일차 여행 사진"
-                shots.append(
-                    f'<a href="img/{p["stem"]}.webp" data-caption="{html.escape(cap)}">'
-                    f'<img src="img/{p["stem"]}-t.webp" width="{p["w"]}" height="{p["h"]}" '
-                    f'alt="{html.escape(alt)}" loading="lazy" decoding="async"></a>'
-                )
+                day_media.append(dict(
+                    stem=p["stem"], w=p["w"], h=p["h"],
+                    caption=day["captions"].get(src.name, ""),
+                ))
+            public_media[str(d)] = day_media
+        else:
+            day_media = public_media.get(str(d), [])
 
-        d = day["date"]
+        shots = []
+        for item in day_media:
+            stem = html.escape(item["stem"], quote=True)
+            cap = item.get("caption", "")
+            alt = cap or f"{day['n']}일차 여행 사진"
+            shots.append(
+                f'<a href="img/{stem}.webp" data-caption="{html.escape(cap)}">'
+                f'<img src="img/{stem}-t.webp" width="{item["w"]}" height="{item["h"]}" '
+                f'alt="{html.escape(alt)}" loading="lazy" decoding="async"></a>'
+            )
+
         gallery = f'<div class="shots">{"".join(shots)}</div>' if shots else ""
         video = f"day{day['n']}.mp4"
         poster = f"day{day['n']}.jpg"
@@ -834,6 +850,12 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
         for f in img_dir.iterdir():
             if f.name not in used:
                 f.unlink()
+        if media_path:
+            media_path.parent.mkdir(parents=True, exist_ok=True)
+            media_path.write_text(
+                json.dumps(public_media, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
 
     route_data = json.dumps(route, ensure_ascii=False, separators=(",", ":"))
     pin_data = json.dumps(pins, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
