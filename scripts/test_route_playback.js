@@ -13,6 +13,7 @@ const panels = [makeNode('2026-09-17'), makeNode('2026-09-19'), makeNode('2026-0
 const mapElement = makeNode();
 const routeData = makeNode();
 const pinData = makeNode();
+const visitData = makeNode();
 pinData.textContent = JSON.stringify({
   '2026-09-17': [[1, 37.5665, 126.978, 'd1e1', '서울 출발']],
   '2026-09-19': [
@@ -21,6 +22,11 @@ pinData.textContent = JSON.stringify({
     [2, 35.646, 140.034, 'd3e2', 'TGS', 'event']
   ],
   '2026-09-22': [[1, 35.77, 140.38, 'd6e1', '나리타']]
+});
+visitData.textContent = JSON.stringify({
+  '2026-09-17': [],
+  '2026-09-19': [[[139.80, 35.70], [139.799, 35.699], [140.034, 35.646]]],
+  '2026-09-22': []
 });
 routeData.textContent = JSON.stringify({
   '2026-09-17': [
@@ -44,6 +50,7 @@ routeData.textContent = JSON.stringify({
 });
 const nodes = {
   '#route-map': mapElement, '#route-data': routeData, '#event-pins': pinData,
+  '#visit-paths': visitData,
   '#route-progress': makeNode(), '#route-play': makeNode(),
   '#route-speed': makeNode(), '#route-time': makeNode()
 };
@@ -103,6 +110,11 @@ buttons[3].handlers.click();
 assert.equal(map.sources.route.data.features[0].geometry.coordinates.length, 2); // 귀국편도 연결
 buttons[2].handlers.click();
 assert.equal(markers.length, 3);
+assert.equal(map.sources.visit.data.features.length, 1);
+assert.deepEqual(
+  Array.from(map.sources.visit.data.features[0].geometry.coordinates[1]),
+  [139.799, 35.699]
+);
 assert.equal(markers[0].element.className, 'event-pin');
 assert.equal(markers[1].element.className, 'event-pin stop-pin');
 assert.equal(markers[1].element.textContent, 1);
