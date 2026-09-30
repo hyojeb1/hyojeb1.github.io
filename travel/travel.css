@@ -375,6 +375,13 @@ p.ph {
   font: 700 13px/26px var(--meta);
   text-align: center;
 }
+.route .place-pin {
+  width: 22px;
+  min-height: 22px;
+  border-width: 2px;
+  background: #fff;
+  font: 900 18px/16px var(--meta);
+}
 .route .event-pin:focus-visible {
   outline: 3px solid #1a1a1c;
   outline-offset: 2px;
