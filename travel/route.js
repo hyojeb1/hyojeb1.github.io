@@ -110,14 +110,21 @@
     map.getSource('route').setData(line(coords));
     markers.forEach((marker) => marker.remove());
     const previous = [];
-    markers = (day === 'all' ? [] : dates).flatMap((date) => pins[date].map(([number, lat, lon, id, title]) => {
+    markers = (day === 'all' ? [] : dates).flatMap((date) => pins[date].map(([number, lat, lon, id, title, kind = 'event']) => {
       const button = document.createElement('button');
-      const placeOnly = number === null;
+      const placeOnly = kind === 'place' || number === null;
       button.type = 'button';
-      button.className = placeOnly ? 'event-pin place-pin' : 'event-pin';
+      button.className = kind === 'stop'
+        ? 'event-pin stop-pin'
+        : (placeOnly ? 'event-pin place-pin' : 'event-pin');
       button.textContent = placeOnly ? '·' : number;
       button.title = title;
-      button.setAttribute('aria-label', placeOnly ? `${date} · ${title}` : `${date} ${number}번 · ${title}`);
+      button.setAttribute(
+        'aria-label',
+        placeOnly ? `${date} · ${title}`
+          : kind === 'stop' ? `${date} 순회 ${number}번 · ${title}`
+          : `${date} ${number}번 · ${title}`
+      );
       button.addEventListener('click', () => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
