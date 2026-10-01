@@ -211,27 +211,71 @@ body:has(main.travel) {
 }
 
 
-/* ---------- 날씨 카드 ---------- */
+/* ---------- 날씨 요약 ---------- */
 
 .weather-panels {
-  margin: 28px 0 18px;
+  margin: 2px 0 0;
 }
 .weather-card {
-  padding: 22px 0 20px;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--fill);
 }
 .weather-card[hidden] {
   display: none;
 }
-.weather-head {
+.weather-summary {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  align-items: flex-start;
+  gap: 20px;
 }
-.weather-kicker,
-.weather-station,
+.weather-summary h2 {
+  margin: 0;
+  font: 400 18px/1.3 var(--title);
+}
+.weather-stats,
+.weather-extra-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0;
+}
+.weather-stats > div,
+.weather-extra-stats > div {
+  min-width: 0;
+}
+.weather-stats dt,
+.weather-extra-stats dt {
+  font: 400 10px/1.4 var(--meta);
+  color: var(--text-3);
+}
+.weather-stats dd,
+.weather-extra-stats dd {
+  margin: 2px 0 0;
+  font: 400 13px/1.35 var(--title);
+}
+.weather-heavy-rain .weather-summary h2,
+.weather-heavy-rain .weather-stats dd {
+  color: var(--accent);
+}
+.weather-more {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 0.5px solid var(--line);
+}
+.weather-more > summary {
+  width: max-content;
+  cursor: pointer;
+  font: 400 11px/1.5 var(--meta);
+  color: var(--text-3);
+}
+.weather-more[open] > summary {
+  margin-bottom: 10px;
+  color: var(--text-2);
+}
+.weather-meta,
 .weather-source,
 .weather-observations > p,
 .weather-special-title,
@@ -239,48 +283,24 @@ body:has(main.travel) {
   font: 400 11px/1.5 var(--meta);
   color: var(--text-3);
 }
-.weather-head h2 {
-  margin-top: 6px;
-  font: 400 24px/1.25 var(--title);
-}
-.weather-station {
-  flex: 0 0 auto;
-  padding-top: 4px;
-}
-.weather-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin: 18px 0 0;
-}
-.weather-stats > div {
-  min-width: 0;
-  padding: 10px 12px;
-  border-radius: var(--radius);
-  background: var(--fill);
-}
-.weather-stats dt {
-  font: 400 10px/1.4 var(--meta);
-  color: var(--text-3);
-}
-.weather-stats dd {
-  margin: 4px 0 0;
-  font: 400 15px/1.35 var(--title);
+.weather-extra-stats {
+  margin-top: 10px;
 }
 .weather-detail {
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   max-width: 780px;
+  font-size: 13px;
   color: var(--text-2);
 }
 .weather-observations,
 .weather-special {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 .weather-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
   gap: 6px;
-  margin: 7px 0 0;
+  margin: 6px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -288,7 +308,7 @@ body:has(main.travel) {
   display: grid;
   gap: 2px;
   min-width: 0;
-  padding: 8px 9px;
+  padding: 7px 8px;
   border-left: 2px solid var(--line);
 }
 .weather-strip time {
@@ -303,38 +323,28 @@ body:has(main.travel) {
   font: 400 11px/1.4 var(--meta);
   color: var(--text-2);
 }
-.weather-heavy-rain .weather-head h2,
-.weather-heavy-rain .weather-stats dd {
-  color: var(--accent);
-}
 .weather-memory {
-  margin: 16px 0 0;
-  padding-left: 12px;
+  margin: 12px 0 0;
+  padding-left: 10px;
   border-left: 2px solid var(--accent);
   color: var(--text-2);
 }
 .weather-memory span {
   display: block;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 .weather-source {
   display: inline-block;
-  margin-top: 14px;
+  margin-top: 10px;
   text-decoration: none;
 }
 .weather-source:hover {
   color: var(--text);
 }
 @media (max-width: 720px) {
-  .weather-head {
+  .weather-summary {
     display: grid;
-    gap: 4px;
-  }
-  .weather-station {
-    padding-top: 0;
-  }
-  .weather-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 }
 

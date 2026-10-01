@@ -763,7 +763,7 @@ def weather_observation_item(obs):
     )
 
 def render_weather_card(day, weather):
-    """검증된 과거 관측과 원고의 체감 메모를 한 Day 카드로 렌더링한다."""
+    """지도와 겹치는 날짜·지역 정보는 숨기고, 핵심 날씨만 간결하게 보여준다."""
     daily = weather.get("observed_daily", {})
     condition = re.sub(r"[^a-z0-9-]+", "-", weather.get("condition_key", "weather").lower())
     icon = WEATHER_ICONS.get(weather.get("condition_key"), "·")
@@ -771,25 +771,37 @@ def render_weather_card(day, weather):
     area = weather.get("representative_area", "")
     station = weather.get("station", {}).get("name", "")
 
-    stats = []
+    primary_stats = []
     low, high = daily.get("temperature_min_c"), daily.get("temperature_max_c")
     if isinstance(low, (int, float)) and isinstance(high, (int, float)):
-        stats.append(("기온", f"{low:.1f}–{high:.1f}°C"))
+        primary_stats.append(("기온", f"{low:.1f}–{high:.1f}°C"))
     total = daily.get("precipitation_total_mm")
     if isinstance(total, (int, float)):
-        stats.append(("총강수", f"{total:.1f} mm"))
+        primary_stats.append(("강수", f"{total:.1f} mm"))
+
+    primary_stats_html = "".join(
+        f"<div><dt>{html.escape(label)}</dt><dd>{html.escape(value)}</dd></div>"
+        for label, value in primary_stats
+    )
+
+    extra_stats = []
     max_hour = daily.get("max_hourly_precipitation_mm")
     if isinstance(max_hour, (int, float)):
         at = daily.get("max_hourly_precipitation_time", "")
-        stats.append(("최대 1시간", f"{max_hour:.1f} mm/h" + (f" · {at}" if at else "")))
+        extra_stats.append(("최대 1시간", f"{max_hour:.1f} mm/h" + (f" · {at}" if at else "")))
     humidity = daily.get("humidity_avg_percent")
     if isinstance(humidity, (int, float)):
-        stats.append(("평균 습도", f"{humidity:.0f}%"))
-
-    stats_html = "".join(
-        f"<div><dt>{html.escape(label)}</dt><dd>{html.escape(value)}</dd></div>"
-        for label, value in stats
-    )
+        extra_stats.append(("평균 습도", f"{humidity:.0f}%"))
+    extra_stats_html = ""
+    if extra_stats:
+        extra_stats_html = (
+            '<dl class="weather-extra-stats">'
+            + "".join(
+                f"<div><dt>{html.escape(label)}</dt><dd>{html.escape(value)}</dd></div>"
+                for label, value in extra_stats
+            )
+            + "</dl>"
+        )
 
     highlights = weather.get("observed_highlights", [])
     strip_html = ""
@@ -827,23 +839,26 @@ def render_weather_card(day, weather):
         f'rel="noreferrer noopener">JMA 관측 ↗</a>'
         if source_url else ""
     )
+    meta_parts = [part for part in (area, f"{station} 관측" if station else "") if part]
+    meta_html = f'<p class="weather-meta">{" · ".join(html.escape(part) for part in meta_parts)}</p>' if meta_parts else ""
+
     hidden = "" if day["n"] == 1 else " hidden"
     return f"""<article class="weather-card weather-{condition}" data-day="{day['date']}"{hidden}>
-<div class="weather-head">
-<div>
-<p class="weather-kicker">DAY {day['n']} · {day['date'].month}월 {day['date'].day}일 · {html.escape(area)}</p>
+<div class="weather-summary">
 <h2><span aria-hidden="true">{icon}</span> {html.escape(summary)}</h2>
+<dl class="weather-stats">{primary_stats_html}</dl>
 </div>
-<p class="weather-station">{html.escape(station)} 관측</p>
-</div>
-<dl class="weather-stats">{stats_html}</dl>
+<details class="weather-more">
+<summary>관측 상세</summary>
+{meta_html}
+{extra_stats_html}
 {detail_html}
 {strip_html}
 {special_html}
 {memory_html}
 {source_html}
+</details>
 </article>"""
-
 
 def build_map_trip(trip, route, photos_root, out, img_dir):
     """공개 경로를 중심으로 보여준다. 로컬 원본 사진이 없어도 CI에서 다시 생성할 수 있다."""
@@ -1067,13 +1082,13 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 {f'<p class="cover-caption">{html.escape(meta.get(f"day{cover_day}_caption", ""))}</p>' if cover_day else ''}
 </div>
 </header>
-{weather_panel_html}
 <section class="route" aria-label="여행 동선">
 <div class="route-controls">
 <div class="route-days" role="group" aria-label="일차 선택">
 <button type="button" data-day="all" aria-pressed="false">전체</button>
 {''.join(f'<button type="button" data-day="{d["date"]}" aria-pressed="{str(d["n"] == 1).lower()}">{d["n"]}일차</button>' for d in trip['days'])}
 </div>
+{weather_panel_html}
 <div class="route-playback">
 <button type="button" id="route-play" aria-label="경로 재생">▶</button>
 <label for="route-progress">발자국</label>
