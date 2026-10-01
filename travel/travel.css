@@ -210,6 +210,134 @@ body:has(main.travel) {
   color: var(--text-3);
 }
 
+
+/* ---------- 날씨 카드 ---------- */
+
+.weather-panels {
+  margin: 28px 0 18px;
+}
+.weather-card {
+  padding: 22px 0 20px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.weather-card[hidden] {
+  display: none;
+}
+.weather-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+.weather-kicker,
+.weather-station,
+.weather-source,
+.weather-observations > p,
+.weather-special-title,
+.weather-memory span {
+  font: 400 11px/1.5 var(--meta);
+  color: var(--text-3);
+}
+.weather-head h2 {
+  margin-top: 6px;
+  font: 400 24px/1.25 var(--title);
+}
+.weather-station {
+  flex: 0 0 auto;
+  padding-top: 4px;
+}
+.weather-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 0;
+}
+.weather-stats > div {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--fill);
+}
+.weather-stats dt {
+  font: 400 10px/1.4 var(--meta);
+  color: var(--text-3);
+}
+.weather-stats dd {
+  margin: 4px 0 0;
+  font: 400 15px/1.35 var(--title);
+}
+.weather-detail {
+  margin: 14px 0 0;
+  max-width: 780px;
+  color: var(--text-2);
+}
+.weather-observations,
+.weather-special {
+  margin-top: 16px;
+}
+.weather-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 6px;
+  margin: 7px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.weather-strip li {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 9px;
+  border-left: 2px solid var(--line);
+}
+.weather-strip time {
+  font: 400 10px/1.4 var(--meta);
+  color: var(--text-3);
+}
+.weather-strip strong {
+  font: 600 12px/1.4 var(--meta);
+  color: var(--text);
+}
+.weather-strip span {
+  font: 400 11px/1.4 var(--meta);
+  color: var(--text-2);
+}
+.weather-heavy-rain .weather-head h2,
+.weather-heavy-rain .weather-stats dd {
+  color: var(--accent);
+}
+.weather-memory {
+  margin: 16px 0 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--accent);
+  color: var(--text-2);
+}
+.weather-memory span {
+  display: block;
+  margin-bottom: 3px;
+}
+.weather-source {
+  display: inline-block;
+  margin-top: 14px;
+  text-decoration: none;
+}
+.weather-source:hover {
+  color: var(--text);
+}
+@media (max-width: 720px) {
+  .weather-head {
+    display: grid;
+    gap: 4px;
+  }
+  .weather-station {
+    padding-top: 0;
+  }
+  .weather-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ---------- 이벤트 ---------- */
 
 .events {

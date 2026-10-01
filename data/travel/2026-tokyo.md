@@ -6,12 +6,15 @@ photos: C:\Users\user\Downloads\2026도쿄_날짜별
 timeline: C:\Users\user\Downloads\2026도쿄_날짜별\타임라인.json
 route: data/travel/2026-tokyo-route.json
 media: data/travel/2026-tokyo-media.json
+weather: data/travel/2026-tokyo-weather.json
 photo_count: 829
 cover_day: 5
 day5_caption: 9월 21일 · 비 내리는 아사쿠사
 ---
 
 ## 1일차_0917
+
+@weather-note 아사히 본사에서 푸른 하늘을 보며 여행 온 것을 실감했다.
 
 여행 첫째 날. 인천공항에서 나리타로 들어와 혼조아즈마바시역 근처 숙소에 짐을 풀고, 아사히 본사(황금똥 건물)와 도쿄 스카이트리 쪽을 돌았다.
 
@@ -125,6 +128,8 @@ ANIPLEX 마린 1/7을 만났고, GRIDMAN UNIVERSE Dreamy Divas 3체 세트 ¥38,
 
 ## 3일차_0919
 
+@weather-note TGS에서 돌아온 뒤 밤을 넘긴 새벽, 테라스에서 술을 마시다가 비로소 비가 오기 시작했다.
+
 대망의 도쿄 게임 쇼 <- 레전드 빡쎔 (전날 밤새서 너무 힘들었음)
 
 ### 05:47 숙소에서 출발
@@ -147,6 +152,8 @@ ANIPLEX 마린 1/7을 만났고, GRIDMAN UNIVERSE Dreamy Divas 3체 세트 ¥38,
 
 ## 4일차_0920
 
+@weather-note 활동 중에는 비가 약간 내렸던 것으로 기억한다.
+
 신주쿠·가부키초에서 파친코와 GiGO를 다녀왔다.
 
 ### 13:14 숙소에서 출발
@@ -162,6 +169,8 @@ ANIPLEX 마린 1/7을 만났고, GRIDMAN UNIVERSE Dreamy Divas 3체 세트 ¥38,
 ### 21:19 숙소 복귀
 
 ## 5일차_0921
+
+@weather-note 비가 엄청 많이 내렸다.
 
 원래 귀환일자. 태풍으로 귀국편 7C1106이 18시간 지연된다는 안내를 받고, 다음 날 10:50 출발 예정인 7C1192로 변경됐다.
 예약했던 7C1106은 나리타공항 3터미널 16:50 출발, 인천공항 1터미널 19:40 도착 예정이었다. 위탁 수하물 15kg.
@@ -184,6 +193,8 @@ ANIPLEX 마린 1/7을 만났고, GRIDMAN UNIVERSE Dreamy Divas 3체 세트 ¥38,
 ### 19:29 숙소 복귀
 
 ## 6일차_0922
+
+@weather-note 맑고 더웠다.
 
 대체편은 제주항공 7C1192, 10:50 나리타 출발 예정이었다. 기기 타임라인이 감지한 비행 구간은 10:40~13:46으로 안내 시각과 약 10분 차이 난다.
 돌아오는 편은 수하물이 잔뜩이라 너무 힘들었다. 15.1kg으로 겨우 맞췄고 할증은 붙지 않았다. 니케 도로시 피규어는 크기가 제주항공 가이드보다 훨씬 커서 박스 안 플라스틱을 버릴 수밖에 없었다.

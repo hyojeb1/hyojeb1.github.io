@@ -3,9 +3,11 @@
   const element = document.querySelector('#route-map');
   const buttons = [...document.querySelectorAll('.route-days button')];
   const dayPanels = [...document.querySelectorAll('.map-trip .day')];
+  const weatherPanels = [...document.querySelectorAll('.weather-card[data-day]')];
   function showDay(day, overview = false) {
     buttons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.day === day)));
     dayPanels.forEach((panel) => { panel.hidden = overview || (day !== 'all' && panel.dataset.day !== day); });
+    weatherPanels.forEach((panel) => { panel.hidden = overview || (day !== 'all' && panel.dataset.day !== day); });
   }
   buttons.forEach((button) => button.addEventListener('click', () => showDay(button.dataset.day)));
   if (!window.maplibregl) {

@@ -10,6 +10,7 @@ const makeNode = (day) => ({
 });
 const buttons = ['all', '2026-09-17', '2026-09-19', '2026-09-22'].map(makeNode);
 const panels = [makeNode('2026-09-17'), makeNode('2026-09-19'), makeNode('2026-09-22')];
+const weatherPanels = [makeNode('2026-09-17'), makeNode('2026-09-19'), makeNode('2026-09-22')];
 const mapElement = makeNode();
 const routeData = makeNode();
 const pinData = makeNode();
@@ -82,7 +83,10 @@ const context = {
   maplibregl: { Map: FakeMap, Marker: FakeMarker, NavigationControl: class {}, LngLatBounds: FakeBounds },
   document: {
     querySelector: (selector) => nodes[selector],
-    querySelectorAll: (selector) => selector === '.route-days button' ? buttons : panels,
+    querySelectorAll: (selector) => selector === '.route-days button' ? buttons
+      : selector === '.map-trip .day' ? panels
+      : selector === '.weather-card[data-day]' ? weatherPanels
+      : [],
     createElement: () => makeNode()
   },
   requestAnimationFrame: (fn) => { scheduled = fn; return 1; }, cancelAnimationFrame() {},
@@ -125,3 +129,7 @@ assert.ok(map.zoom < 12); // 도쿄에서 치바로 가는 동안 줌아웃
 nodes['#route-progress'].value = 7;
 nodes['#route-progress'].handlers.input();
 assert.ok(map.zoom > 14); // 현지에서 맴돌 때 줌인
+
+buttons[2].handlers.click();
+assert.equal(weatherPanels[1].hidden, false);
+assert.equal(weatherPanels[0].hidden, true);
