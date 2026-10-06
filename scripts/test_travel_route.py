@@ -3,6 +3,7 @@ from runpy import run_path
 from pathlib import Path
 import json
 import re
+from tempfile import TemporaryDirectory
 
 builder = run_path("scripts/build-travel.py")
 filter_spikes = builder["remove_route_spikes"]
@@ -38,7 +39,8 @@ for day in trip["days"]:
             item for item in pins[day_key]
             if item[3] == event_id and len(item) > 5 and item[5] == "event"
         )
-        assert event_pin[0] == i
+        event_start = int(trip["meta"].get(f"day{day['n']}_event_start", "1"))
+        assert event_pin[0] == event_start + i - 1
         assert f'id="{event_id}"' in page
         for stop in event.get("stops", []):
             stop_id = f'{event_id}s{stop["number"]}'
@@ -56,8 +58,134 @@ assert next(item for item in pins["2026-09-17"] if item[3] == "d1e1")[1:3] == [3
 assert page.index('id="d2e2"') < page.index('아ニメイト秋葉原2号館') < page.index('id="d2e3"')
 assert page.index('id="d2e3"') < page.index('id="d2e3s1"') < page.index('id="d2e3s4"') < page.index('id="d2e4"')
 assert '14:25경' in page
+departure = page[page.index('id="d2e1"'):page.index('id="d2e2"')]
+first_night = page[page.index('id="d1e10"'):page.index('<section class="day" data-day="2026-09-18"')]
+first_night_stems = {'KakaoTalk_20260918_010726780', 'KakaoTalk_20260918_010726780_03'}
+arrival = page[page.index('id="d2e2"'):page.index('id="d2e3"')]
+gigo = page[page.index('id="d2e4"'):page.index('id="d2e5"')]
+roast_beef = page[page.index('id="d2e6"'):page.index('id="d2e7"')]
+namco_html = page[page.index('id="d2e7"'):page.index('id="d2e8"')]
+toast_factory = page[page.index('id="d2e8"'):page.index('id="d2e9"')]
+figures = page[page.index('id="d2e9"'):page.index('<section class="day" data-day="2026-09-19"')]
+assert '<span class="ev-n">0</span>13:59' in departure
+assert '<h3>숙소에 출발</h3>' in departure
+assert '<span class="ev-n">1</span>14:25경' in arrival
+assert '<h3>아키바 도착</h3>' in arrival
+selected = {
+    'KakaoTalk_20260918_003421909_01': page[page.index('id="d1e4"'):page.index('id="d1e5"')],
+    'KakaoTalk_20260918_002555816_05': page[page.index('id="d1e7"'):page.index('id="d1e8"')],
+    'KakaoTalk_20260917_195012235_05': page[page.index('id="d1e7"'):page.index('id="d1e8"')],
+    'KakaoTalk_20260917_195012235_07': page[page.index('id="d1e7"'):page.index('id="d1e8"')],
+    'KakaoTalk_20260917_195012235_14': page[page.index('id="d1e8"'):page.index('id="d1e9"')],
+    'KakaoTalk_20260918_003808764_04': page[page.index('id="d1e8"'):page.index('id="d1e9"')],
+    'KakaoTalk_20260918_003808764_02': page[page.index('id="d1e8"'):page.index('id="d1e9"')],
+    'KakaoTalk_20260917_160444310_04': page[page.index('id="d1e3"'):page.index('id="d1e4"')],
+    'KakaoTalk_20260917_160444310_02': page[page.index('id="d1e3"'):page.index('id="d1e4"')],
+    'KakaoTalk_20260917_075310094_01': page[page.index('id="d1e2"'):page.index('id="d1e3"')],
+    'KakaoTalk_20260917_075357052': page[page.index('id="d1e2"'):page.index('id="d1e3"')],
+    'KakaoTalk_20260918_002555816_04': page[page.index('id="d1e6"'):page.index('id="d1e7"')],
+    'KakaoTalk_20260918_010726780': first_night,
+    'KakaoTalk_20260918_010726780_03': first_night,
+    'KakaoTalk_20260918_143350795': arrival,
+    'KakaoTalk_20260918_143350795_01': arrival,
+    'KakaoTalk_20260918_151213785': arrival,
+    'KakaoTalk_20260918_214433562_02': arrival,
+    'KakaoTalk_20260919_035450149_13': arrival,
+    'KakaoTalk_20260919_035450149_14': arrival,
+    'KakaoTalk_20260918_214433562_03': gigo,
+    'KakaoTalk_20260918_214433562_04': gigo,
+    'KakaoTalk_20260918_214433562_08': roast_beef,
+    'KakaoTalk_20260918_214433562_09': roast_beef,
+    'KakaoTalk_20260919_004243866_01': namco_html,
+    'KakaoTalk_20260919_004243866': namco_html,
+    'KakaoTalk_20260919_035450149_10': toast_factory,
+    'KakaoTalk_20260919_035450149_11': toast_factory,
+    'KakaoTalk_20260919_035450149_12': toast_factory,
+    'KakaoTalk_20260919_004243866_04': figures,
+    'KakaoTalk_20260919_035450149_08': figures,
+    'KakaoTalk_20260919_035450149': figures,
+    'KakaoTalk_20260919_035450149_04': figures,
+}
+for stem, event_html in selected.items():
+    photo_day = 'day1' if stem in first_night_stems or stem in {
+        'KakaoTalk_20260917_075310094_01', 'KakaoTalk_20260917_075357052',
+        'KakaoTalk_20260918_002555816_04',
+        'KakaoTalk_20260917_160444310_04', 'KakaoTalk_20260917_160444310_02',
+        'KakaoTalk_20260918_003421909_01', 'KakaoTalk_20260918_002555816_05',
+        'KakaoTalk_20260917_195012235_05', 'KakaoTalk_20260917_195012235_07',
+        'KakaoTalk_20260917_195012235_14', 'KakaoTalk_20260918_003808764_04',
+        'KakaoTalk_20260918_003808764_02',
+    } else 'day2'
+    assert f'href="./img/{photo_day}/{stem}.webp"' in event_html
+    assert f'src="./img/{photo_day}/{stem}-t.webp"' in event_html
+    for suffix in ('.webp', '-t.webp'):
+        with builder['Image'].open(Path('travel/2026-tokyo/img') / photo_day / (stem + suffix)) as image:
+            assert not image.getexif() and not image.info.get('xmp')
+        if stem in first_night_stems:
+            assert not (Path('travel/2026-tokyo/img/day2') / (stem + suffix)).exists()
+    if stem in first_night_stems:
+        assert stem not in departure
+assert '5일차에 유니클로에서 고죠 사토루의 무라사키 티셔츠로 맞췄다.' in arrival
 assert '아키하바라 피규어 매장 순회' in page
 assert '코토부키야 아키하바라관' not in page
+for image_src in re.findall(r'<img[^>]+src="(\./img/[^\"]+)"', page):
+    assert (Path('travel/2026-tokyo') / image_src).is_file(), image_src
+assert not list(Path('travel/2026-tokyo/img').glob('*.webp'))
+
+# 사람이 지정한 얼굴만 공개하고, 공개본과 썸네일 모두 나머지를 가린다.
+face_configs = json.loads(Path('data/travel/2026-tokyo-faces.json').read_text(encoding='utf-8'))
+public_faces = {
+    'KakaoTalk_20260917_075310094_01.jpg': [4],
+    'KakaoTalk_20260918_002555816_04.jpg': [4],
+    'KakaoTalk_20260917_160444310_04.jpg': [5],
+    'KakaoTalk_20260917_160444310_02.jpg': [],
+    'KakaoTalk_20260918_003808764_02.jpg': [1],
+}
+for filename, face_config in face_configs.items():
+    assert [f['id'] for f in face_config['faces'] if not f['cover']] == public_faces[filename]
+    for suffix in ('.webp', '-t.webp'):
+        with builder['Image'].open(Path('travel/2026-tokyo/img/day1') / (Path(filename).stem + suffix)) as image:
+            factor = image.width / face_config['size'][0]
+            for face in face_config['faces']:
+                if face['cover']:
+                    x, y = (round(v * factor) for v in face['center'])
+                    pixel = image.convert('RGB').getpixel((x, y))
+                    assert max(abs(a-b) for a, b in zip(pixel, (241, 236, 149))) < 12
+
+# 원본의 mtime이 같아도 공개 선택 변경은 기존 캐시를 갱신한다.
+with TemporaryDirectory() as scratch:
+    source = Path(scratch) / 'face.png'
+    builder['Image'].new('RGB', (100, 100), '#0080ff').save(source)
+    original = source.read_bytes()
+    config = {'size': [100, 100], 'faces': [{'center': [50, 50], 'radius': 35, 'cover': True}]}
+    dest = Path(scratch) / 'public'
+    builder['export'](source, dest, config)
+    for suffix in ('.webp', '-t.webp'):
+        with builder['Image'].open(dest / ('face' + suffix)) as image:
+            assert image.getpixel((50, 50))[0] > 200
+    config['faces'][0]['cover'] = False
+    builder['export'](source, dest, config)
+    for suffix in ('.webp', '-t.webp'):
+        with builder['Image'].open(dest / ('face' + suffix)) as image:
+            assert image.getpixel((50, 50))[0] < 20
+    assert source.read_bytes() == original
+
+skytree_walk = page[page.index('id="d1e7"'):page.index('id="d1e8"')]
+skytree = page[page.index('id="d1e8"'):page.index('id="d1e9"')]
+asahi = page[page.index('id="d1e6"'):page.index('id="d1e7"')]
+asahi_rows = re.findall(r'<div class="shots">(.*?)</div>', asahi, re.S)
+assert [row.count('<a href=') for row in asahi_rows] == [2, 2, 1]
+assert 'KakaoTalk_20260918_002555816_04' in asahi_rows[-1]
+assert 'KakaoTalk_20260918_002555816_04' not in skytree
+assert '@gallery' not in page
+assert '<h3>도쿄 스카이트리로 가는 길</h3>' in skytree_walk
+assert '<video' not in skytree_walk
+assert '<h3>도쿄 스카이트리 타운</h3>' in skytree
+assert '<video controls playsinline preload="none"' in skytree
+assert 'src="./video/day1/KakaoTalk_20260918_003643422.mp4"' in skytree
+assert 'poster="video/day1/KakaoTalk_20260918_003643422.jpg"' in skytree
+assert (Path('travel/2026-tokyo/video/day1/KakaoTalk_20260918_003643422.mp4')).is_file()
+assert (Path('travel/2026-tokyo/video/day1/KakaoTalk_20260918_003643422.jpg')).is_file()
 
 # 세부 방문지는 보조 연결선으로 지도 경로에 이어진다.
 visit_paths = json.loads(re.search(r'<script type="application/json" id="visit-paths">(.*?)</script>', page).group(1))
@@ -65,11 +193,19 @@ day2_paths = visit_paths["2026-09-18"]
 assert len(day2_paths) == 1
 day2_pins = {item[3]: [item[2], item[1]] for item in pins["2026-09-18"]}
 assert day2_pins["d2e4"] == [139.7709552, 35.6992456]  # GiGO 아키하바라 3호관의 장소 핀
-assert day2_pins["d2e7"] == [139.7706076, 35.6984409]  # 로스트비프가 7번 메인 이벤트
-assert page.index('id="d2e7"') < page.index('저녁으로 로스트비프를 먹었다') < page.index('id="d2e8"')
-assert '<span class="ev-n">7</span>21:14 이후' in page
+assert day2_pins["d2e6"] == [139.7706076, 35.6984409]  # 로스트비프가 5번 메인 이벤트
+assert '<h3>저녁으로 로스트비프를 먹었다</h3>' in roast_beef
+assert '<span class="ev-n">5</span>시각 미상' in roast_beef
+assert '<span class="ev-n">6</span>시각 미상' in namco_html
+assert '<span class="ev-n">7</span>21:14' in toast_factory
+assert '<h3>The French Toast Factory Yodobashi AKIBA 8F</h3>' in toast_factory
 assert '<span class="ev-n">8</span>23:55' in page
-assert 'id="d2e9"' not in page  # 밤샘은 숙소 복귀 본문이지 별도 이벤트가 아니다
+assert 'id="d2e10"' not in page  # 밤샘은 숙소 복귀 본문이지 별도 이벤트가 아니다
+namco = trip['days'][1]['events'][6]
+assert namco['title'] == 'namco Akihabara · 4층 가차퐁' and namco['start'] is None
+assert day2_pins['d2e7'] == [139.7724164, 35.6980094]
+assert '4층 가차퐁' in namco_html
+assert '4층 가차퐁' not in page[page.index('id="d2e5"'):page.index('id="d2e6"')]
 figure_tour = next(segment for segment in day2_paths if [139.77155, 35.69793] in segment)
 assert figure_tour == [
     [139.77167, 35.69975],  # 아니메이트
@@ -87,10 +223,10 @@ assert all([139.7706076, 35.6984409] not in segment for segment in day2_paths)  
 public_route = json.loads(Path("data/travel/2026-tokyo-route.json").read_text(encoding="utf-8"))
 assert route == public_route
 assert (Path("travel/2026-tokyo/day5.mp4").is_file()
-        and Path("travel/2026-tokyo/day5.jpg").is_file())
-assert '<img class="trip-cover-image" src="day5.jpg" alt="">' in page
-assert 'src="day5.mp4"' in page and 'poster="day5.jpg"' in page
+        and Path("travel/2026-tokyo/covers/day5.jpg").is_file())
+assert '<img class="trip-cover-image" src="covers/day5.jpg" alt="">' in page
+assert 'src="day5.mp4"' in page and 'poster="covers/day5.jpg"' in page
 index = Path("travel/index.html").read_text(encoding="utf-8")
 assert 'src="2026-tokyo/day5.mp4"' in index
-assert 'poster="2026-tokyo/day5.jpg"' in index
+assert 'poster="2026-tokyo/covers/day5.jpg"' in index
 assert "prefers-reduced-motion: reduce" in index

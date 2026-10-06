@@ -7,7 +7,7 @@
 자동으로 나누고 자리표시자로 보여준다(원고에 붙여 넣을 ### 줄을 출력한다).
 
 사진 띠에는 그날 폴더의 사진 전부가 **점(시각)으로만** 들어간다. 이미지로 공개되는 것은
-각 일차 폴더의 pick/ 에 넣은 사진뿐이다. 촬영 시각은 EXIF에서만 읽는다. KakaoTalk 파일명의
+각 일차 폴더의 pick/ 또는 원고에서 직접 지정한 사진이다. 촬영 시각은 EXIF에서만 읽는다. KakaoTalk 파일명의
 시각은 받은 시각이라 띠에 쓰지 않는다(시각 미상으로 센다).
 
 원본 사진은 저장소에 들어오지 않는다. 결과물(travel/)만 커밋·배포된다.
@@ -22,7 +22,7 @@ import re
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageDraw, ImageOps
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "travel"
@@ -79,20 +79,23 @@ def parse_trip(path):
         for part in parts[1:]:
             eh, _, ebody = part.partition("\n")
             em = EVENT_HEADING.match(eh.strip())
-            if not em:
-                sys.exit(f"{path.name} {heading}: '### {eh.strip()}' 은 '### HH:MM[경] 제목' 형식이 아니다")
-            h, mi = int(em.group(1)), int(em.group(2))
+            untimed = re.fullmatch(r"시각 미상\s+(.+)", eh.strip())
+            if not em and not untimed:
+                sys.exit(f"{path.name} {heading}: '### {eh.strip()}' 은 '### HH:MM[경] 제목' 또는 '### 시각 미상 제목' 형식이 아니다")
+            start = int(em.group(1)) + int(em.group(2)) / 60 if em else None
             ebody, location = split_event_location(ebody)
             ebody, eplace_pins = split_place_pins(ebody)
             ebody, estops = split_visit_stops(ebody)
+            ebody, gallery_rows = split_gallery_rows(ebody)
             ememo, ecaps, eimages = split_event_media(ebody)
             captions.update(ecaps)
             events.append(dict(
-                start=h + mi / 60,
-                time_suffix=em.group(3) or "",
-                title=em.group(4).strip(),
+                start=start,
+                time_suffix=(em.group(3) or "") if em else "",
+                title=em.group(4).strip() if em else untimed.group(1),
                 memo=ememo,
                 images=eimages,
+                gallery_rows=gallery_rows,
                 stops=estops,
                 place_pins=eplace_pins,
                 location=location,
@@ -100,11 +103,19 @@ def parse_trip(path):
         # 06시 전 이벤트가 그날 첫 기록이면 새벽 출발이고, 낮 기록 뒤라면 그날 밤이다.
         daytime_seen = False
         for ev in events:
+            if ev["start"] is None:
+                continue
             if ev["start"] >= DAY_START:
                 daytime_seen = True
             elif daytime_seen:
                 ev["start"] += 24
-        events.sort(key=lambda ev: ev["start"])
+        # 시각 미상 이벤트는 원고에서 앞선 이벤트 뒤에 둔다. 시각을 만들어 넣지 않는다.
+        sort_times, previous_time = [], -math.inf
+        for ev in events:
+            if ev["start"] is not None:
+                previous_time = ev["start"]
+            sort_times.append(previous_time)
+        events = [ev for _, ev in sorted(zip(sort_times, events), key=lambda item: item[0])]
         days.append(dict(folder=heading, n=int(hm.group(1)), date=date,
                          memo=memo, captions=captions, events=events,
                          place_pins=place_pins, visit_stops=visit_stops))
@@ -180,6 +191,32 @@ def split_captions(body):
             lines.append(line)
     return "\n".join(lines).strip(), captions
 
+
+
+def split_gallery_rows(body):
+    """@gallery 2+2+1처럼 사람이 지정한 행별 사진 수를 읽는다."""
+    rows, lines = None, []
+    for line in body.splitlines():
+        if line.strip().startswith("@gallery "):
+            match = re.fullmatch(r"@gallery ([1-3](?:\+[1-3])*)", line.strip())
+            if not match or rows is not None:
+                raise ValueError("갤러리 배치는 @gallery 2+2+1 형식으로 한 번만 지정합니다")
+            rows = [int(n) for n in match.group(1).split("+")]
+        else:
+            lines.append(line)
+    return "\n".join(lines), rows
+
+
+def gallery_html(shots, rows=None):
+    if rows is None:
+        return f'<div class="shots">{"".join(shots)}</div>' if shots else ""
+    if sum(rows) != len(shots):
+        raise ValueError(f"지정한 갤러리 배치 {rows}와 사진 {len(shots)}장의 수가 다릅니다")
+    result, start = [], 0
+    for count in rows:
+        result.append(f'<div class="shots">{"".join(shots[start:start+count])}</div>')
+        start += count
+    return "\n".join(result)
 
 
 def split_event_media(body):
@@ -303,17 +340,44 @@ def auto_events(timed):
 
 # ---------- 사진 ----------
 
-def export(src, out_dir):
+def apply_face_stickers(image, config):
+    """사람이 지정한 얼굴 영역만 가린다. 원본은 수정하지 않는다."""
+    if list(image.size) != config["size"]:
+        raise ValueError("스티커 좌표와 원본 사진의 크기가 다릅니다")
+    draw = ImageDraw.Draw(image)
+    for face in config["faces"]:
+        if not face["cover"]:
+            continue
+        x, y = face["center"]
+        r = face["radius"]
+        if r <= 0 or not (0 <= x < image.width and 0 <= y < image.height):
+            raise ValueError("잘못된 얼굴 스티커 좌표입니다")
+        draw.ellipse((x-r, y-r, x+r, y+r), fill="#F1EC95")
+        eye = max(2, round(r * 0.055))
+        for eye_x in (x-r*0.28, x+r*0.28):
+            eye_y = y-r*0.16
+            draw.ellipse((eye_x-eye, eye_y-eye, eye_x+eye, eye_y+eye), fill="#202020")
+        draw.arc((x-r*0.35, y-r*0.17, x+r*0.35, y+r*0.42),
+                 15, 165, fill="#202020", width=max(2, round(r*0.035)))
+    return image
+
+
+def export(src, out_dir, face_config=None):
     """방향을 바로잡고, EXIF(GPS 포함)를 버리고, 두 크기로 저장한다. ICC 색 프로필만 남긴다."""
+    out_dir.mkdir(parents=True, exist_ok=True)
     stem = src.stem
     full, thumb = out_dir / f"{stem}.webp", out_dir / f"{stem}-t.webp"
-    fresh = full.exists() and thumb.exists() and full.stat().st_mtime >= src.stat().st_mtime
+    # 좌표나 공개 선택이 바뀌면 두 크기를 반드시 다시 만든다.
+    fresh = (face_config is None and full.exists() and thumb.exists()
+             and min(full.stat().st_mtime, thumb.stat().st_mtime) >= src.stat().st_mtime)
     if not fresh:
         with Image.open(src) as im:
             icc = im.info.get("icc_profile")
             im = ImageOps.exif_transpose(im)
             if im.mode not in ("RGB", "RGBA"):
                 im = im.convert("RGB")
+            if face_config is not None:
+                im = apply_face_stickers(im, face_config)
             for target, edge, q in ((full, FULL, 82), (thumb, THUMB, 78)):
                 copy = im.copy()
                 copy.thumbnail((edge, edge), Image.LANCZOS)
@@ -476,6 +540,8 @@ def build_trip(trip):
     route = route_for_trip(meta)
     if route:
         return build_map_trip(trip, route, photos_root, out, img_dir)
+    if any(ev["start"] is None for day in trip["days"] for ev in day["events"]):
+        sys.exit("시각 미상 이벤트는 지도형 여행 페이지에서만 지원한다")
     if photos_root is None or not photos_root.is_dir():
         sys.exit(f"{trip['slug']}: 사진 원본이나 공개 경로 데이터가 없다")
 
@@ -726,14 +792,24 @@ def remove_route_spikes(parts):
 def build_map_trip(trip, route, photos_root, out, img_dir):
     """공개 경로를 중심으로 보여준다. 로컬 원본 사진이 없어도 CI에서 다시 생성할 수 있다."""
     meta = trip["meta"]
+    faces_path = resolve_meta_path(meta["faces"]) if meta.get("faces") else None
+    face_configs = json.loads(faces_path.read_text(encoding="utf-8")) if faces_path else {}
     cover_day = meta.get("cover_day")
-    cover_image = f"day{cover_day}.jpg"
+    cover_image = f"covers/day{cover_day}.jpg"
     cover_video = f"day{cover_day}.mp4"
     if cover_day and not (out / cover_image).is_file():
         sys.exit(f"대문 이미지가 없다: {out / cover_image}")
     cover_html = (f'<img class="trip-cover-image" src="{cover_image}" alt="">' if cover_day else "")
 
     local_photos = photos_root is not None and photos_root.is_dir()
+    photo_sources = {}
+    if local_photos:
+        for source_day in trip["days"]:
+            source_folder = photos_root / source_day["folder"]
+            if source_folder.is_dir():
+                for source in media(source_folder):
+                    if source.suffix.lower() in IMAGE_EXT:
+                        photo_sources.setdefault(source.stem, []).append(source)
     media_path = resolve_meta_path(meta["media"]) if meta.get("media") else None
     public_media = {}
     if not local_photos and media_path and media_path.is_file():
@@ -746,6 +822,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 
     for day in trip["days"]:
         d = day["date"]
+        event_start = int(meta.get(f"day{day['n']}_event_start", "1"))
         day_media = []
         if local_photos:
             folder = photos_root / day["folder"]
@@ -753,10 +830,11 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                 sys.exit(f"사진 폴더가 없다: {folder}")
             total += len(media(folder))
             for src in sorted(pick_files(folder)):
-                p = export(src, img_dir)
-                used.update((f"{p['stem']}.webp", f"{p['stem']}-t.webp"))
+                p = export(src, img_dir / f"day{day['n']}", face_configs.get(src.name))
+                image_stem = f"day{day['n']}/{p['stem']}"
+                used.update((f"{image_stem}.webp", f"{image_stem}-t.webp"))
                 day_media.append(dict(
-                    stem=p["stem"], w=p["w"], h=p["h"],
+                    stem=image_stem, w=p["w"], h=p["h"],
                     caption=day["captions"].get(src.name, ""),
                 ))
             public_media[str(d)] = day_media
@@ -776,7 +854,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 
         gallery = f'<div class="shots">{"".join(shots)}</div>' if shots else ""
         video = f"day{day['n']}.mp4"
-        poster = f"day{day['n']}.jpg"
+        poster = f"covers/day{day['n']}.jpg"
         if (out / video).is_file() and not (out / poster).is_file():
             sys.exit(f"영상 포스터가 없다: {out / poster}")
         caption = html.escape(meta.get(f"day{day['n']}_caption", f"{day['n']}일차 영상"))
@@ -800,7 +878,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
             event_time = (
                 dt.datetime.combine(d, dt.time(), dt.timezone(dt.timedelta(hours=9)))
                 + dt.timedelta(hours=ev["start"])
-            )
+            ) if ev["start"] is not None else None
             if ev.get("location"):
                 lat, lon = ev["location"]
             elif day["n"] == 1 and i == 1:
@@ -809,7 +887,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
             elif ev.get("stops"):
                 # 순회 이벤트 자체의 위치는 첫 방문지에 둔다.
                 lat, lon = ev["stops"][0]["lat"], ev["stops"][0]["lon"]
-            elif day_points:
+            elif day_points and event_time is not None:
                 nearest = min(
                     day_points,
                     key=lambda p: abs((dt.datetime.fromisoformat(p[0]) - event_time).total_seconds()),
@@ -822,8 +900,9 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
         for i, ev in enumerate(day["events"], 1):
             lat, lon = event_coords[i - 1]
             event_id = f"d{day['n']}e{i}"
+            event_number = event_start + i - 1
             if lat is not None:
-                pins[str(d)].append([i, lat, lon, event_id, ev["title"], "event"])
+                pins[str(d)].append([event_number, lat, lon, event_id, ev["title"], "event"])
 
             stop_items = []
             segment = []
@@ -878,22 +957,66 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
             memo = f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"] else ""
 
             manual_shots = []
+            event_videos = []
             for media_item in ev.get("images", []):
+                if Path(media_item["src"]).suffix.lower() in VIDEO_EXT:
+                    video_match = re.fullmatch(r"\./video/(day\d+)/([^/\\]+)\.mp4", media_item["src"])
+                    if not video_match:
+                        sys.exit(f"이벤트 영상 경로가 잘못되었습니다: {media_item['src']}")
+                    video_path = out / media_item["src"]
+                    poster_path = video_path.with_suffix(".jpg")
+                    if not video_path.is_file() or not poster_path.is_file():
+                        sys.exit(f"이벤트 영상 또는 포스터가 없습니다: {video_path}")
+                    with Image.open(poster_path) as poster_image:
+                        width, height = poster_image.size
+                    video_src = html.escape(media_item["src"], quote=True)
+                    poster_src = html.escape(Path(media_item["src"]).with_suffix(".jpg").as_posix(), quote=True)
+                    cap = html.escape(media_item["caption"] or f"{day['n']}일차 {title} 영상")
+                    event_videos.append(f'''<figure class="day-video">
+<video controls playsinline preload="none" poster="{poster_src}" width="{width}" height="{height}" aria-label="{cap}">
+<source src="{video_src}" type="video/mp4">
+</video>
+<figcaption>{cap}</figcaption>
+</figure>''')
+                    continue
+                # 사람이 원고에서 지정한 사진도 빌더로 변환한다. CI는 저장된 WebP를 사용한다.
+                image_match = re.fullmatch(r"\./img/(day\d+)/([^/\\]+)\.webp", media_item["src"])
+                thumb_src = media_item["src"]
+                if image_match:
+                    image_day, stem = image_match.groups()
+                    image_dir = img_dir / image_day
+                    if local_photos:
+                        sources = photo_sources.get(stem, [])
+                        current_day_sources = [f for f in sources if f.parent.name == day["folder"]]
+                        sources = current_day_sources or sources
+                        if len(sources) > 1:
+                            sys.exit(f"이벤트 사진 원본이 중복된다: {stem}")
+                        if sources:
+                            export(sources[0], image_dir, face_configs.get(sources[0].name))
+                    if not (image_dir / f"{stem}.webp").is_file():
+                        sys.exit(f"이벤트 사진이 없다: {media_item['src']}")
+                    used.add(f"{image_day}/{stem}.webp")
+                    if (image_dir / f"{stem}-t.webp").is_file():
+                        used.add(f"{image_day}/{stem}-t.webp")
+                        thumb_src = f"./img/{image_day}/{stem}-t.webp"
                 src = html.escape(media_item["src"], quote=True)
+                thumb_src = html.escape(thumb_src, quote=True)
                 cap = html.escape(media_item["caption"])
                 alt = cap or f"{day['n']}일차 {title} 사진"
                 cap_attr = f' data-caption="{cap}"' if cap else ""
                 manual_shots.append(
-                    f'<a href="{src}"{cap_attr}><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></a>'
+                    f'<a href="{src}"{cap_attr}><img src="{thumb_src}" alt="{alt}" loading="lazy" decoding="async"></a>'
                 )
-            event_gallery = f'<div class="shots">{"".join(manual_shots)}</div>' if manual_shots else ""
-            event_time_label = clock(ev["start"]) + ev.get("time_suffix", "")
+            event_gallery = gallery_html(manual_shots, ev.get("gallery_rows"))
+            event_time_label = (clock(ev["start"]) + ev.get("time_suffix", "")
+                                if ev["start"] is not None else "시각 미상")
 
             events.append(f"""<li class="event" id="{event_id}">
-<p class="ev-time"><span class="ev-n">{i}</span>{event_time_label}</p>
+<p class="ev-time"><span class="ev-n">{event_number}</span>{event_time_label}</p>
 {heading}{memo}
 {stop_list}
 {event_gallery}
+{chr(10).join(event_videos)}
 </li>""")
 
         event_list = f'<ol class="events">{chr(10).join(events)}</ol>' if events else ""
@@ -907,8 +1030,11 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
     # 로컬 원본을 가지고 다시 뽑을 때만 생성 WebP를 정리한다.
     # CI에는 원본 사진이 없으므로 기존 공개 이미지를 건드리지 않는다.
     if local_photos:
-        for f in img_dir.iterdir():
-            if f.name not in used:
+        image_root = img_dir.resolve()
+        if not image_root.is_relative_to(OUT.resolve()):
+            sys.exit(f"이미지 정리 경로가 travel 밖이다: {image_root}")
+        for f in img_dir.rglob("*.webp"):
+            if f.relative_to(img_dir).as_posix() not in used:
                 f.unlink()
         if media_path:
             media_path.parent.mkdir(parents=True, exist_ok=True)
@@ -966,7 +1092,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
     )
     return dict(
         slug=trip["slug"], meta=meta, total=total, draft=False, used=sorted(used),
-        cover_day=cover_day, cover_video=(out / cover_video).is_file(),
+        cover_day=cover_day, cover_image=cover_image, cover_video=(out / cover_video).is_file(),
     )
 
 
@@ -975,9 +1101,10 @@ def build_index(trips):
     for t in sorted(trips, key=lambda t: t["meta"]["start"], reverse=True):
         thumbs = [u for u in t["used"] if u.endswith("-t.webp")]
         cover = f'{t["slug"]}/day{t["cover_day"]}' if t.get("cover_day") else None
-        img = (f'<video poster="{cover}.jpg" muted loop playsinline preload="none" aria-label="{html.escape(t["meta"].get(f"day{t["cover_day"]}_caption", "여행 영상"))}"><source src="{cover}.mp4" type="video/mp4"></video>'
+        cover_image = f'{t["slug"]}/{t["cover_image"]}' if cover else None
+        img = (f'<video poster="{cover_image}" muted loop playsinline preload="none" aria-label="{html.escape(t["meta"].get(f"day{t["cover_day"]}_caption", "여행 영상"))}"><source src="{cover}.mp4" type="video/mp4"></video>'
                if cover and t["cover_video"] else
-               f'<img src="{cover}.jpg" alt="">' if cover else
+               f'<img src="{cover_image}" alt="">' if cover else
                f'<img src="{t["slug"]}/img/{thumbs[0]}" alt="">' if thumbs else
                '<span class="ph ph-img">대표 사진</span>')
         cards.append(f"""<a class="trip-card" href="{t['slug']}/index.html">

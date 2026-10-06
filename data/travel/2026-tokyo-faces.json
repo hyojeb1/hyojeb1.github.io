@@ -1,0 +1,51 @@
+{
+  "KakaoTalk_20260917_075310094_01.jpg": {
+    "size": [3088, 1736],
+    "faces": [
+      {"id": 1, "center": [802, 1005], "radius": 400, "cover": true},
+      {"id": 2, "center": [1346, 881], "radius": 225, "cover": true},
+      {"id": 3, "center": [1628, 620], "radius": 166, "cover": true},
+      {"id": 4, "center": [1879, 475], "radius": 141, "cover": false},
+      {"id": 5, "center": [2387, 578], "radius": 248, "cover": true}
+    ]
+  },
+  "KakaoTalk_20260918_002555816_04.jpg": {
+    "size": [1600, 901],
+    "faces": [
+      {"id": 1, "center": [343, 461], "radius": 93, "cover": true},
+      {"id": 2, "center": [846, 428], "radius": 82, "cover": true},
+      {"id": 3, "center": [1124, 443], "radius": 80, "cover": true},
+      {"id": 4, "center": [1334, 200], "radius": 90, "cover": false},
+      {"id": 5, "center": [974, 442], "radius": 34, "cover": true},
+      {"id": 6, "center": [1211, 419], "radius": 65, "cover": true}
+    ]
+  },
+  "KakaoTalk_20260917_160444310_04.jpg": {
+    "size": [4000, 3000],
+    "faces": [
+      {"id": 1, "center": [1179, 1765], "radius": 208, "cover": true},
+      {"id": 2, "center": [1557, 1649], "radius": 247, "cover": true},
+      {"id": 3, "center": [1879, 1724], "radius": 250, "cover": true},
+      {"id": 4, "center": [2621, 1868], "radius": 370, "cover": true},
+      {"id": 5, "center": [3605, 1732], "radius": 615, "cover": false},
+      {"id": 6, "center": [688, 1296], "radius": 140, "cover": true}
+    ]
+  },
+  "KakaoTalk_20260917_160444310_02.jpg": {
+    "size": [4000, 3000],
+    "faces": [
+      {"id": 1, "center": [1132, 1092], "radius": 286, "cover": true},
+      {"id": 2, "center": [2070, 1171], "radius": 241, "cover": true},
+      {"id": 3, "center": [2640, 1180], "radius": 241, "cover": true},
+      {"id": 4, "center": [3140, 1307], "radius": 199, "cover": true},
+      {"id": 5, "center": [3975, 1042], "radius": 215, "cover": true}
+    ]
+  },
+  "KakaoTalk_20260918_003808764_02.jpg": {
+    "size": [3392, 2544],
+    "faces": [
+      {"id": 1, "center": [2845, 1265], "radius": 560, "cover": false},
+      {"id": 2, "center": [3365, 1655], "radius": 205, "cover": true}
+    ]
+  }
+}

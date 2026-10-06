@@ -290,10 +290,17 @@ body:has(main.travel) {
 
 .shots {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--grid-gap);
 }
+.shots:has(> a:nth-child(4):last-child) a {
+  flex-basis: calc((100% - var(--grid-gap)) / 2);
+}
+.shots + .shots {
+  margin-top: var(--grid-gap);
+}
 .shots a {
-  flex: 1 1 0;
+  flex: 1 1 calc((100% - var(--grid-gap) - var(--grid-gap)) / 3);
   min-width: 0;
   border-radius: var(--radius);
   overflow: hidden;

@@ -29,8 +29,12 @@
 - `travel/` 아래 HTML·WebP는 `scripts/build-travel.py`의 생성물이다. 손으로 고치지 않는다.
   손으로 쓰는 건 `travel.css`, `lightbox.js`, `route.js`, 원고 `data/travel/*.md`뿐이다.
   `main` push 시 Pages workflow가 빌더와 회귀 검사를 실행하고 생성 HTML을 Pages artifact로 배포한다.
-- 선택한 일차 영상·포스터 `travel/<slug>/dayN.mp4`, `dayN.jpg`는 저장소에서 직접 관리한다.
+- 선택한 일차 영상·포스터 `travel/<slug>/dayN.mp4`, `covers/dayN.jpg`는 저장소에서 직접 관리한다.
   빌드 스크립트는 이 파일들을 보존하고, 실제 파일이 있는 일차에만 영상을 표시한다.
+- 일반 사진은 `travel/<slug>/img/dayN/`, 표지·대표 이미지는 `covers/`에 둔다.
+  카톡 공유 시각이나 파일 생성 시점으로 사진의 일차·이벤트 배치를 다시 정하지 않는다.
+- 도쿄 여행기의 사진·메모는 잠든 시점을 기준으로 일차를 나눈다. 자정을 넘겨도
+  잠들기 전의 사진은 전날 일차에 두며, 사람이 지정한 원고 배치를 따른다.
 - Google Takeout 원본 `타임라인.json`과 원본 사진은 로컬에만 둔다. 공개 저장소에는
   필터링된 `data/travel/<slug>-route.json`과 선택 사진 매니페스트
   `data/travel/<slug>-media.json`만 둔다. CI는 이 공개 스냅샷만으로 HTML을 재생성한다.
