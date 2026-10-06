@@ -45,6 +45,7 @@ KAKAO_NAME = re.compile(r"(\d{8})_(\d{6})")
 PLACE_PIN = re.compile(r"^@pin\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\s+(.+)$")
 EVENT_LOCATION = re.compile(r"^@loc\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$")
 VISIT_STOP = re.compile(r"^@stop\s+(\d+)\s+(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\s+(.+)$")
+WEATHER_NOTE = re.compile(r"^@weather-note(?:\s+(.+))?$")
 
 # ---------- 원고 ----------
 
@@ -74,6 +75,7 @@ def parse_trip(path):
 
         parts = re.split(r"^### ", body, flags=re.M)
         day_body, place_pins = split_place_pins(parts[0])
+        day_body, weather_note = split_weather_note(day_body)
         memo, captions = split_captions(day_body)
         events = []
         for part in parts[1:]:
@@ -118,7 +120,8 @@ def parse_trip(path):
         events = [ev for _, ev in sorted(zip(sort_times, events), key=lambda item: item[0])]
         days.append(dict(folder=heading, n=int(hm.group(1)), date=date,
                          memo=memo, captions=captions, events=events,
-                         place_pins=place_pins, visit_stops=visit_stops))
+                         place_pins=place_pins, visit_stops=visit_stops,
+                         weather_note=weather_note))
     return dict(slug=path.stem, meta=meta, days=days)
 
 
@@ -179,6 +182,19 @@ def split_place_pins(body):
 def is_draft(title):
     """( )로 감싼 제목은 사람이 아직 확인하지 않은 초안이다."""
     return title.startswith("(") and title.endswith(")")
+
+
+def split_weather_note(body):
+    """@weather-note 한 줄은 여행자의 체감 날씨로 분리하고 일반 본문에서는 숨긴다."""
+    notes, lines = [], []
+    for line in body.splitlines():
+        m = WEATHER_NOTE.fullmatch(line.strip())
+        if m:
+            if m.group(1):
+                notes.append(m.group(1).strip())
+        else:
+            lines.append(line)
+    return "\n".join(lines), " ".join(notes)
 
 
 def split_captions(body):
@@ -789,6 +805,127 @@ def remove_route_spikes(parts):
     return [part for part in cleaned if part]
 
 
+
+WEATHER_ICONS = {
+    "clearing_after_early_rain": "🌤",
+    "dry_cloudy_with_sun": "⛅",
+    "mostly_cloudy_light_rain": "☁",
+    "rain_heaviest_late_night": "🌧",
+    "heavy_rain": "☔",
+    "dry_hot_morning": "☀",
+}
+
+def weather_observation_item(obs):
+    raw_time = obs.get("calendar_time", "")
+    time_label = raw_time[11:16] if len(raw_time) >= 16 else raw_time
+    precip = obs.get("precipitation_mm")
+    temp = obs.get("temperature_c")
+    precip_text = f"{precip:.1f} mm" if isinstance(precip, (int, float)) else "미상"
+    temp_text = f"{temp:.1f}°C" if isinstance(temp, (int, float)) else ""
+    return (
+        f'<li><time>{html.escape(time_label)}</time>'
+        f'<strong>{html.escape(precip_text)}</strong>'
+        f'<span>{html.escape(temp_text)}</span></li>'
+    )
+
+def render_weather_card(day, weather):
+    """지도와 겹치는 날짜·지역 정보는 숨기고, 핵심 날씨만 간결하게 보여준다."""
+    daily = weather.get("observed_daily", {})
+    condition = re.sub(r"[^a-z0-9-]+", "-", weather.get("condition_key", "weather").lower())
+    icon = WEATHER_ICONS.get(weather.get("condition_key"), "·")
+    summary = weather.get("summary_ko", "날씨 기록")
+    area = weather.get("representative_area", "")
+    station = weather.get("station", {}).get("name", "")
+
+    primary_stats = []
+    low, high = daily.get("temperature_min_c"), daily.get("temperature_max_c")
+    if isinstance(low, (int, float)) and isinstance(high, (int, float)):
+        primary_stats.append(("기온", f"{low:.1f}~{high:.1f}°C"))
+    total = daily.get("precipitation_total_mm")
+    if isinstance(total, (int, float)):
+        primary_stats.append(("강수", f"{total:.1f} mm"))
+
+    primary_stats_html = "".join(
+        f"<div><dt>{html.escape(label)}</dt><dd>{html.escape(value)}</dd></div>"
+        for label, value in primary_stats
+    )
+
+    extra_stats = []
+    max_hour = daily.get("max_hourly_precipitation_mm")
+    if isinstance(max_hour, (int, float)):
+        at = daily.get("max_hourly_precipitation_time", "")
+        extra_stats.append(("최대 1시간", f"{max_hour:.1f} mm/h" + (f" · {at}" if at else "")))
+    humidity = daily.get("humidity_avg_percent")
+    if isinstance(humidity, (int, float)):
+        extra_stats.append(("평균 습도", f"{humidity:.0f}%"))
+    extra_stats_html = ""
+    if extra_stats:
+        extra_stats_html = (
+            '<dl class="weather-extra-stats">'
+            + "".join(
+                f"<div><dt>{html.escape(label)}</dt><dd>{html.escape(value)}</dd></div>"
+                for label, value in extra_stats
+            )
+            + "</dl>"
+        )
+
+    highlights = weather.get("observed_highlights", [])
+    strip_html = ""
+    if highlights:
+        strip_html = (
+            '<div class="weather-observations"><p>선택 관측</p><ol class="weather-strip">'
+            + "".join(weather_observation_item(obs) for obs in highlights)
+            + "</ol></div>"
+        )
+
+    special_html = ""
+    for special in weather.get("special_observations", []):
+        observations = special.get("observations", [])
+        if not observations:
+            continue
+        special_html += (
+            '<div class="weather-special">'
+            f'<p class="weather-special-title">{html.escape(special.get("label", "추가 관측"))}</p>'
+            '<ol class="weather-strip">'
+            + "".join(weather_observation_item(obs) for obs in observations)
+            + "</ol></div>"
+        )
+
+    note = day.get("weather_note", "")
+    memory_html = (
+        f'<p class="weather-memory"><span>TRAVEL MEMORY</span>{html.escape(note)}</p>'
+        if note else ""
+    )
+    detail = weather.get("display_detail", "")
+    detail_html = f'<p class="weather-detail">{html.escape(detail)}</p>' if detail else ""
+
+    source_url = weather.get("source_url", "")
+    source_html = (
+        f'<a class="weather-source" href="{html.escape(source_url, quote=True)}" '
+        f'rel="noreferrer noopener">JMA 관측 ↗</a>'
+        if source_url else ""
+    )
+    meta_parts = [part for part in (area, f"{station} 관측" if station else "") if part]
+    meta_html = f'<p class="weather-meta">{" · ".join(html.escape(part) for part in meta_parts)}</p>' if meta_parts else ""
+
+    hidden = "" if day["n"] == 1 else " hidden"
+    return f"""<article class="weather-card weather-{condition}" data-day="{day['date']}"{hidden}>
+<div class="weather-summary">
+<h2><span aria-hidden="true">{icon}</span> {html.escape(summary)}</h2>
+<dl class="weather-stats">{primary_stats_html}</dl>
+</div>
+<details class="weather-more">
+<summary>관측 상세</summary>
+{meta_html}
+{extra_stats_html}
+{detail_html}
+{strip_html}
+{special_html}
+{memory_html}
+{source_html}
+</details>
+</article>"""
+
 def build_map_trip(trip, route, photos_root, out, img_dir):
     """공개 경로를 중심으로 보여준다. 로컬 원본 사진이 없어도 CI에서 다시 생성할 수 있다."""
     meta = trip["meta"]
@@ -815,7 +952,13 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
     if not local_photos and media_path and media_path.is_file():
         public_media = json.loads(media_path.read_text(encoding="utf-8"))
 
-    used, sections = set(), []
+    weather_path = resolve_meta_path(meta["weather"]) if meta.get("weather") else None
+    weather_by_date = {}
+    if weather_path and weather_path.is_file():
+        weather_data = json.loads(weather_path.read_text(encoding="utf-8"))
+        weather_by_date = {item["date"]: item for item in weather_data.get("days", [])}
+
+    used, sections, weather_cards = set(), [], []
     pins = {}
     visit_paths = {}
     total = 0 if local_photos else int(meta.get("photo_count", "0"))
@@ -823,6 +966,9 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
     for day in trip["days"]:
         d = day["date"]
         event_start = int(meta.get(f"day{day['n']}_event_start", "1"))
+        weather = weather_by_date.get(str(d))
+        if weather:
+            weather_cards.append(render_weather_card(day, weather))
         day_media = []
         if local_photos:
             folder = photos_root / day["folder"]
@@ -1046,6 +1192,12 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
     route_data = json.dumps(route, ensure_ascii=False, separators=(",", ":"))
     pin_data = json.dumps(pins, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
     visit_path_data = json.dumps(visit_paths, ensure_ascii=False, separators=(",", ":"))
+    weather_panel_html = (
+        '<section class="weather-panels" aria-label="선택 일차 날씨">'
+        + chr(10).join(weather_cards)
+        + '</section>'
+        if weather_cards else ""
+    )
     body = f"""<main class="travel map-trip">
 <header class="trip-head{' has-cover' if cover_day else ''}">
 {cover_html}
@@ -1062,6 +1214,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 <button type="button" data-day="all" aria-pressed="false">전체</button>
 {''.join(f'<button type="button" data-day="{d["date"]}" aria-pressed="{str(d["n"] == 1).lower()}">{d["n"]}일차</button>' for d in trip['days'])}
 </div>
+{weather_panel_html}
 <div class="route-playback">
 <button type="button" id="route-play" aria-label="경로 재생">▶</button>
 <label for="route-progress">발자국</label>

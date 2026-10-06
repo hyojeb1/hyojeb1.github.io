@@ -230,3 +230,25 @@ index = Path("travel/index.html").read_text(encoding="utf-8")
 assert 'src="2026-tokyo/day5.mp4"' in index
 assert 'poster="2026-tokyo/covers/day5.jpg"' in index
 assert "prefers-reduced-motion: reduce" in index
+
+
+# 일차별 날씨 카드는 공식 관측 데이터와 원고의 체감 메모를 합쳐 지도 위에 표시한다.
+weather_data = json.loads(Path("data/travel/2026-tokyo-weather.json").read_text(encoding="utf-8"))
+assert len(weather_data["days"]) == 6
+assert next(day for day in weather_data["days"] if day["date"] == "2026-09-21")["observed_daily"]["precipitation_total_mm"] == 156.0
+route_start = page.index('<section class="route"')
+route_days = page.index('class="route-days"', route_start)
+weather_panels = page.index('class="weather-panels"', route_days)
+route_playback = page.index('class="route-playback"', weather_panels)
+assert route_start < route_days < weather_panels < route_playback
+assert 'data-day="2026-09-21"' in page
+assert '강수</dt><dd>156.0 mm' in page
+assert '최대 1시간</dt><dd>33.0 mm/h · 16:03' in page
+assert '비가 엄청 많이 내렸다.' in page
+assert 'TGS에서 돌아온 뒤 밤을 넘긴 새벽' in page
+assert '@weather-note' not in page
+
+# 날짜·지역은 공통 일차 선택기와 지도에 맡기고 날씨 요약에서는 반복하지 않는다.
+assert 'weather-kicker' not in page
+assert 'DAY 5 · 9월 21일 · 아사쿠사·스미다' not in page
+assert '<summary>관측 상세</summary>' in page
