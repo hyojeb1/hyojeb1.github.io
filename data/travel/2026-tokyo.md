@@ -319,6 +319,8 @@ GPS도 07:17에 같은 마쿠하리멧세 일대를 기록하고 있어서 사�
 
 TORCH TORCH를 보면서 게임 굿즈란 이런 거구나 싶었다. [엘든 링 말레니아 긴팔 티셔츠](https://torchtorch.jp/en/product/elden_ring_malenia_blade_of_miquella_long_sleeve_t-shirt/)는 살 뻔했다. 하지만 현장에서는 면세가 안 돼서, 지갑에서 돈이 나가지 않았다.
 
+오후 2시 57분쯤에는 TORCH TORCH가 면세 대응인지 따로 확인했고, 곧바로 행사장 안에서 면세 가능한 다른 굿즈 숍도 찾아봤다. 공식적으로 면세 대응을 명시한 TGS 굿즈 부스는 결국 찾지 못했다. GPS도 14:27과 15:44 모두 마쿠하리멧세 일대에 찍혀 있어서, 이 검색을 한 시점에도 행사장 안에 있었다.
+
 #### 2. Some Goodbyes We Made
 
 [Some Goodbyes We Made](https://store.steampowered.com/app/2705820/Some_Goodbyes_We_Made/)는 잊고 싶지 않은 이별의 기억을 11개의 짧은 미니게임으로 담아 둔 작품이다. 개발자는 소중한 이별의 기억을 게임으로 백업했다고 소개한다.
