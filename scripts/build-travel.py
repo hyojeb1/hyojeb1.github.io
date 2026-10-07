@@ -14,13 +14,18 @@
 travel/travel.css 와 travel/lightbox.js 는 손으로 쓰는 파일이라 이 스크립트가 건드리지 않는다.
 """
 
+import argparse
 import datetime as dt
 import html
+from io import BytesIO
 import json
 import math
 import re
 import sys
 from pathlib import Path
+from urllib.error import HTTPError
+from urllib.parse import parse_qs, urlsplit
+from urllib.request import Request, urlopen
 
 from PIL import Image, ImageDraw, ImageOps
 
@@ -201,7 +206,7 @@ def split_captions(body):
     captions, lines = {}, []
     for line in body.strip().splitlines():
         cm = re.fullmatch(r"!\[(.*)\]\((.+)\)", line.strip())
-        if cm:
+        if cm and not cm.group(2).strip().startswith("./previews/"):
             captions[cm.group(2).strip()] = cm.group(1).strip()
         else:
             lines.append(line)
@@ -241,7 +246,7 @@ def split_event_media(body):
     images, lines = [], []
     for line in body.strip().splitlines():
         cm = re.fullmatch(r"!\[(.*)\]\((.+)\)", line.strip())
-        if cm and cm.group(2).strip().startswith("./"):
+        if cm and cm.group(2).strip().startswith("./") and not cm.group(2).strip().startswith("./previews/"):
             images.append(dict(src=cm.group(2).strip(), caption=cm.group(1).strip()))
         else:
             lines.append(line)
@@ -264,13 +269,149 @@ def inline(text):
     return out
 
 
-def paragraphs(body):
+def youtube_link(line):
+    """한 줄짜리 YouTube 링크에서 검증한 영상 ID와 원고의 제목을 읽는다."""
+    line = line.strip()
+    match = re.fullmatch(r"\[([^\]\n]+)\]\((https?://[^\s)]+)\)", line)
+    if match:
+        label, url = match.groups()
+    else:
+        url = line[1:-1] if line.startswith("<") and line.endswith(">") else line
+        label = "YouTube 영상"
+    try:
+        parsed = urlsplit(url)
+        host = (parsed.hostname or "").lower()
+    except ValueError:
+        return None
+    if parsed.scheme not in {"http", "https"}:
+        return None
+    if host == "youtu.be":
+        video_id = parsed.path.strip("/")
+    elif host in {"youtube.com", "www.youtube.com", "m.youtube.com"}:
+        if parsed.path == "/watch":
+            video_id = parse_qs(parsed.query).get("v", [""])[0]
+        else:
+            path = parsed.path.strip("/").split("/")
+            video_id = path[1] if len(path) == 2 and path[0] in {"shorts", "embed", "live"} else ""
+    else:
+        return None
+    if not re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id):
+        return None
+    return dict(id=video_id, url=url, label=label)
+
+
+def youtube_card(line, out):
+    link = youtube_link(line) if out is not None else None
+    if not link:
+        return None
+    thumbnail = f"previews/youtube/{link['id']}.webp"
+    if (out / thumbnail).is_file():
+        with Image.open(out / thumbnail) as image:
+            width, height = image.size
+        picture = (f'<img src="{thumbnail}" alt="" aria-hidden="true" '
+                   f'width="{width}" height="{height}" loading="lazy" decoding="async">')
+    else:
+        # 썸네일을 받을 수 없어도 영상 링크를 유지한다. 렌더링은 외부 통신 없이 한다.
+        picture = '<span class="ph-img" aria-hidden="true">YouTube</span>'
+    return (f'<a class="trip-card video-preview" href="{html.escape(link["url"], quote=True)}" '
+            f'rel="noreferrer noopener">{picture}'
+            f'<span class="t">{html.escape(link["label"])}</span>'
+            '<span class="r">YouTube · 영상 보기 ↗</span></a>')
+
+
+def reference_image_card(line, out):
+    """참고 이미지는 본문의 소제목 아래에 두고, 여행 사진 갤러리에 섞지 않는다."""
+    if out is None:
+        return None
+    match = re.fullmatch(
+        r"!\[([^\]\n]+)\]\((\./previews/[A-Za-z0-9_-]+\.webp)\)", line.strip()
+    )
+    if not match:
+        return None
+    label, source = match.groups()
+    path = out / source
+    if not path.is_file():
+        sys.exit(f"참고 이미지가 없습니다: {path}")
+    thumb = path.with_name(path.stem + "-t.webp")
+    thumb_source = f"./previews/{thumb.name}" if thumb.is_file() else source
+    with Image.open(thumb if thumb.is_file() else path) as image:
+        width, height = image.size
+    label = html.escape(label)
+    return (f'<a class="trip-card image-preview" href="{source}">'
+            f'<img src="{thumb_source}" alt="{label}" width="{width}" height="{height}" '
+            'loading="lazy" decoding="async">'
+            f'<span class="t">{label}</span><span class="r">참고 이미지 보기 ↗</span></a>')
+
+
+def refresh_youtube_previews(trip):
+    """명시적인 갱신 때만 공개 썸네일을 받아 CI에서도 쓸 WebP를 저장한다."""
+    links = {}
+    for day in trip["days"]:
+        bodies = [day["memo"]]
+        for event in day["events"]:
+            bodies.append(event["memo"])
+            bodies.extend(stop["memo"] for stop in event.get("stops", []))
+        for body in bodies:
+            for line in body.splitlines():
+                link = youtube_link(line)
+                if link:
+                    links[link["id"]] = link
+    destination = OUT / trip["slug"] / "previews" / "youtube"
+    if not links:
+        return
+    destination.mkdir(parents=True, exist_ok=True)
+    for video_id in links:
+        print(f"  YouTube 썸네일: {video_id}", flush=True)
+        for variant in ("maxresdefault", "hqdefault"):
+            url = f"https://i.ytimg.com/vi/{video_id}/{variant}.jpg"
+            try:
+                with urlopen(Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=15) as response:
+                    data = response.read(2 * 1024 * 1024)
+            except HTTPError as error:
+                if error.code == 404:
+                    continue
+                raise
+            with Image.open(BytesIO(data)) as image:
+                if image.width < 320 or image.height < 180:
+                    continue
+                image = image.convert("RGB")
+                image.thumbnail((640, 480))
+                image.save(destination / f"{video_id}.webp", "WEBP", quality=85)
+            break
+        else:
+            print(f"  썸네일 없음: {video_id} · 영상 링크를 유지합니다", flush=True)
+
+
+def paragraphs(body, out=None):
     if not body:
         return ""
-    parts = [p for p in re.split(r"\n\s*\n", body) if p.strip()]
-    return "\n".join(
-        "<p>" + "<br>\n".join(inline(l.strip()) for l in p.splitlines()) + "</p>" for p in parts
-    )
+    parts, lines, cards = [], [], []
+
+    def flush():
+        if lines:
+            parts.append("<p>" + "<br>\n".join(inline(line) for line in lines) + "</p>")
+            lines.clear()
+        if cards:
+            parts.append('<div class="video-previews">' + "".join(cards) + '</div>')
+            cards.clear()
+
+    for line in body.splitlines():
+        heading = re.fullmatch(r"####\s+(.+)", line.strip())
+        if heading:
+            flush()
+            parts.append(f"<h4>{inline(heading.group(1))}</h4>")
+        elif not line.strip():
+            flush()
+        elif card := (youtube_card(line, out) or reference_image_card(line, out)):
+            if lines:
+                flush()
+            cards.append(card)
+        else:
+            if cards:
+                flush()
+            lines.append(line.strip())
+    flush()
+    return "\n".join(parts)
 
 
 # ---------- 시각 ----------
@@ -654,7 +795,7 @@ def build_trip(trip):
                 title = f'<h3 class="ph">{html.escape(t[1:-1])}</h3>'
             else:
                 title = f"<h3>{html.escape(t)}</h3>"
-            memo = (f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"]
+            memo = (f'<div class="memo">{paragraphs(ev["memo"], out)}</div>' if ev["memo"]
                     else ('<p class="ph">메모</p>' if auto else ""))
             shots = "".join(shot_html(s, day["n"]) for s in ev["shots"]) or \
                 '<div class="ph ph-img">대표 사진</div>'
@@ -676,7 +817,7 @@ def build_trip(trip):
 <h2>{day['n']}일차</h2>
 <p class="date">{d.month}월 {d.day}일 {WEEKDAY[d.weekday()]}</p>
 </header>
-<div class="memo">{paragraphs(day['memo'])}</div>
+<div class="memo">{paragraphs(day['memo'], out)}</div>
 <figure class="timeline">
 {band_html(timed, ranges, a, b, peak)}
 <figcaption>이날 찍은 사진 {n}장의 촬영 시각{untimed_note}</figcaption>
@@ -1067,7 +1208,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                 if not segment or segment[-1] != point:
                     segment.append(point)
                 stop_memo = (
-                    f'<div class="memo">{paragraphs(stop["memo"])}</div>'
+                    f'<div class="memo">{paragraphs(stop["memo"], out)}</div>'
                     if stop["memo"] else ""
                 )
                 stop_items.append(f"""<li class="visit-stop" id="{stop_id}">
@@ -1100,7 +1241,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
                 title = title[1:-1]
             title_class = ' class="ph"' if draft_title else ""
             heading = f'<h3{title_class}>{html.escape(title)}</h3>'
-            memo = f'<div class="memo">{paragraphs(ev["memo"])}</div>' if ev["memo"] else ""
+            memo = f'<div class="memo">{paragraphs(ev["memo"], out)}</div>' if ev["memo"] else ""
 
             manual_shots = []
             event_videos = []
@@ -1167,7 +1308,7 @@ def build_map_trip(trip, route, photos_root, out, img_dir):
 
         event_list = f'<ol class="events">{chr(10).join(events)}</ol>' if events else ""
         sections.append(f"""<section class="day" data-day="{d}" aria-label="{day['n']}일차 · {d.month}월 {d.day}일"{'' if day['n'] == 1 else ' hidden'}>
-<div class="memo">{paragraphs(day['memo'])}</div>
+<div class="memo">{paragraphs(day['memo'], out)}</div>
 {day_video}
 {event_list}
 {gallery}
@@ -1293,10 +1434,20 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {{
 
 
 def main():
+    parser = argparse.ArgumentParser(description="여행 원고를 정적 HTML로 빌드합니다")
+    parser.add_argument("--refresh-previews", action="store_true", help="YouTube 썸네일을 내려받아 갱신합니다")
+    parser.add_argument("--public-assets", action="store_true", help="로컬 원본 대신 공개 사진·경로를 사용합니다")
+    args = parser.parse_args()
     built = []
     for md in sorted(SRC.glob("*.md")):
         print(md.name)
-        built.append(build_trip(parse_trip(md)))
+        trip = parse_trip(md)
+        if args.public_assets:
+            trip["meta"].pop("photos", None)
+            trip["meta"].pop("timeline", None)
+        if args.refresh_previews:
+            refresh_youtube_previews(trip)
+        built.append(build_trip(trip))
     build_index(built)
     if any(t["draft"] for t in built):
         print("주의: 초안(괄호 제목)이나 자동 구간이 남아 있다.")

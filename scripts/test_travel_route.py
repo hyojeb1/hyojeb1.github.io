@@ -4,8 +4,86 @@ from pathlib import Path
 import json
 import re
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 builder = run_path("scripts/build-travel.py")
+
+# 소제목 앞뒤에 빈 줄이 없어도 문단을 닫고, 제목 안의 HTML은 실행되지 않는다.
+memo_html = builder["paragraphs"](
+    '도입\n#### 첫 게임 <script>alert(1)</script>\n'
+    '첫 줄\n둘째 줄\n\n#### 두 번째 게임\n'
+    '[시연 영상](https://example.com/watch?a=1&b=2)'
+)
+assert memo_html.startswith('<p>도입</p>\n<h4>')
+assert memo_html.count('<h4>') == 2 and '<p>####' not in memo_html
+assert '<script>' not in memo_html and '&lt;script&gt;alert(1)&lt;/script&gt;' in memo_html
+assert '<p>첫 줄<br>\n둘째 줄</p>' in memo_html
+assert 'href="https://example.com/watch?a=1&amp;b=2"' in memo_html
+
+# 링크 문장·다른 도메인은 그대로 두고, 단독 YouTube 링크만 오프라인 카드로 만든다.
+video_id = 'Abcde_12345'
+video_url = f'https://www.youtube.com/watch?v={video_id}&t=10'
+video_link = f'[영상 <보상>]({video_url})'
+assert builder['youtube_link'](video_link)['id'] == video_id
+assert builder['youtube_link'](f'https://youtu.be/{video_id}')['id'] == video_id
+assert builder['youtube_link'](f'https://www.youtube.com/shorts/{video_id}')['id'] == video_id
+assert builder['youtube_link'](f'https://www.youtube.com.evil.example/watch?v={video_id}') is None
+assert builder['youtube_link']('https://www.youtube.com/watch?v=../../bad') is None
+assert builder['youtube_link'](video_link + ' · ' + video_link) is None
+
+with TemporaryDirectory() as scratch:
+    out = Path(scratch)
+    fallback = builder['paragraphs'](video_link, out)
+    assert 'video-preview' in fallback and 'ph-img' in fallback
+    assert 'href=' in fallback and '<iframe' not in fallback
+    thumbnail = out / 'previews' / 'youtube' / f'{video_id}.webp'
+    thumbnail.parent.mkdir(parents=True)
+    builder['Image'].new('RGB', (640, 360), '#0080ff').save(thumbnail, 'WEBP')
+    cards = builder['paragraphs']('소개\n' + video_link + '\n' + video_link + '\n후기', out)
+    assert cards.count('class="video-previews"') == 1
+    assert cards.count('class="trip-card video-preview"') == 2
+    assert 'src="previews/youtube/' + video_id + '.webp"' in cards
+    assert '<p>소개</p>\n<div' in cards and '</div>\n<p>후기</p>' in cards
+    assert '영상 &lt;보상&gt;' in cards and '<iframe' not in cards
+    inline_video = builder['paragraphs']('문장 속 ' + video_link, out)
+    assert 'video-preview' not in inline_video and 'href=' in inline_video
+
+    # 참고 이미지는 해당 본문에 남고, 여행 사진만 이벤트 갤러리로 빠진다.
+    reference_link = '![참고 <사진>](./previews/reference.webp)'
+    body = video_link + '\n' + reference_link + '\n![여행 사진](./img/day3/trip.webp)'
+    memo, captions, images = builder['split_event_media'](body)
+    assert reference_link in memo and captions == {}
+    assert images == [{'src': './img/day3/trip.webp', 'caption': '여행 사진'}]
+    reference = out / 'previews' / 'reference.webp'
+    builder['Image'].new('RGB', (960, 720), '#0080ff').save(reference, 'WEBP')
+    builder['Image'].new('RGB', (480, 360), '#0080ff').save(reference.with_name('reference-t.webp'), 'WEBP')
+    cards = builder['paragraphs'](memo, out)
+    assert cards.count('class="video-previews"') == 1
+    assert 'class="trip-card video-preview"' in cards and 'class="trip-card image-preview"' in cards
+    assert 'href="./previews/reference.webp"' in cards
+    assert 'src="./previews/reference-t.webp"' in cards and 'alt="참고 &lt;사진&gt;"' in cards
+    assert builder['reference_image_card']('![사진](./previews/../../private.webp)', out) is None
+
+    # 고해상도 썸네일이 없으면 표준 썸네일을 저장하고, 공개 빌드에서 그대로 읽는다.
+    jpeg = builder['BytesIO']()
+    builder['Image'].new('RGB', (480, 360), '#0080ff').save(jpeg, 'JPEG')
+    requests = []
+
+    def fake_urlopen(request, timeout):
+        requests.append(request.full_url)
+        if request.full_url.endswith('/maxresdefault.jpg'):
+            raise builder['HTTPError'](request.full_url, 404, 'not found', None, None)
+        return builder['BytesIO'](jpeg.getvalue())
+
+    fixture = dict(slug='fixture', days=[dict(memo=video_link, events=[])])
+    with patch.dict(builder['refresh_youtube_previews'].__globals__, OUT=out, urlopen=fake_urlopen):
+        builder['refresh_youtube_previews'](fixture)
+    assert [url.rsplit('/', 1)[1] for url in requests] == ['maxresdefault.jpg', 'hqdefault.jpg']
+    saved = out / 'fixture' / 'previews' / 'youtube' / f'{video_id}.webp'
+    with builder['Image'].open(saved) as image:
+        assert image.format == 'WEBP' and image.size == (480, 360)
+    assert 'ph-img' not in builder['paragraphs'](video_link, out / 'fixture')
+
 filter_spikes = builder["remove_route_spikes"]
 path = [
     ("2026-09-19T06:30:00+09:00", 35.66882, 139.79093),
