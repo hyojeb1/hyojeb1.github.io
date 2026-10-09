@@ -214,6 +214,12 @@ ANIPLEX 마린 1/7을 만났고, GRIDMAN UNIVERSE Dreamy Divas 3체 세트 ¥38,
 
 ### 21:14 The French Toast Factory Yodobashi AKIBA 8F
 
+@loc 35.69843,139.77427
+
+로스트비프를 다 먹고 나서도 바로 숙소로 돌아가지는 않았다. 당시 대화에 "밥 다 먹음"이라고 남긴 뒤, 이 시간대에도 문을 여는 디저트 카페를 찾았다. 그렇게 간 곳이 요도바시 AKIBA 8층의 The French Toast Factory.
+
+타임라인도 21:14에 요도바시 AKIBA 쪽을 찍고 있어서 당시 대화와 실제 이동이 맞아떨어진다.
+
 [The French Toast Factory 공식 홈페이지](https://www.french-toast-factory.jp/)
 
 ![The French Toast Factory에서 먹은 것 1](./img/day2/KakaoTalk_20260919_035450149_10.webp)
