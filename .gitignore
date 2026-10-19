@@ -11,3 +11,5 @@ data/chess/cache/
 
 # npm 산출물 (사이트 자체는 의존성이 없다)
 node_modules/
+_site/
+scripts/__pycache__/

@@ -23,6 +23,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -41,8 +45,14 @@ jobs:
           node scripts/test_route_playback.js
 
 
-      # 저장소 루트를 통째로 올리지 않는다. 사이트 파일만 골라 올린다.
-      - run: mkdir _site && cp -r index.html style.css assets works chess travel _site/
+      - name: Test home and public references
+        run: |
+          node --test scripts/test_home.mjs
+          python scripts/check_site.py
+
+      # Explicit allowlist; Playground and source data never enter the artifact.
+      - name: Package public site
+        run: python scripts/build-site.py
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

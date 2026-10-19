@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>장효제 · 게임 클라이언트 / 엔진</title>
+    <meta name="description" content="장효제 포트폴리오." />
+    <link rel="icon" href="../assets/profile_icon.svg" />
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="#top">
+        <img src="../assets/profile_icon.png" alt="" aria-hidden="true" />
+        장효제
+      </a>
+      <a class="meta" href="../">← 개인 홈</a>
+    </header>
+
+    <main id="top">
+      <!-- [2] 히어로 -->
+      <section class="hero" id="about">
+        <img
+          class="portrait"
+          src="../assets/profile.jpg"
+          alt="장효제 프로필 사진"
+          width="168"
+          height="224"
+        />
+        <div class="hero-body">
+          <p class="label">game client / engine</p>
+          <p class="statement">
+            엔진을 바닥부터 올리고, 그 위에서 팀이 저를 기다리지 않게 만듭니다.
+          </p>
+          <p class="lede">
+            DirectX 11과 Direct2D로 엔진을 직접 만들었고, 언리얼에서는 게임
+            시스템과 UI 아키텍처를 맡았습니다. 반복해서 요청받는 일은 기획자가
+            직접 고칠 수 있는 도구로 만들어 넘깁니다.
+          </p>
+          <ul class="meta facts">
+            <li><span>2020.03~</span><span>동국대학교 컴퓨터공학</span><span>3.38/4.5</span></li>
+            <li><span>2020.09~2022.08</span><span>공군 통신병</span></li>
+            <li><span>2025.01~</span><span>게임인재원 7기</span></li>
+          </ul>
+          <p class="links">
+            <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
+            <a href="https://github.com/hyojeb1" rel="noreferrer noopener"
+              >github</a
+            >
+            <a
+              href="https://www.linkedin.com/in/hyoje-jang-645853227/"
+              rel="noreferrer noopener"
+              >linkedin</a
+            >
+            <a href="https://www.youtube.com/@hyojeb1" rel="noreferrer noopener"
+              >youtube</a
+            >
+          </p>
+
+        </div>
+      </section>
+
+      <!-- [3] 작업물 -->
+      <section id="works">
+        <h2 class="label section-label">works</h2>
+
+        <!-- 대표 카드 — 한 과정의 마무리. 최신이 위. -->
+        <div class="grid">
+          <article class="card card-featured">
+            <div class="media">
+              <video
+                poster="../assets/dog-poster.jpg"
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-label="D.O.G 플레이 영상"
+              >
+                <source src="../assets/dog.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div class="card-badges">
+              <span class="badge is-pending">playable build</span>
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip"><a class="stretched" href="../works/dog.html">D.O.G · Donation, O Goddess</a></h3>
+              <p class="chip period">2026.04 ~</p>
+              <ul class="tags">
+                <li>unreal engine 5</li>
+                <li>c++</li>
+                <li>commonui</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card card-featured">
+            <div class="media">
+              <video
+                poster="../assets/DeadOnBeat-poster.png"
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-label="Aurora Engine에서 Dead On Beat 구동 영상"
+              >
+                <source src="../assets/DeadOnBeat.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div class="card-badges">
+              <a class="badge" href="https://dwawawa.itch.io/dead-on-beat" rel="noreferrer noopener">playable build ↗</a>
+              <a class="badge" href="https://github.com/khjune6421/AuroraEngine" rel="noreferrer noopener">github ↗</a>
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip"><a class="stretched" href="../works/aurora.html">Aurora Engine · Dead On Beat</a></h3>
+              <p class="chip period">2025.12 ~ 2026.03</p>
+              <ul class="tags">
+                <li>directx 11</li>
+                <li>c++</li>
+                <li>hlsl</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card card-side">
+            <div class="media">
+              <img src="../assets/press_gamescom2025.jpg" alt="게임스컴 2025 현장" />
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip"><a class="stretched" href="https://www.thisisgame.com/articles/401506" rel="noreferrer noopener">게임스컴 2025 · 게임인재원</a></h3>
+              <p class="chip period">2025.08.22</p>
+              <ul class="tags">
+                <li>디스이즈게임</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card card-featured">
+            <div class="media">
+              <img src="../assets/sinclair-poster.jpg" alt="Sinclair 플레이 화면" />
+            </div>
+            <div class="card-badges">
+              <a class="badge" href="https://github.com/earltrash/Sinclair" rel="noreferrer noopener">github ↗</a>
+              <a class="badge" href="https://www.youtube.com/watch?v=eOWUmTv5ZsQ&t=1097s" rel="noreferrer noopener">youtube ↗</a>
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip"><a class="stretched" href="../works/sinclair.html">Sinclair</a></h3>
+              <p class="chip period">2025.07 ~ 08</p>
+              <ul class="tags">
+                <li>direct2d</li>
+                <li>c++</li>
+                <li>win32</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card card-side">
+            <div class="media">
+              <img src="../assets/gdi-geometrydash-poster.jpg" alt="GDI Geometry Dash 플레이 화면" />
+            </div>
+            <div class="card-badges">
+              <a class="badge" href="https://github.com/hyojeb1/GDI_GeometryDash" rel="noreferrer noopener">github ↗</a>
+              <a class="badge" href="https://www.youtube.com/watch?v=KXAEtupydck" rel="noreferrer noopener">youtube ↗</a>
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip"><a class="stretched" href="../works/gdi-geometrydash.html">GDI Geometry Dash</a></h3>
+              <p class="chip period">2025.06</p>
+              <ul class="tags">
+                <li>c++</li>
+                <li>win32 gdi</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card card-side">
+            <div class="media">
+              <img src="../assets/rhythm-console-poster.jpg" alt="눈치박치 콘솔 리듬게임 플레이 화면" />
+            </div>
+            <div class="card-badges">
+              <a class="badge" href="https://github.com/jinys0527/RhythmHeaven" rel="noreferrer noopener">github ↗</a>
+              <a class="badge" href="https://www.youtube.com/watch?v=wPuPFiHqEC0" rel="noreferrer noopener">youtube ↗</a>
+            </div>
+            <div class="card-overlay">
+              <h3 class="chip"><a class="stretched" href="../works/rhythm-console.html">눈치박치</a></h3>
+              <p class="chip period">2025.06</p>
+              <ul class="tags">
+                <li>c++</li>
+                <li>console</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- [4] 푸터 -->
+    <footer id="contact">
+      <p class="links">
+        <a href="mailto:gywpjang@naver.com">gywpjang@naver.com</a>
+        <a href="tel:+821039733519">010-3973-3519</a>
+      </p>
+    </footer>
+
+    <script>
+      // hover 재생은 CSS로 불가능해 최소 스크립트로 처리한다.
+      // 데스크톱: hover 시 재생 / 터치: 대표 카드만 자동 재생.
+      ;(function () {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+        if (matchMedia('(hover: hover)').matches) {
+          document.querySelectorAll('.media').forEach(function (m) {
+            var v = m.querySelector('video')
+            if (!v) return
+            m.addEventListener('pointerenter', function () {
+              v.play().catch(function () {})
+            })
+            m.addEventListener('pointerleave', function () {
+              v.pause()
+            })
+          })
+        } else {
+          var f = document.querySelector('.media-featured video')
+          if (f) {
+            f.autoplay = true
+            f.play().catch(function () {})
+          }
+        }
+      })()
+    </script>
+  </body>
+</html>

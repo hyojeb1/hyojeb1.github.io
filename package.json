@@ -2,13 +2,15 @@
   "name": "hyojeb1-github-io",
   "private": true,
   "version": "1.0.0",
-  "description": "장효제 포트폴리오. 사이트 자체는 빌드가 없다. 이 package.json은 Chess Insights 데이터 갱신과 travel 빌드 스크립트만을 위한 것이다.",
+  "description": "장효제 개인 홈페이지. 설치 의존성 없는 정적 사이트와 데이터 갱신·검증 스크립트.",
   "type": "module",
   "engines": { "node": ">=18" },
   "scripts": {
     "update-chess": "node scripts/update-chess.mjs",
     "update-chess:full": "node scripts/update-chess.mjs --refresh",
     "build-travel": "python scripts/build-travel.py",
+    "test-home": "node --test scripts/test_home.mjs",
+    "check-site": "python scripts/check_site.py",
     "serve": "npx --yes serve ."
   }
 }
